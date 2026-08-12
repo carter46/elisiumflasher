@@ -78,14 +78,21 @@ if (is_logged_in()) {
     margin-bottom: 40px;
   }
 
-  .logo-section img {
+  .logo-section img,
+  .logo-section svg {
     height: 70px;
-    filter: brightness(0) invert(1);
-    opacity: 0.9;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .logo-section svg {
+    color: #d4a000;
   }
 
   @media (min-width: 768px) {
-    .logo-section img {
+    .logo-section img,
+    .logo-section svg {
       height: 80px;
     }
   }
@@ -343,9 +350,16 @@ if (is_logged_in()) {
     margin-bottom: 30px;
   }
 
-  .login-card-header img {
+  .login-card-header img,
+  .login-card-header svg {
     height: 50px;
-    margin-bottom: 15px;
+    width: auto;
+    display: block;
+    margin: 0 auto 15px;
+  }
+
+  .login-card-header svg {
+    color: #d4a000;
   }
 
   .login-card-title {
@@ -474,7 +488,7 @@ if (is_logged_in()) {
 
 <div class="content">
   <div class="logo-section">
-    <svg class="h-16 w-14 mx-auto text-[#d4a000]" viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path fill="currentColor" d="M28 2 6 12v18c0 14.5 9.2 27.4 22 32 12.8-4.6 22-17.5 22-32V12L28 2Z"/>
       <path fill="#fff" fill-opacity=".2" d="M28 8 14 14.2V28c0 10.2 6.4 19.3 14 23 7.6-3.7 14-12.8 14-23V14.2L28 8Z"/>
     </svg>
@@ -517,7 +531,7 @@ if (is_logged_in()) {
   <div class="login-section" id="loginSection">
     <div class="login-card">
       <div class="login-card-header">
-        <svg class="h-12 w-11 mx-auto text-[#d4a000]" viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <svg viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="currentColor" d="M28 2 6 12v18c0 14.5 9.2 27.4 22 32 12.8-4.6 22-17.5 22-32V12L28 2Z"/>
           <path fill="#fff" fill-opacity=".2" d="M28 8 14 14.2V28c0 10.2 6.4 19.3 14 23 7.6-3.7 14-12.8 14-23V14.2L28 8Z"/>
         </svg>
