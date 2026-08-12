@@ -130,7 +130,11 @@ if (is_admin_logged_in()) {
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.success) {
-          showError(data.message || 'Invalid login credentials');
+          if (res.status >= 500) {
+            showError(data.message || 'Server error while logging in (HTTP ' + res.status + ')');
+          } else {
+            showError(data.message || 'Invalid login credentials');
+          }
           return;
         }
         window.location.href = '/admin/index.php';

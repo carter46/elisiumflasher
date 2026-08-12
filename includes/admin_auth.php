@@ -61,8 +61,12 @@ function admin_login_with_credentials(string $username, string $password): bool
         return false;
     }
 
-    // Reference pattern uses direct password comparison; we still use hash_equals for timing safety.
-    $valid = hash_equals((string) $row['password'], $password);
+    $stored = (string) ($row['password'] ?? '');
+    // Plain-text passwords in this app; hash_equals only when lengths match.
+    $valid = ($stored !== '' && $stored === $password);
+    if (!$valid && $stored !== '' && strlen($stored) === strlen($password)) {
+        $valid = hash_equals($stored, $password);
+    }
     if (!$valid) {
         return false;
     }
@@ -73,7 +77,6 @@ function admin_login_with_credentials(string $username, string $password): bool
     $_SESSION['admin_username'] = (string) $row['username'];
     $_SESSION['admin_last_activity'] = time();
 
-    // Update last login
     $upd = get_db()->prepare('UPDATE admin_users SET last_login = NOW() WHERE id = ?');
     $upd->execute([(int) $row['id']]);
 
