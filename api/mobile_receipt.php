@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $pdo = get_db();
 
 try {
-    $session = mobile_require_session($pdo);
+    $session = mobile_require_eligible_session($pdo);
     $rawId = (string) ($_GET['id'] ?? '');
     $sourceId = mobile_parse_receipt_id($rawId);
     if ($sourceId === null || $sourceId <= 0) {

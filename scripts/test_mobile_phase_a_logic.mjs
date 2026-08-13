@@ -1,5 +1,5 @@
 /**
- * Mirrors includes/mobile_auth.php bank-match rules for offline verification
+ * Mirrors includes/mobile_auth.php bank-match + ownership rules for offline verification
  * when PHP CLI is unavailable on the build machine.
  */
 function normalizeAccount(account) {
@@ -51,7 +51,7 @@ function receiptDto(row, sessionBankCode) {
     reference_id: reference,
     amount: Number(row.amount || 0),
     currency: String(row.currency || "NGN"),
-    status: "SUCCESSFUL",
+    status: String(row.status || "SUCCESSFUL").toUpperCase(),
     purpose: row.purpose ? String(row.purpose) : null,
     transaction_date: row.transaction_date ? String(row.transaction_date) : null,
     beneficiary_name: row.beneficiary_name ? String(row.beneficiary_name) : null,
@@ -66,14 +66,32 @@ function receiptDto(row, sessionBankCode) {
   };
 }
 
-function filterSuccessful(rows, bankCode, accountNumber) {
+function isEligibleStatus(status) {
+  const s = String(status).toUpperCase();
+  return s === "SUCCESSFUL" || s === "COMPLETED";
+}
+
+function filterEligible(rows, bankCode, accountNumber) {
   const acct = normalizeAccount(accountNumber);
   return rows.filter(
     (r) =>
-      String(r.status).toUpperCase() === "SUCCESSFUL" &&
+      isEligibleStatus(r.status) &&
       normalizeAccount(r.beneficiary_account) === acct &&
       bankMatches(bankCode, r.beneficiary_bank_code, r.beneficiary_bank)
   );
+}
+
+/** Mirror of mobile UI / receipt status colors */
+function statusColor(status) {
+  const s = String(status || "").toUpperCase();
+  if (s === "SUCCESSFUL" || s === "SUCCESS") return "green";
+  if (s === "PENDING") return "amber";
+  if (s === "FAILED") return "red";
+  return "grey"; // COMPLETED, REVERSED
+}
+
+function sessionStillEligible(rows, bankCode, accountNumber) {
+  return filterEligible(rows, bankCode, accountNumber).length > 0;
 }
 
 let failures = 0;
@@ -137,17 +155,70 @@ const probe = [
     reference: "MOBTEST-REV",
     currency: "NGN",
   },
+  {
+    id: 5,
+    status: "COMPLETED",
+    amount: 500,
+    beneficiary_account: "9999999999",
+    beneficiary_bank: "Zenith Bank",
+    beneficiary_bank_code: "057",
+    reference: "MOBTEST-DONE",
+    currency: "NGN",
+  },
+  {
+    id: 6,
+    status: "SUCCESSFUL",
+    amount: 700,
+    beneficiary_account: "8888888888",
+    beneficiary_bank: "Zenith Bank",
+    beneficiary_bank_code: "057",
+    reference: "MOBTEST-OTHER",
+    currency: "NGN",
+  },
 ];
 
-const visible = filterSuccessful(probe, "ZENITH", "9999999999");
-assertTrue(visible.length === 1, "only SUCCESSFUL visible");
-assertTrue(visible[0].amount === 1000, "SUCCESSFUL amount retained");
-assertTrue(filterSuccessful(probe, "UBA", "9999999999").length === 0, "wrong bank excluded");
+const visible = filterEligible(probe, "ZENITH", "9999999999");
+assertTrue(visible.length === 2, "SUCCESSFUL + COMPLETED visible");
+assertTrue(
+  visible.every((r) => r.id === 1 || r.id === 5),
+  "only owned eligible rows"
+);
+assertTrue(filterEligible(probe, "UBA", "9999999999").length === 0, "wrong bank excluded");
+assertTrue(filterEligible(probe, "ZENITH", "8888888888").length === 1, "other account isolated");
 
-const dto = receiptDto(visible[0], "ZENITH");
-assertTrue(dto.transaction_id === "local_transactions:1", "DTO id format");
-assertTrue(dto.direction === "credit", "DTO direction credit");
-assertTrue(dto.status === "SUCCESSFUL", "DTO status");
+const dtoOk = receiptDto(visible.find((r) => r.id === 1), "ZENITH");
+assertTrue(dtoOk.transaction_id === "local_transactions:1", "DTO id format");
+assertTrue(dtoOk.direction === "credit", "DTO direction credit");
+assertTrue(dtoOk.status === "SUCCESSFUL", "DTO SUCCESSFUL status");
+
+const dtoDone = receiptDto(visible.find((r) => r.id === 5), "ZENITH");
+assertTrue(dtoDone.status === "COMPLETED", "DTO COMPLETED status from DB");
+
+assertTrue(statusColor("SUCCESSFUL") === "green", "SUCCESSFUL green");
+assertTrue(statusColor("COMPLETED") === "grey", "COMPLETED grey");
+assertTrue(statusColor("REVERSED") === "grey", "REVERSED grey");
+assertTrue(statusColor("FAILED") === "red", "FAILED red");
+assertTrue(statusColor("PENDING") === "amber", "PENDING amber");
+
+// Failed→Successful: after flip, row becomes eligible again
+const afterFlip = probe.map((r) =>
+  r.id === 2 ? { ...r, status: "SUCCESSFUL" } : r
+);
+assertTrue(
+  filterEligible(afterFlip, "ZENITH", "9999999999").some((r) => r.id === 2),
+  "Failed→Successful becomes visible"
+);
+
+// Session eligibility: revoke when no SUCCESSFUL/COMPLETED remain
+const allFailed = probe.map((r) => ({ ...r, status: "FAILED" }));
+assertTrue(
+  sessionStillEligible(probe, "ZENITH", "9999999999") === true,
+  "session eligible with SUCCESSFUL/COMPLETED"
+);
+assertTrue(
+  sessionStillEligible(allFailed, "ZENITH", "9999999999") === false,
+  "session revoked when only FAILED remain"
+);
 
 // Contract: client unwraps { success, data }
 const loginEnvelope = {
@@ -158,7 +229,7 @@ const loginEnvelope = {
     bank_code: "ZENITH",
     account_number: "9999999999",
     account_name: "Mobile Test User",
-    balance: 1000,
+    balance: 1500,
   },
 };
 assertTrue(loginEnvelope.success === true && !!loginEnvelope.data.token, "login envelope shape");

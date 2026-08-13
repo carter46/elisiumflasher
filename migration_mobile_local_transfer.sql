@@ -1,9 +1,11 @@
 -- Forward-only: mobile companion sessions/devices + bank code on local txs.
 -- Does NOT modify wallet_pin values or format.
 
--- Ensure REVERSED is allowed (idempotent if already applied).
+-- Ensure status ENUM includes REVERSED + COMPLETED (idempotent if already applied).
+-- Keep COMPLETED here so re-running this migration after migration_transaction_completed.sql
+-- does not strip COMPLETED from the ENUM.
 ALTER TABLE local_transactions
-  MODIFY COLUMN status ENUM('SUCCESSFUL','FAILED','PENDING','REVERSED') NOT NULL DEFAULT 'SUCCESSFUL';
+  MODIFY COLUMN status ENUM('SUCCESSFUL','FAILED','PENDING','REVERSED','COMPLETED') NOT NULL DEFAULT 'SUCCESSFUL';
 
 -- Store NUBAN bank_code from create payload for reliable mobile bank gating.
 -- Safe if column already exists: run once; ignore duplicate-column error if re-run fails.

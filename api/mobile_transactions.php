@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $pdo = get_db();
 
 try {
-    $session = mobile_require_session($pdo);
+    $session = mobile_require_eligible_session($pdo);
     $bankCode = $session['bank_code'];
     $accountNumber = $session['account_number'];
 

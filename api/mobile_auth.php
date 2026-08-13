@@ -36,13 +36,12 @@ try {
         if ($hash === null) {
             mobile_json_err('Wallet PIN not configured', 409);
         }
-        if (!password_verify($password, $hash)) {
-            mobile_json_err('Invalid credentials', 401);
-        }
 
+        // Eligibility before PIN to avoid confirming PIN validity when no eligible txs exist.
+        // Same generic 401 for bad PIN or no eligible beneficiary transfers.
         $identity = mobile_resolve_beneficiary_identity($pdo, $bankCode, $accountNumber);
-        if ($identity === null) {
-            mobile_json_err('No successful transfers found for this bank account', 403);
+        if ($identity === null || !password_verify($password, $hash)) {
+            mobile_json_err('Invalid credentials', 401);
         }
 
         $session = mobile_create_session(
@@ -65,14 +64,19 @@ try {
 
     if ($action === 'logout') {
         $token = mobile_bearer_token_from_request();
-        if ($token !== null && $token !== '') {
+        $session = $token !== null && $token !== '' ? mobile_load_session($pdo, $token) : null;
+        if ($session !== null) {
+            mobile_delete_devices_for_account($pdo, $session['bank_code'], $session['account_number']);
+            mobile_delete_session($pdo, $session['token']);
+        } elseif ($token !== null && $token !== '') {
             mobile_delete_session($pdo, $token);
         }
         mobile_json_ok(null);
     }
 
     if ($action === 'check') {
-        $session = mobile_require_session($pdo);
+        // Re-check eligibility; revoke session if no SUCCESSFUL/COMPLETED owned txs remain.
+        $session = mobile_require_eligible_session($pdo);
         $balance = mobile_sum_successful_balance(
             $pdo,
             $session['bank_code'],

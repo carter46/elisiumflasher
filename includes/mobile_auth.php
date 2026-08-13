@@ -323,6 +323,25 @@ function mobile_require_session(PDO $pdo): array
     return $session;
 }
 
+/**
+ * Require a valid Bearer session AND at least one SUCCESSFUL/COMPLETED owned transfer.
+ * Policy (documented): if eligibility is lost after login (e.g. only tx flipped to FAILED),
+ * revoke the session and return 401 so mobile matches login rules.
+ *
+ * @return array{id:int, token:string, bank_code:string, account_number:string, account_name:string, expires_at:string}
+ */
+function mobile_require_eligible_session(PDO $pdo): array
+{
+    $session = mobile_require_session($pdo);
+    $count = mobile_count_successful($pdo, $session['bank_code'], $session['account_number']);
+    if ($count <= 0) {
+        mobile_delete_session($pdo, $session['token']);
+        mobile_delete_devices_for_account($pdo, $session['bank_code'], $session['account_number']);
+        json_response(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+    return $session;
+}
+
 function mobile_create_session(
     PDO $pdo,
     string $bankCode,
@@ -357,6 +376,12 @@ function mobile_delete_session(PDO $pdo, string $token): void
 {
     $stmt = $pdo->prepare('DELETE FROM mobile_sessions WHERE token = ?');
     $stmt->execute([$token]);
+}
+
+function mobile_delete_devices_for_account(PDO $pdo, string $bankCode, string $accountNumber): void
+{
+    $stmt = $pdo->prepare('DELETE FROM mobile_devices WHERE bank_code = ? AND account_number = ?');
+    $stmt->execute([strtoupper($bankCode), mobile_normalize_account($accountNumber)]);
 }
 
 /**

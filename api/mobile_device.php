@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'POST
 $pdo = get_db();
 
 try {
-    $session = mobile_require_session($pdo);
+    $session = mobile_require_eligible_session($pdo);
     $input = json_decode(file_get_contents('php://input') ?: '{}', true);
     if (!is_array($input)) {
         mobile_json_err('Invalid JSON body', 400);

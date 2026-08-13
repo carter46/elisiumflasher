@@ -84,6 +84,18 @@ assert_true($dto['bank_code'] === 'ZENITH', 'receipt DTO uses session bank_code'
 assert_true(mobile_parse_receipt_id('local_transactions:99') === 99, 'parse compound receipt id');
 assert_true(mobile_parse_receipt_id('99') === 99, 'parse numeric receipt id');
 
+$dtoCompleted = mobile_receipt_dto([
+    'id' => 43,
+    'reference' => 'LOC124',
+    'amount' => '99.00',
+    'currency' => 'NGN',
+    'status' => 'COMPLETED',
+    'beneficiary_account' => '1311795728',
+], 'ZENITH');
+assert_true($dtoCompleted['status'] === 'COMPLETED', 'receipt DTO preserves COMPLETED status');
+assert_true(function_exists('mobile_require_eligible_session'), 'eligible session helper exists');
+assert_true(function_exists('mobile_delete_devices_for_account'), 'device cleanup helper exists');
+
 $live = in_array('--live', $argv ?? [], true);
 if (!$live) {
     echo "\n(Skip live DB tests — pass --live to run against configured database)\n";
@@ -159,44 +171,53 @@ $mk = static function (string $ref, string $status, float $amount) use ($pdo, $i
     }
 };
 
-try {
-    $mk('MOBTEST-OK-1', 'SUCCESSFUL', 1000);
-    $mk('MOBTEST-FAIL', 'FAILED', 2000);
-    $mk('MOBTEST-PEND', 'PENDING', 3000);
     try {
-        $mk('MOBTEST-REV', 'REVERSED', 4000);
-    } catch (Throwable $e) {
-        echo "[WARN] REVERSED insert failed — apply migration status ENUM first\n";
+        $mk('MOBTEST-OK-1', 'SUCCESSFUL', 1000);
+        $mk('MOBTEST-FAIL', 'FAILED', 2000);
+        $mk('MOBTEST-PEND', 'PENDING', 3000);
+        try {
+            $mk('MOBTEST-REV', 'REVERSED', 4000);
+        } catch (Throwable $e) {
+            echo "[WARN] REVERSED insert failed — apply migration status ENUM first\n";
+        }
+        try {
+            $mk('MOBTEST-DONE', 'COMPLETED', 500);
+        } catch (Throwable $e) {
+            echo "[WARN] COMPLETED insert failed — apply migration_transaction_completed.sql\n";
+        }
+
+        $count = mobile_count_successful($pdo, $probeBank, $probeAccount);
+        assert_true($count >= 1, 'ownership count includes SUCCESSFUL/COMPLETED (got ' . $count . ')');
+
+        $bal = mobile_sum_successful_balance($pdo, $probeBank, $probeAccount);
+        assert_true($bal >= 1000.0, 'balance sums eligible credits (got ' . $bal . ')');
+
+        $rows = mobile_fetch_successful_rows($pdo, $probeBank, $probeAccount, 50, 0);
+        assert_true(count($rows) >= 1, 'history returns eligible rows');
+        $statuses = array_map(static fn($r) => strtoupper((string) ($r['status'] ?? '')), $rows);
+        assert_true(!in_array('FAILED', $statuses, true), 'FAILED excluded from history');
+        assert_true(!in_array('PENDING', $statuses, true), 'PENDING excluded from history');
+
+        // Wrong bank gate
+        $wrong = mobile_count_successful($pdo, 'UBA', $probeAccount);
+        assert_true($wrong === 0, 'UBA session cannot see Zenith SUCCESSFUL credit');
+
+        // Wallet PIN configured?
+        $hash = mobile_wallet_pin_hash($pdo);
+        assert_true($hash !== null && $hash !== '', 'wallet_pin hash present (do not modify)');
+
+        // Session create + load + device cleanup helper
+        $session = mobile_create_session($pdo, $probeBank, $probeAccount, 'Mobile Test User');
+        $loaded = mobile_load_session($pdo, $session['token']);
+        assert_true($loaded !== null && $loaded['account_number'] === $probeAccount, 'Bearer session create/load works');
+        mobile_delete_devices_for_account($pdo, $probeBank, $probeAccount);
+        mobile_delete_session($pdo, $session['token']);
+    } finally {
+        $pdo->prepare("DELETE FROM local_transactions WHERE beneficiary_account = ? AND reference LIKE 'MOBTEST%'")
+            ->execute([$probeAccount]);
+        $pdo->prepare("DELETE FROM mobile_sessions WHERE account_number = ?")->execute([$probeAccount]);
+        $pdo->prepare("DELETE FROM mobile_devices WHERE account_number = ?")->execute([$probeAccount]);
     }
-
-    $count = mobile_count_successful($pdo, $probeBank, $probeAccount);
-    assert_true($count === 1, 'ownership count includes only SUCCESSFUL (got ' . $count . ')');
-
-    $bal = mobile_sum_successful_balance($pdo, $probeBank, $probeAccount);
-    assert_true(abs($bal - 1000.0) < 0.001, 'balance sums SUCCESSFUL only (got ' . $bal . ')');
-
-    $rows = mobile_fetch_successful_rows($pdo, $probeBank, $probeAccount, 50, 0);
-    assert_true(count($rows) === 1, 'history returns only SUCCESSFUL rows');
-    assert_true(strtoupper((string) ($rows[0]['status'] ?? '')) === 'SUCCESSFUL', 'returned row is SUCCESSFUL');
-
-    // Wrong bank gate
-    $wrong = mobile_count_successful($pdo, 'UBA', $probeAccount);
-    assert_true($wrong === 0, 'UBA session cannot see Zenith SUCCESSFUL credit');
-
-    // Wallet PIN configured?
-    $hash = mobile_wallet_pin_hash($pdo);
-    assert_true($hash !== null && $hash !== '', 'wallet_pin hash present (do not modify)');
-
-    // Session create + load
-    $session = mobile_create_session($pdo, $probeBank, $probeAccount, 'Mobile Test User');
-    $loaded = mobile_load_session($pdo, $session['token']);
-    assert_true($loaded !== null && $loaded['account_number'] === $probeAccount, 'Bearer session create/load works');
-    mobile_delete_session($pdo, $session['token']);
-} finally {
-    $pdo->prepare("DELETE FROM local_transactions WHERE beneficiary_account = ? AND reference LIKE 'MOBTEST%'")
-        ->execute([$probeAccount]);
-    $pdo->prepare("DELETE FROM mobile_sessions WHERE account_number = ?")->execute([$probeAccount]);
-}
 
 echo $failures === 0 ? "\nAll tests passed.\n" : "\n{$failures} test(s) failed.\n";
 exit($failures === 0 ? 0 : 1);

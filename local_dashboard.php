@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/auth.php';
 require_login();
 
-$logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLfG5t89iSCEgECKyN-t8IDzK0Fdw42m7A_q66Iy6j2A2qvFJ4cLAngjtlkZQTOPInJ84ykd5znTULXFKtt11AcPpyOY57--4EXCxRrdEMJaYQid8yaOFG2rnzdmq3MffpLatLCNfu3sBs2RpnkAdIdyeTBnlmm_zNAZLH3IqBvJR0DrBLiRBL7nVe_dtWUeWTdetVyoM31s8NhND9TW_p_-u-b1qTU_K_A8Y';
+$logoUrl = '/assets/elysium-logo.png';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -1063,7 +1063,10 @@ tailwind.config = {
     const el = document.getElementById('totalBalanceDisplay');
     if (!wrap || !el) return;
     try {
-      const res = await fetch('/api/dashboard_content.php?page=local');
+      const res = await fetch('/api/dashboard_content.php?page=local&_=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
       const data = await res.json().catch(() => ({}));
       if (redirectIfSessionExpired(res, data)) return;
       if (res.ok && data.success && data.data) {
@@ -1176,7 +1179,7 @@ tailwind.config = {
       return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-money-soft text-money border border-emerald-100"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Successful</span>';
     }
     if (status === 'COMPLETED') {
-      return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>Completed</span>';
+      return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Completed</span>';
     }
     if (status === 'PENDING') {
       return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>';
@@ -1661,9 +1664,9 @@ tailwind.config = {
     const statusEl = document.getElementById('modalStatus');
     statusEl.textContent = status;
     statusEl.className = 'text-xs font-semibold ' + (
-      status === 'SUCCESSFUL' || status === 'COMPLETED' ? 'text-money' :
-      status === 'PENDING' ? 'text-amber-600' :
-      status === 'REVERSED' ? 'text-slate-600' : 'text-error'
+      status === 'SUCCESSFUL' ? 'text-money' :
+      status === 'COMPLETED' || status === 'REVERSED' ? 'text-slate-600' :
+      status === 'PENDING' ? 'text-amber-600' : 'text-error'
     );
     const remarkRow = document.getElementById('modalRemarkRow');
     const remarkEl = document.getElementById('modalRemark');
@@ -1689,6 +1692,11 @@ tailwind.config = {
       resultIcon.textContent = status === 'PENDING' ? 'schedule' : 'error';
       resultIcon.className = 'material-symbols-outlined ' + (status === 'PENDING' ? 'text-amber-600' : 'text-error') + ' text-[28px]';
       resultIconWrap.className = 'w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center ' + (status === 'PENDING' ? 'bg-amber-50' : 'bg-red-50');
+    } else if (status === 'COMPLETED') {
+      resultTitle.className = 'text-lg font-semibold text-slate-700';
+      resultIcon.textContent = 'check_circle';
+      resultIcon.className = 'material-symbols-outlined text-slate-600 text-[28px]';
+      resultIconWrap.className = 'w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center bg-slate-100';
     } else {
       resultTitle.className = 'text-lg font-semibold text-money';
       resultIcon.textContent = 'check_circle';
