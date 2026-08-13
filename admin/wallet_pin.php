@@ -50,6 +50,20 @@ require_admin_login();
         </div>
       </div>
 
+      <div id="savedPinWrap" class="hidden mb-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+        <div class="text-sm font-semibold text-slate-700 mb-2">Saved PIN</div>
+        <div class="flex items-center gap-2">
+          <div class="flex-1 h-11 rounded-xl border border-slate-200 bg-white px-3 flex items-center font-mono tracking-[0.35em] text-slate-500 select-none">
+            ••••••
+          </div>
+          <button type="button" id="copyPinBtn" class="h-11 px-4 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors inline-flex items-center gap-1.5 disabled:opacity-50">
+            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+            Copy
+          </button>
+        </div>
+        <p id="copyHint" class="text-xs text-slate-500 mt-2">PIN stays hidden. Use Copy to place it on your clipboard.</p>
+      </div>
+
       <form id="pinForm" class="flex flex-col gap-4">
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-1.5" for="newPin">New PIN</label>
@@ -63,7 +77,7 @@ require_admin_login();
           Save PIN
         </button>
       </form>
-      <p class="text-xs text-slate-500 mt-4">The PIN is stored as a one-way hash. The current PIN is never shown or retrieved.</p>
+      <p class="text-xs text-slate-500 mt-4">Verification uses a one-way hash. An encrypted copy is kept for admin clipboard access only and is never displayed on this page.</p>
     </div>
   </div>
 
@@ -75,6 +89,9 @@ require_admin_login();
     const newPin = document.getElementById('newPin');
     const confirmPin = document.getElementById('confirmPin');
     const saveBtn = document.getElementById('saveBtn');
+    const savedPinWrap = document.getElementById('savedPinWrap');
+    const copyPinBtn = document.getElementById('copyPinBtn');
+    const copyHint = document.getElementById('copyHint');
 
     function showMessage(text, isError) {
       messageBox.textContent = text;
@@ -92,6 +109,18 @@ require_admin_login();
     digitsOnly(newPin);
     digitsOnly(confirmPin);
 
+    function updateSavedPinUi(configured, copyable) {
+      if (!configured) {
+        savedPinWrap.classList.add('hidden');
+        return;
+      }
+      savedPinWrap.classList.remove('hidden');
+      copyPinBtn.disabled = !copyable;
+      copyHint.textContent = copyable
+        ? 'PIN stays hidden. Use Copy to place it on your clipboard.'
+        : 'Re-save the PIN once to enable copy for this existing PIN.';
+    }
+
     async function loadStatus() {
       try {
         const res = await fetch('/api/wallet_pin.php');
@@ -102,16 +131,61 @@ require_admin_login();
         }
         if (!res.ok || !data.success) {
           statusEl.textContent = 'Unknown';
+          savedPinWrap.classList.add('hidden');
           return;
         }
         statusEl.textContent = data.configured ? 'Configured' : 'Not configured';
         statusEl.className = data.configured
           ? 'text-lg font-semibold text-emerald-700 mt-1'
           : 'text-lg font-semibold text-amber-700 mt-1';
+        updateSavedPinUi(!!data.configured, !!data.copyable);
       } catch (e) {
         statusEl.textContent = 'Unknown';
+        savedPinWrap.classList.add('hidden');
       }
     }
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+
+    copyPinBtn.addEventListener('click', async function () {
+      messageBox.classList.add('hidden');
+      copyPinBtn.disabled = true;
+      try {
+        const res = await fetch('/api/wallet_pin.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'copy' })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 401 && data.redirect) {
+          window.location.href = data.redirect;
+          return;
+        }
+        if (!res.ok || !data.success || !data.pin) {
+          throw new Error(data.message || 'Failed to copy PIN');
+        }
+        await copyToClipboard(String(data.pin));
+        showMessage('PIN copied to clipboard.', false);
+      } catch (err) {
+        showMessage(err.message || 'Failed to copy PIN', true);
+      } finally {
+        await loadStatus();
+      }
+    });
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();

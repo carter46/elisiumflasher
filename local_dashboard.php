@@ -171,119 +171,121 @@ tailwind.config = {
         </div>
       </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div id="transfer" class="lg:col-span-5 flex flex-col">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div id="transfer" class="lg:col-span-5 flex flex-col min-h-[420px]">
           <div class="bg-white border border-border-subtle rounded-xl shadow-sm flex flex-col h-full overflow-hidden">
-            <div class="px-5 py-4 border-b border-border-subtle">
+            <div class="px-5 py-4 border-b border-border-subtle shrink-0">
               <h2 class="text-lg font-semibold text-on-surface">Local transfer</h2>
               <p id="transferSubtitle" class="text-sm text-on-surface-variant mt-0.5">Send money to any Nigeria bank account</p>
             </div>
-            <div class="px-5 py-5 grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1 content-start">
-              <button type="button" id="openSendBtn" class="aspect-square min-h-[88px] rounded-sm bg-gradient-to-br from-[#00288e] to-[#1e40af] text-white text-xs font-semibold hover:opacity-95 transition-opacity inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center shadow-sm">
-                <span class="material-symbols-outlined text-[22px]">send</span>
+            <div class="px-4 py-4 grid grid-cols-2 sm:grid-cols-3 gap-2.5 flex-1 content-start">
+              <button type="button" id="openSendBtn" class="aspect-square min-h-[72px] rounded-md bg-gradient-to-br from-[#00288e] to-[#1e40af] text-white text-[11px] font-semibold hover:opacity-95 transition-opacity inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center shadow-sm">
+                <span class="material-symbols-outlined text-[20px]">send</span>
                 Send
               </button>
-              <button type="button" id="openAddFundsBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">add_card</span>
+              <button type="button" id="openAddFundsBtn" class="aspect-square min-h-[72px] rounded-md bg-[#eef1f4] text-slate-600 text-[11px] font-semibold hover:bg-[#e4e8ec] transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">add_card</span>
                 Add funds
               </button>
-              <button type="button" id="scrollTxBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+              <button type="button" id="scrollTxBtn" class="aspect-square min-h-[72px] rounded-md bg-[#eef1f4] text-slate-600 text-[11px] font-semibold hover:bg-[#e4e8ec] transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
                 Transactions
               </button>
-              <a href="/transfer_selection.php" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">tune</span>
+              <a href="/transfer_selection.php" class="aspect-square min-h-[72px] rounded-md bg-[#eef1f4] text-slate-600 text-[11px] font-semibold hover:bg-[#e4e8ec] transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">tune</span>
                 Session
               </a>
-              <button type="button" id="verifyLogBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">fact_check</span>
+              <button type="button" id="verifyLogBtn" class="aspect-square min-h-[72px] rounded-md bg-[#eef1f4] text-slate-600 text-[11px] font-semibold hover:bg-[#e4e8ec] transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">fact_check</span>
                 Verify log
               </button>
-              <button type="button" id="blockTransferBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">block</span>
+              <button type="button" id="blockTransferBtn" class="aspect-square min-h-[72px] rounded-md bg-[#eef1f4] text-slate-600 text-[11px] font-semibold hover:bg-[#e4e8ec] transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">block</span>
                 Block transfer
               </button>
-              <button type="button" id="tracePaymentsBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">timeline</span>
+              <button type="button" id="tracePaymentsBtn" class="aspect-square min-h-[72px] rounded-md bg-[#eef1f4] text-slate-600 text-[11px] font-semibold hover:bg-[#e4e8ec] transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">timeline</span>
                 Trace payments
               </button>
-              <button type="button" id="linkedAccountBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">link</span>
+              <button type="button" id="linkedAccountBtn" class="aspect-square min-h-[72px] rounded-md bg-[#eef1f4] text-slate-600 text-[11px] font-semibold hover:bg-[#e4e8ec] transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">link</span>
                 Linked account
               </button>
-              <button type="button" id="panelLogoutBtn" class="aspect-square min-h-[88px] rounded-sm bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-                <span class="material-symbols-outlined text-[22px]">logout</span>
+              <button type="button" id="panelLogoutBtn" class="aspect-square min-h-[72px] rounded-md bg-red-600 text-white text-[11px] font-semibold hover:bg-red-700 transition-colors inline-flex flex-col items-center justify-center gap-1 px-1.5 text-center">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
                 Sign out
               </button>
             </div>
           </div>
         </div>
 
-        <div class="lg:col-span-7 flex flex-col gap-6">
-          <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3">
+        <div id="settlements" class="lg:col-span-7 flex flex-col min-h-[420px]">
+          <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
+            <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3 shrink-0">
               <div>
-                <h2 class="text-base font-semibold text-on-surface">Rail health</h2>
-                <p class="text-xs text-on-surface-variant mt-0.5">Hash rail / ASIC dispatch</p>
+                <h2 class="text-base font-semibold text-on-surface">Recent settlements</h2>
+                <p class="text-xs text-on-surface-variant mt-0.5">Transfers submitted from this console</p>
               </div>
-              <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-money bg-money-soft border border-emerald-100 px-2.5 py-1 rounded-full">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Live
-              </span>
+              <button type="button" id="localTxRefreshBtn" class="h-9 px-3.5 text-sm font-semibold text-primary border border-border-subtle hover:bg-surface rounded-lg transition-colors">
+                Refresh
+              </button>
             </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse min-w-[560px]" id="localMetricsTable">
-                <thead>
+            <div class="overflow-auto flex-1 min-h-0">
+              <table class="w-full text-left border-collapse min-w-[640px]">
+                <thead class="sticky top-0 z-[1]">
                   <tr class="bg-surface border-b border-border-subtle">
-                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Worker</th>
-                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Accepted</th>
-                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Rejected</th>
-                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">GH/s</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Reference</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Beneficiary</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Bank</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Amount</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Date</th>
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody id="localMetricsTbody" class="text-sm text-on-surface divide-y divide-border-subtle"></tbody>
+                <tbody id="localTxTbody" class="text-sm text-on-surface divide-y divide-border-subtle"></tbody>
               </table>
             </div>
-          </div>
-
-          <div id="logs" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[280px]">
-            <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center shrink-0">
-              <div>
-                <h2 class="text-base font-semibold text-on-surface">Activity log</h2>
-                <p class="text-xs text-on-surface-variant mt-0.5">Live protocol stream</p>
-              </div>
-              <span class="text-xs font-medium text-on-surface-variant">Updating</span>
-            </div>
-            <div id="localProtocolStream" class="p-4 overflow-y-auto font-mono text-[12px] leading-6 text-on-surface flex-1 flex flex-col gap-1 bg-slate-50/60"></div>
           </div>
         </div>
       </div>
 
-      <div id="settlements" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3">
-          <div>
-            <h2 class="text-base font-semibold text-on-surface">Recent settlements</h2>
-            <p class="text-xs text-on-surface-variant mt-0.5">Transfers submitted from this console</p>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[280px]">
+          <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3 shrink-0">
+            <div>
+              <h2 class="text-base font-semibold text-on-surface">Rail health</h2>
+              <p class="text-xs text-on-surface-variant mt-0.5">Hash rail / ASIC dispatch</p>
+            </div>
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-money bg-money-soft border border-emerald-100 px-2.5 py-1 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Live
+            </span>
           </div>
-          <button type="button" id="localTxRefreshBtn" class="h-9 px-3.5 text-sm font-semibold text-primary border border-border-subtle hover:bg-surface rounded-lg transition-colors">
-            Refresh
-          </button>
+          <div class="overflow-auto flex-1 min-h-0">
+            <table class="w-full text-left border-collapse min-w-[480px]" id="localMetricsTable">
+              <thead>
+                <tr class="bg-surface border-b border-border-subtle">
+                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Worker</th>
+                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Accepted</th>
+                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Rejected</th>
+                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">GH/s</th>
+                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody id="localMetricsTbody" class="text-sm text-on-surface divide-y divide-border-subtle"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[720px]">
-            <thead>
-              <tr class="bg-surface border-b border-border-subtle">
-                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Reference</th>
-                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Beneficiary</th>
-                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Bank</th>
-                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Amount</th>
-                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Date</th>
-                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody id="localTxTbody" class="text-sm text-on-surface divide-y divide-border-subtle"></tbody>
-          </table>
+
+        <div id="logs" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[280px]">
+          <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center shrink-0">
+            <div>
+              <h2 class="text-base font-semibold text-on-surface">Activity log</h2>
+              <p class="text-xs text-on-surface-variant mt-0.5">Live protocol stream</p>
+            </div>
+            <span class="text-xs font-medium text-on-surface-variant">Updating</span>
+          </div>
+          <div id="localProtocolStream" class="p-4 overflow-y-auto font-mono text-[12px] leading-6 text-on-surface flex-1 flex flex-col gap-1 bg-slate-50/60 min-h-0"></div>
         </div>
       </div>
     </div>
@@ -308,11 +310,14 @@ tailwind.config = {
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="accountNumber" class="text-sm font-medium text-on-surface">Account Number</label>
-          <input type="text" id="accountNumber" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit account number" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface font-mono"/>
+          <input type="text" id="accountNumber" name="beneficiary_account" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit account number" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface font-mono"/>
         </div>
-        <div id="resolveRow" class="hidden flex items-center gap-2 min-h-[24px]">
+        <div id="resolveRow" class="hidden flex flex-col gap-1.5 min-h-[24px]">
           <div id="resolveSpinner" class="hidden w-4 h-4 border-2 border-money/20 border-t-money rounded-full" style="animation: spin 0.8s linear infinite;"></div>
-          <p id="resolvedNameDisplay" class="text-sm font-semibold text-money hidden"></p>
+          <div id="resolvedNameBlock" class="hidden flex flex-col gap-0.5">
+            <span class="text-sm font-medium text-black">Account Name</span>
+            <p id="resolvedNameDisplay" class="text-sm font-semibold text-money"></p>
+          </div>
           <p id="resolveError" class="text-xs text-error hidden"></p>
         </div>
         <div class="flex gap-3 mt-1">
@@ -400,11 +405,11 @@ tailwind.config = {
         </div>
       </div>
 
-      <!-- Step 5a: 3s loading -->
+      <!-- Step 5a: shared wait/loader -->
       <div id="sendStep5a" class="hidden flex flex-col items-center text-center py-8 gap-3">
         <div class="w-10 h-10 border-[3px] border-money/15 border-t-money rounded-full" style="animation: spin 0.8s linear infinite;"></div>
-        <p class="text-lg font-semibold text-on-surface">Processing</p>
-        <p class="text-sm text-on-surface-variant">Please wait…</p>
+        <p id="waitStepTitle" class="text-lg font-semibold text-on-surface">Processing</p>
+        <p id="waitStepBody" class="text-sm text-on-surface-variant">Please wait…</p>
       </div>
 
       <!-- Step 5b: Enter Wallet PIN -->
@@ -427,7 +432,7 @@ tailwind.config = {
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <input type="password" id="pinInput" placeholder="••••••" inputmode="numeric" maxlength="6" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-center tracking-[0.35em] font-mono text-base text-on-surface"/>
+          <input type="password" id="pinInput" name="wallet_pin" placeholder="••••••" inputmode="numeric" maxlength="6" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-center tracking-[0.35em] font-mono text-base text-on-surface"/>
           <p id="pinError" class="text-xs text-error hidden"></p>
         </div>
         <div class="flex gap-3 mt-1">
@@ -617,6 +622,7 @@ tailwind.config = {
   const accountNumber = document.getElementById('accountNumber');
   const resolveRow = document.getElementById('resolveRow');
   const resolveSpinner = document.getElementById('resolveSpinner');
+  const resolvedNameBlock = document.getElementById('resolvedNameBlock');
   const resolvedNameDisplay = document.getElementById('resolvedNameDisplay');
   const resolveError = document.getElementById('resolveError');
   const syncAccountBtn = document.getElementById('syncAccountBtn');
@@ -636,6 +642,8 @@ tailwind.config = {
   const resultIcon = document.getElementById('resultIcon');
   const resultIconWrap = document.getElementById('resultIconWrap');
   const resultCloseBtn = document.getElementById('resultCloseBtn');
+  const waitStepTitle = document.getElementById('waitStepTitle');
+  const waitStepBody = document.getElementById('waitStepBody');
 
   const addFundsModal = document.getElementById('addFundsModal');
   const stubFeatureModal = document.getElementById('stubFeatureModal');
@@ -665,6 +673,7 @@ tailwind.config = {
   let lastResolvedKey = '';
   let syncDelayTimer = null;
   let sendDelayTimer = null;
+  let stepDelayTimer = null;
   let successRedirectTimer = null;
 
   const selectedCountryCode = 'NG';
@@ -850,7 +859,30 @@ tailwind.config = {
   function clearPendingTimers() {
     if (syncDelayTimer) { clearTimeout(syncDelayTimer); syncDelayTimer = null; }
     if (sendDelayTimer) { clearTimeout(sendDelayTimer); sendDelayTimer = null; }
+    if (stepDelayTimer) { clearTimeout(stepDelayTimer); stepDelayTimer = null; }
     if (successRedirectTimer) { clearTimeout(successRedirectTimer); successRedirectTimer = null; }
+  }
+
+  function showWaitThen(ms, modalTitle, waitTitle, waitBody, thenFn) {
+    clearPendingTimers();
+    if (waitStepTitle) waitStepTitle.textContent = waitTitle || 'Please wait';
+    if (waitStepBody) waitStepBody.textContent = waitBody || 'Please wait…';
+    showStep(sendStep5a, modalTitle || 'Please wait');
+    stepDelayTimer = setTimeout(function () {
+      stepDelayTimer = null;
+      if (sendModal.classList.contains('hidden')) return;
+      thenFn();
+    }, ms);
+  }
+
+  function waitAtLeast(ms) {
+    return new Promise(function (resolve) {
+      if (stepDelayTimer) { clearTimeout(stepDelayTimer); stepDelayTimer = null; }
+      stepDelayTimer = setTimeout(function () {
+        stepDelayTimer = null;
+        resolve();
+      }, ms);
+    });
   }
 
   function resetSendState() {
@@ -864,7 +896,8 @@ tailwind.config = {
     remark.value = '';
     pinInput.value = '';
     resolvedNameDisplay.textContent = '';
-    resolvedNameDisplay.classList.add('hidden');
+    resolvedNameBlock.classList.add('hidden');
+    resolvedNameBlock.classList.remove('flex');
     resolveError.textContent = '';
     resolveError.classList.add('hidden');
     resolveSpinner.classList.add('hidden');
@@ -1027,7 +1060,8 @@ tailwind.config = {
     resolvedAccountName = '';
     lastResolvedKey = '';
     resolvedNameDisplay.textContent = '';
-    resolvedNameDisplay.classList.add('hidden');
+    resolvedNameBlock.classList.add('hidden');
+    resolvedNameBlock.classList.remove('flex');
     resolveError.textContent = '';
     resolveError.classList.add('hidden');
     syncAccountBtn.disabled = true;
@@ -1070,14 +1104,16 @@ tailwind.config = {
       resolvedAccountName = data.data.account_name;
       lastResolvedKey = key;
       resolvedNameDisplay.textContent = resolvedAccountName;
-      resolvedNameDisplay.classList.remove('hidden');
+      resolvedNameBlock.classList.remove('hidden');
+      resolvedNameBlock.classList.add('flex');
       resolveError.classList.add('hidden');
       syncAccountBtn.disabled = false;
     } catch (err) {
       if (seq !== resolveSeq) return;
       resolvedAccountName = '';
       lastResolvedKey = '';
-      resolvedNameDisplay.classList.add('hidden');
+      resolvedNameBlock.classList.add('hidden');
+      resolvedNameBlock.classList.remove('flex');
       resolveError.textContent = err.message || 'Could not verify account';
       resolveError.classList.remove('hidden');
       syncAccountBtn.disabled = true;
@@ -1151,8 +1187,8 @@ tailwind.config = {
       bank_name: bankMap[bankCode] || ''
     });
     fillSyncedCards();
-    showStep(sendStep2, 'Send Money');
     clearPendingTimers();
+    showStep(sendStep2, 'Send Money');
     syncDelayTimer = setTimeout(function () {
       syncDelayTimer = null;
       if (sendModal.classList.contains('hidden')) return;
@@ -1163,7 +1199,9 @@ tailwind.config = {
   proceedPaymentBtn.addEventListener('click', function () {
     fillSyncedCards();
     amountError.classList.add('hidden');
-    showStep(sendStep4, 'Payment Information');
+    showWaitThen(2000, 'Payment Information', 'Preparing payment', 'Please wait…', function () {
+      showStep(sendStep4, 'Payment Information');
+    });
   });
 
   sendPaymentBtn.addEventListener('click', function () {
@@ -1174,11 +1212,7 @@ tailwind.config = {
       return;
     }
     amountError.classList.add('hidden');
-    showStep(sendStep5a, 'Payment Information');
-    clearPendingTimers();
-    sendDelayTimer = setTimeout(function () {
-      sendDelayTimer = null;
-      if (sendModal.classList.contains('hidden')) return;
+    showWaitThen(3000, 'Payment Information', 'Processing', 'Please wait…', function () {
       document.getElementById('pinSummaryTo').textContent = resolvedAccountName || '—';
       document.getElementById('pinSummaryAmount').textContent = formatMoney(amt);
       pinInput.value = '';
@@ -1186,7 +1220,7 @@ tailwind.config = {
       confirmPinBtn.disabled = false;
       showStep(sendStep5b, 'Enter Wallet PIN');
       pinInput.focus();
-    }, 3000);
+    });
   });
 
   confirmPinBtn.addEventListener('click', async function () {
@@ -1223,11 +1257,16 @@ tailwind.config = {
         return;
       }
 
+      if (waitStepTitle) waitStepTitle.textContent = 'Processing';
+      if (waitStepBody) waitStepBody.textContent = 'Please wait…';
       showStep(sendStep5a, 'Processing');
+      const minProcessWait = waitAtLeast(2000);
 
       const platRes = await fetch('/api/platform_status.php');
       const platData = await platRes.json().catch(() => ({}));
       if (platRes.ok && platData && platData.success && platData.status && platData.status !== 'on') {
+        await minProcessWait;
+        if (sendModal.classList.contains('hidden')) return;
         showResult('Transfer Failed', 'Platform is under maintenance. Please try again later.', true);
         confirmPinBtn.disabled = false;
         return;
@@ -1245,6 +1284,8 @@ tailwind.config = {
             fixed_account: { title: 'Fixed Account', detail: 'This bank account is fixed. Transfers are not allowed right now.' },
           };
           const mapped = statusTitles[s] || { title: 'Transfer Blocked', detail: 'Transfer blocked by bank status.' };
+          await minProcessWait;
+          if (sendModal.classList.contains('hidden')) return;
           showResult(mapped.title, mapped.detail, true);
           confirmPinBtn.disabled = false;
           return;
@@ -1279,6 +1320,8 @@ tailwind.config = {
           post_no_debit: { title: 'Post No Debit', detail: 'Debit transactions are temporarily restricted for this bank.' },
           fixed_account: { title: 'Fixed Account', detail: 'This bank account is fixed. Transfers are not allowed right now.' },
         };
+        await minProcessWait;
+        if (sendModal.classList.contains('hidden')) return;
         if (bankStatus && statusTitles[bankStatus]) {
           showResult(statusTitles[bankStatus].title, statusTitles[bankStatus].detail, true);
           confirmPinBtn.disabled = false;
@@ -1292,7 +1335,7 @@ tailwind.config = {
         throw new Error(msg);
       }
 
-      const txForReceipt = txData.transaction || {
+      const txForReceipt = Object.assign({}, txData.transaction || {
         reference,
         bank_name: bankName,
         beneficiary_bank: bankName,
@@ -1305,9 +1348,15 @@ tailwind.config = {
         purpose: remarkVal,
         status: 'SUCCESSFUL',
         transaction_date: new Date().toISOString()
-      };
+      }, {
+        bank_code: bankCode,
+        bank_name: bankName,
+        beneficiary_bank: (txData.transaction && txData.transaction.beneficiary_bank) || bankName
+      });
       sessionStorage.setItem('lastLocalTransaction', JSON.stringify(txForReceipt));
 
+      await minProcessWait;
+      if (sendModal.classList.contains('hidden')) return;
       showResult('Transfer Successful!', 'Your transfer has been completed successfully.', false);
       successRedirectTimer = setTimeout(function () {
         successRedirectTimer = null;
