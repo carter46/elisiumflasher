@@ -57,6 +57,27 @@ body.home-fit {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+@keyframes success-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, -12px, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--dx), 120px, 0) rotate(var(--rot)); opacity: 0; }
+}
+.success-pop {
+  animation: success-pop 0.55s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+.confetti-piece {
+  position: absolute;
+  top: 28%;
+  left: 50%;
+  width: 8px;
+  height: 10px;
+  border-radius: 1px;
+  animation: confetti-fall 1.35s ease-out forwards;
+}
 </style>
 <script src="https://cdn.tailwindcss.com"></script>
 <script id="tailwind-config">
@@ -414,6 +435,26 @@ tailwind.config = {
     }
   }
 
+  function spawnCelebration() {
+    var burst = document.getElementById('celebrationBurst');
+    if (!burst) return;
+    var colors = ['#10b981', '#34d399', '#00288e', '#60a5fa', '#f59e0b', '#f472b6'];
+    for (var i = 0; i < 28; i++) {
+      var piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      var dx = (Math.random() * 220 - 110).toFixed(1) + 'px';
+      var rot = (Math.random() * 520 - 260).toFixed(1) + 'deg';
+      piece.style.setProperty('--dx', dx);
+      piece.style.setProperty('--rot', rot);
+      piece.style.background = colors[i % colors.length];
+      piece.style.marginLeft = (Math.random() * 24 - 12).toFixed(1) + 'px';
+      piece.style.animationDelay = (Math.random() * 0.2).toFixed(2) + 's';
+      piece.style.width = (6 + Math.random() * 6).toFixed(1) + 'px';
+      piece.style.height = (8 + Math.random() * 8).toFixed(1) + 'px';
+      burst.appendChild(piece);
+    }
+  }
+
   function showGatewayConnectionLoading() {
     if (!loginSection) return;
     loginSection.innerHTML =
@@ -434,13 +475,15 @@ tailwind.config = {
       if (progress >= 100) {
         clearInterval(interval);
         loginSection.innerHTML =
-          '<div class="text-center py-8 flex flex-col items-center gap-4">' +
-            '<div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">' +
+          '<div class="text-center py-8 flex flex-col items-center gap-4 relative overflow-hidden">' +
+            '<div id="celebrationBurst" class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true"></div>' +
+            '<div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center success-pop relative z-10">' +
               '<span class="material-symbols-outlined text-emerald-600 text-[40px]" style="font-variation-settings: \'FILL\' 1;">check_circle</span>' +
             '</div>' +
-            '<div class="font-headline-sm text-headline-sm text-red-600 tracking-wide">Connection successful</div>' +
-            '<div class="font-body-sm text-body-sm text-on-surface-variant">Secure session ready. Continuing…</div>' +
+            '<div class="font-headline-sm text-headline-sm text-emerald-600 tracking-wide relative z-10 success-pop">Connection successful</div>' +
+            '<div class="font-body-sm text-body-sm text-on-surface-variant relative z-10">Secure session ready. Continuing…</div>' +
           '</div>';
+        spawnCelebration();
         setTimeout(function () {
           window.location.href = '/transfer_selection.php';
         }, 3000);
