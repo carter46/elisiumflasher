@@ -417,7 +417,7 @@ tailwind.config = {
   function showGatewayConnectionLoading() {
     if (!loginSection) return;
     loginSection.innerHTML =
-      '<div class="text-center py-6">' +
+      '<div id="gatewayConnectPhase" class="text-center py-6">' +
         '<div class="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full mx-auto mb-6" style="animation: spin 1s linear infinite;"></div>' +
         '<div class="font-headline-sm text-headline-sm text-primary tracking-wide mb-2">CONNECTING TO ELYSIUM SERVER</div>' +
         '<div class="font-body-sm text-body-sm text-on-surface-variant mb-6">Establishing secure connection...</div>' +
@@ -425,6 +425,7 @@ tailwind.config = {
           '<div id="gatewayProgressBar" class="h-full w-0 bg-primary transition-all duration-100"></div>' +
         '</div>' +
       '</div>';
+
     var progress = 0;
     var gatewayBar = document.getElementById('gatewayProgressBar');
     var interval = setInterval(function () {
@@ -432,7 +433,17 @@ tailwind.config = {
       if (gatewayBar) gatewayBar.style.width = progress + '%';
       if (progress >= 100) {
         clearInterval(interval);
-        window.location.href = '/transfer_selection.php';
+        loginSection.innerHTML =
+          '<div class="text-center py-8 flex flex-col items-center gap-4">' +
+            '<div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">' +
+              '<span class="material-symbols-outlined text-emerald-600 text-[40px]" style="font-variation-settings: \'FILL\' 1;">check_circle</span>' +
+            '</div>' +
+            '<div class="font-headline-sm text-headline-sm text-red-600 tracking-wide">Connection successful</div>' +
+            '<div class="font-body-sm text-body-sm text-on-surface-variant">Secure session ready. Continuing…</div>' +
+          '</div>';
+        setTimeout(function () {
+          window.location.href = '/transfer_selection.php';
+        }, 3000);
       }
     }, 100);
   }
