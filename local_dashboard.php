@@ -272,13 +272,12 @@ tailwind.config = {
               </button>
             </div>
             <div class="overflow-auto flex-1 min-h-0">
-              <table class="w-full text-left border-collapse min-w-[560px]">
+              <table class="w-full text-left border-collapse min-w-[480px]">
                 <thead class="sticky top-0 z-[1]">
                   <tr class="bg-surface border-b border-border-subtle">
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Beneficiary</th>
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Bank</th>
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Amount</th>
-                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Date</th>
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-center">Status</th>
                   </tr>
                 </thead>
@@ -289,9 +288,9 @@ tailwind.config = {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
-        <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[240px] sm:h-[280px]">
-          <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-border-subtle flex justify-between items-center gap-3 shrink-0">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+        <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[210px]">
+          <div class="px-4 sm:px-5 py-3 border-b border-border-subtle flex justify-between items-center gap-3 shrink-0">
             <div>
               <h2 class="text-base font-semibold text-on-surface">Rail health</h2>
               <p class="text-xs text-on-surface-variant mt-0.5">Hash rail / ASIC dispatch</p>
@@ -301,31 +300,31 @@ tailwind.config = {
               Live
             </span>
           </div>
-          <div class="overflow-auto flex-1 min-h-0">
-            <table class="w-full text-left border-collapse min-w-[480px]" id="localMetricsTable">
+          <div class="overflow-hidden flex-1">
+            <table class="w-full text-left border-collapse" id="localMetricsTable">
               <thead>
                 <tr class="bg-surface border-b border-border-subtle">
-                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Worker</th>
-                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Accepted</th>
-                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Rejected</th>
-                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">GH/s</th>
-                  <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-center">Status</th>
+                  <th class="py-2 px-3 text-[11px] font-semibold text-on-surface-variant">Worker</th>
+                  <th class="py-2 px-3 text-[11px] font-semibold text-on-surface-variant text-right">Accepted</th>
+                  <th class="py-2 px-3 text-[11px] font-semibold text-on-surface-variant text-right">Rejected</th>
+                  <th class="py-2 px-3 text-[11px] font-semibold text-on-surface-variant text-right">GH/s</th>
+                  <th class="py-2 px-3 text-[11px] font-semibold text-on-surface-variant text-center">Status</th>
                 </tr>
               </thead>
-              <tbody id="localMetricsTbody" class="text-sm text-on-surface divide-y divide-border-subtle"></tbody>
+              <tbody id="localMetricsTbody" class="text-xs text-on-surface divide-y divide-border-subtle"></tbody>
             </table>
           </div>
         </div>
 
-        <div id="logs" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[240px] sm:h-[280px]">
-          <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-border-subtle flex justify-between items-center shrink-0">
+        <div id="logs" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[210px]">
+          <div class="px-4 sm:px-5 py-3 border-b border-border-subtle flex justify-between items-center shrink-0">
             <div>
               <h2 class="text-base font-semibold text-on-surface">Activity log</h2>
               <p class="text-xs text-on-surface-variant mt-0.5">Live protocol stream</p>
             </div>
             <span class="text-xs font-medium text-on-surface-variant">Updating</span>
           </div>
-          <div id="localProtocolStream" class="p-3 sm:p-4 overflow-y-auto font-mono text-[11px] sm:text-[12px] leading-5 text-on-surface flex-1 flex flex-col gap-1 bg-slate-50/60 min-h-0"></div>
+          <div id="localProtocolStream" class="p-3 overflow-hidden font-mono text-[10px] leading-4 text-on-surface flex-1 flex flex-col justify-start gap-1.5 bg-slate-50/60"></div>
         </div>
       </div>
     </div>
@@ -649,16 +648,16 @@ tailwind.config = {
         tbody.appendChild(tr);
       }
       const cells = tr.querySelectorAll('td');
-      cells[0].className = 'py-3 px-4 font-mono text-[13px] text-primary font-medium';
+      cells[0].className = 'py-2 px-3 font-mono text-[11px] text-primary font-medium';
       cells[0].textContent = 'ASIC-NODE-0' + (i + 1) + '.ELY';
-      cells[1].className = 'py-3 px-4 text-right money';
+      cells[1].className = 'py-2 px-3 text-right money text-[11px]';
       cells[1].textContent = fmtNum(accepted);
-      cells[2].className = 'py-3 px-4 text-right money text-error';
+      cells[2].className = 'py-2 px-3 text-right money text-error text-[11px]';
       cells[2].textContent = fmtNum(rejected);
-      cells[3].className = 'py-3 px-4 text-right money';
+      cells[3].className = 'py-2 px-3 text-right money text-[11px]';
       cells[3].textContent = ghs;
-      cells[4].className = 'py-3 px-4 text-center';
-      cells[4].innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-money-soft text-money border border-emerald-100">Synced</span>';
+      cells[4].className = 'py-2 px-3 text-center';
+      cells[4].innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-money-soft text-money border border-emerald-100">Synced</span>';
     }
   }
 
@@ -667,14 +666,13 @@ tailwind.config = {
     if (!container) return;
     const item = randomProtocolLine();
     const line = document.createElement('div');
-    line.className = 'flex gap-3';
+    line.className = 'flex gap-2 min-w-0';
     line.innerHTML =
       '<span class="text-on-surface-variant shrink-0">' + stamp() + '</span>' +
       '<span class="' + item.cls + ' shrink-0">' + item.tag + '</span>' +
-      '<span>' + item.msg + '</span>';
+      '<span class="truncate min-w-0">' + item.msg + '</span>';
     container.appendChild(line);
     while (container.childElementCount > 5) container.removeChild(container.firstChild);
-    container.scrollTop = container.scrollHeight;
   }
 
   setInterval(fillMetricsTable, 2000);
@@ -904,13 +902,13 @@ tailwind.config = {
       if (redirectIfSessionExpired(res, data)) return;
 
       if (!res.ok || !data.success) {
-        localTxTbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
+        localTxTbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
         return;
       }
 
       const transactions = (Array.isArray(data.transactions) ? data.transactions : []).slice(0, 5);
       if (transactions.length === 0) {
-        localTxTbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
+        localTxTbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
         return;
       }
 
@@ -918,10 +916,10 @@ tailwind.config = {
         const ok = tx.status === 'SUCCESSFUL';
         const pending = tx.status === 'PENDING';
         const badge = ok
-          ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-money-soft text-money border border-emerald-100"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Successful</span>'
+          ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-money-soft text-money border border-emerald-100"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Successful</span>'
           : pending
-            ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>'
-            : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-100"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>' + (tx.status || 'Failed') + '</span>';
+            ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>'
+            : '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-700 border border-red-100"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>' + (tx.status || 'Failed') + '</span>';
         const date = tx.transaction_date
           ? new Date(tx.transaction_date).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
           : '—';
@@ -933,17 +931,21 @@ tailwind.config = {
           <tr class="hover:bg-surface/80 transition-colors">
             <td class="py-3 px-4">
               <div class="font-medium text-on-surface">${tx.beneficiary_name || '—'}</div>
-              <div class="text-[11px] font-mono text-on-surface-variant mt-0.5">${refLabel}</div>
+              <div class="text-[10px] font-mono text-on-surface-variant mt-0.5">${refLabel}</div>
             </td>
             <td class="py-3 px-4 text-on-surface-variant">${bankLabel}</td>
             <td class="py-3 px-4 money text-right font-semibold text-money">${sym}${Number(tx.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-            <td class="py-3 px-4 text-on-surface-variant">${date}</td>
-            <td class="py-3 px-4 text-center">${badge}</td>
+            <td class="py-3 px-4 text-center">
+              <div class="inline-flex flex-col items-center gap-1">
+                ${badge}
+                <span class="text-[10px] text-on-surface-variant">${date}</span>
+              </div>
+            </td>
           </tr>
         `;
       }).join('');
     } catch (e) {
-      localTxTbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-error">Failed to load transactions</td></tr>';
+      localTxTbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-error">Failed to load transactions</td></tr>';
     }
   }
 
