@@ -38,9 +38,17 @@ function bankMatches(mobileCode, beneficiaryBankCode, beneficiaryBankName) {
   return map.name_needles.some((n) => n && name.includes(n));
 }
 
-function receiptDto(row, sessionBankCode) {
+function receiptDto(row, sessionBankCode, senderProfile = null) {
   const id = Number(row.id || 0);
   const reference = row.reference != null ? String(row.reference) : null;
+  let senderName = row.sender_name ? String(row.sender_name).trim() : "";
+  let senderAccount = row.sender_account ? normalizeAccount(String(row.sender_account)) : "";
+  if (senderProfile) {
+    if (!senderName && senderProfile.account_name) senderName = String(senderProfile.account_name).trim();
+    if (!senderAccount && senderProfile.account_number) {
+      senderAccount = normalizeAccount(String(senderProfile.account_number));
+    }
+  }
   return {
     transaction_id: `local_transactions:${id}`,
     source_table: "local_transactions",
@@ -59,8 +67,8 @@ function receiptDto(row, sessionBankCode) {
     beneficiary_account: row.beneficiary_account
       ? normalizeAccount(String(row.beneficiary_account))
       : null,
-    sender_name: row.sender_name ? String(row.sender_name) : null,
-    sender_account: row.sender_account ? String(row.sender_account) : null,
+    sender_name: senderName || null,
+    sender_account: senderAccount || null,
     sender_bank: null,
     direction: "credit",
   };
@@ -233,6 +241,23 @@ const loginEnvelope = {
   },
 };
 assertTrue(loginEnvelope.success === true && !!loginEnvelope.data.token, "login envelope shape");
+
+const blankSenderDto = receiptDto(
+  {
+    id: 99,
+    status: "SUCCESSFUL",
+    amount: 100,
+    purpose: "School fees",
+    sender_name: "",
+    sender_account: "",
+    beneficiary_account: "9999999999",
+  },
+  "ZENITH",
+  { account_name: "Tunde O. Badmus", account_number: "1022090307" }
+);
+assertTrue(blankSenderDto.sender_name === "Tunde O. Badmus", "sender falls back to admin profile name");
+assertTrue(blankSenderDto.sender_account === "1022090307", "sender falls back to admin profile account");
+assertTrue(blankSenderDto.purpose === "School fees", "narration/purpose preserved");
 
 console.log(failures === 0 ? "\nAll mirror tests passed." : `\n${failures} test(s) failed.`);
 process.exit(failures === 0 ? 0 : 1);

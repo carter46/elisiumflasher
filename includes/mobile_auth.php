@@ -92,16 +92,85 @@ function mobile_wallet_pin_hash(PDO $pdo): ?string
 }
 
 /**
+ * Same key material as api/wallet_pin.php — used only to verify the admin-set PIN.
+ * Does not modify wallet_pin / wallet_pin_enc storage.
+ */
+function mobile_wallet_pin_enc_key(): string
+{
+    $material = (defined('DB_PASS') ? (string) DB_PASS : '')
+        . '|'
+        . (defined('DB_NAME') ? (string) DB_NAME : '')
+        . '|elysium_wallet_pin_v1';
+    return hash('sha256', $material, true);
+}
+
+function mobile_wallet_pin_decrypt_enc(string $blob): ?string
+{
+    $raw = base64_decode($blob, true);
+    if ($raw === false || strlen($raw) < 17) {
+        return null;
+    }
+    $iv = substr($raw, 0, 16);
+    $cipher = substr($raw, 16);
+    $plain = openssl_decrypt($cipher, 'AES-256-CBC', mobile_wallet_pin_enc_key(), OPENSSL_RAW_DATA, $iv);
+    if ($plain === false || !preg_match('/^\d{6}$/', $plain)) {
+        return null;
+    }
+    return $plain;
+}
+
+/**
  * Reuse existing Wallet PIN storage: password_verify against app_settings.wallet_pin.
+ * Falls back to wallet_pin_enc plaintext compare when hash verify fails (same admin PIN).
  * Does not modify PIN storage or create an alternate credential.
  */
 function mobile_verify_wallet_pin(PDO $pdo, string $password): bool
 {
-    $hash = mobile_wallet_pin_hash($pdo);
-    if ($hash === null) {
+    $password = trim($password);
+    if ($password === '') {
         return false;
     }
-    return password_verify($password, $hash);
+
+    $hash = mobile_wallet_pin_hash($pdo);
+    if ($hash !== null && password_verify($password, $hash)) {
+        return true;
+    }
+
+    $stmt = $pdo->prepare('SELECT setting_value FROM app_settings WHERE setting_key = ? LIMIT 1');
+    $stmt->execute(['wallet_pin_enc']);
+    $row = $stmt->fetch();
+    if (!$row || $row['setting_value'] === null) {
+        return false;
+    }
+    $plain = mobile_wallet_pin_decrypt_enc(trim((string) $row['setting_value']));
+    return $plain !== null && hash_equals($plain, $password);
+}
+
+/**
+ * Admin Local Account Settings (local_dashboard_profile) — source of truth for sender on receipts.
+ *
+ * @return array{account_name: string, account_number: string}
+ */
+function mobile_local_sender_profile(PDO $pdo): array
+{
+    static $cached = null;
+    if (is_array($cached)) {
+        return $cached;
+    }
+    try {
+        $row = $pdo->query(
+            'SELECT account_name, account_number FROM local_dashboard_profile ORDER BY id DESC LIMIT 1'
+        )->fetch();
+    } catch (Throwable $e) {
+        $row = false;
+    }
+    $cached = [
+        'account_name' => $row ? trim((string) ($row['account_name'] ?? '')) : '',
+        'account_number' => $row
+            ? mobile_normalize_account((string) ($row['account_number'] ?? ''))
+            : '',
+    ];
+    return $cached;
 }
 
 function mobile_sql_digits_expr(string $column): string
@@ -209,14 +278,31 @@ function mobile_resolve_beneficiary_identity(PDO $pdo, string $bankCode, string 
 
 /**
  * Map local_transactions row → ReceiptDto expected by Mobile_app.
+ * Sender falls back to admin Local Account Settings when tx fields are blank.
  *
  * @param array<string, mixed> $row
  * @return array<string, mixed>
  */
-function mobile_receipt_dto(array $row, string $sessionBankCode): array
+function mobile_receipt_dto(array $row, string $sessionBankCode, ?PDO $pdo = null): array
 {
     $id = (int) ($row['id'] ?? 0);
     $reference = isset($row['reference']) ? (string) $row['reference'] : null;
+
+    $senderName = isset($row['sender_name']) ? trim((string) $row['sender_name']) : '';
+    $senderAccount = isset($row['sender_account'])
+        ? mobile_normalize_account((string) $row['sender_account'])
+        : '';
+    if ($pdo !== null && ($senderName === '' || $senderAccount === '')) {
+        $profile = mobile_local_sender_profile($pdo);
+        if ($senderName === '' && $profile['account_name'] !== '') {
+            $senderName = $profile['account_name'];
+        }
+        if ($senderAccount === '' && $profile['account_number'] !== '') {
+            $senderAccount = $profile['account_number'];
+        }
+    }
+
+    $purpose = isset($row['purpose']) ? trim((string) $row['purpose']) : '';
 
     return [
         'transaction_id' => 'local_transactions:' . $id,
@@ -229,17 +315,15 @@ function mobile_receipt_dto(array $row, string $sessionBankCode): array
         'amount' => (float) ($row['amount'] ?? 0),
         'currency' => (string) ($row['currency'] ?? 'NGN'),
         'status' => strtoupper((string) ($row['status'] ?? 'SUCCESSFUL')),
-        'purpose' => isset($row['purpose']) && $row['purpose'] !== null && $row['purpose'] !== ''
-            ? (string) $row['purpose']
-            : null,
+        'purpose' => $purpose !== '' ? $purpose : null,
         'transaction_date' => isset($row['transaction_date']) ? (string) $row['transaction_date'] : null,
         'beneficiary_name' => isset($row['beneficiary_name']) ? (string) $row['beneficiary_name'] : null,
         'beneficiary_bank' => isset($row['beneficiary_bank']) ? (string) $row['beneficiary_bank'] : null,
         'beneficiary_account' => isset($row['beneficiary_account'])
             ? mobile_normalize_account((string) $row['beneficiary_account'])
             : null,
-        'sender_name' => isset($row['sender_name']) ? (string) $row['sender_name'] : null,
-        'sender_account' => isset($row['sender_account']) ? (string) $row['sender_account'] : null,
+        'sender_name' => $senderName !== '' ? $senderName : null,
+        'sender_account' => $senderAccount !== '' ? $senderAccount : null,
         'sender_bank' => null,
         // Beneficiary view: credit (stored web direction remains debit for sender).
         'direction' => 'credit',

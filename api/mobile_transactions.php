@@ -22,7 +22,7 @@ try {
     $rows = mobile_fetch_successful_rows($pdo, $bankCode, $accountNumber, $limit, $offset);
     $transactions = [];
     foreach ($rows as $row) {
-        $transactions[] = mobile_receipt_dto($row, $bankCode);
+        $transactions[] = mobile_receipt_dto($row, $bankCode, $pdo);
     }
 
     mobile_json_ok([

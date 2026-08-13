@@ -20,7 +20,7 @@ try {
     $recentRows = mobile_fetch_successful_rows($pdo, $bankCode, $accountNumber, 10, 0);
     $recent = [];
     foreach ($recentRows as $row) {
-        $recent[] = mobile_receipt_dto($row, $bankCode);
+        $recent[] = mobile_receipt_dto($row, $bankCode, $pdo);
     }
 
     mobile_json_ok([

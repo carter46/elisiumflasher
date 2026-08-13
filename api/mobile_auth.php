@@ -17,10 +17,36 @@ $action = strtolower(trim((string) ($input['action'] ?? 'login')));
 $pdo = get_db();
 
 try {
+    if ($action === 'verify_account') {
+        $bankCode = strtoupper(trim((string) ($input['bank_code'] ?? '')));
+        $accountNumber = mobile_normalize_account((string) ($input['account_number'] ?? ''));
+
+        if (!mobile_is_valid_bank_code($bankCode)) {
+            mobile_json_err('Invalid bank_code', 422);
+        }
+        if ($accountNumber === '' || strlen($accountNumber) < 10) {
+            mobile_json_err('Invalid account_number', 422);
+        }
+
+        $identity = mobile_resolve_beneficiary_identity($pdo, $bankCode, $accountNumber);
+        if ($identity === null) {
+            mobile_json_err(
+                'No successful transfers found for this account at this bank. Transfer must be SUCCESSFUL or COMPLETED.',
+                404
+            );
+        }
+
+        mobile_json_ok([
+            'bank_code' => $bankCode,
+            'account_number' => $identity['account_number'],
+            'account_name' => $identity['account_name'],
+        ]);
+    }
+
     if ($action === 'login') {
         $bankCode = strtoupper(trim((string) ($input['bank_code'] ?? '')));
         $accountNumber = mobile_normalize_account((string) ($input['account_number'] ?? ''));
-        $password = (string) ($input['password'] ?? '');
+        $password = trim((string) ($input['password'] ?? ''));
 
         if (!mobile_is_valid_bank_code($bankCode)) {
             mobile_json_err('Invalid bank_code', 422);
@@ -29,7 +55,10 @@ try {
             mobile_json_err('Invalid account_number', 422);
         }
         if ($password === '') {
-            mobile_json_err('Password is required', 422);
+            mobile_json_err('Wallet PIN is required', 422);
+        }
+        if (!preg_match('/^\d{6}$/', $password)) {
+            mobile_json_err('Wallet PIN must be exactly 6 digits', 422);
         }
 
         $hash = mobile_wallet_pin_hash($pdo);
@@ -37,11 +66,17 @@ try {
             mobile_json_err('Wallet PIN not configured', 409);
         }
 
-        // Eligibility before PIN to avoid confirming PIN validity when no eligible txs exist.
-        // Same generic 401 for bad PIN or no eligible beneficiary transfers.
+        // Eligibility before PIN — distinct errors so a valid PIN is not blamed for ineligible accounts.
         $identity = mobile_resolve_beneficiary_identity($pdo, $bankCode, $accountNumber);
-        if ($identity === null || !password_verify($password, $hash)) {
-            mobile_json_err('Invalid credentials', 401);
+        if ($identity === null) {
+            mobile_json_err(
+                'No successful transfers found for this account at this bank. Transfer must be SUCCESSFUL or COMPLETED.',
+                404
+            );
+        }
+
+        if (!mobile_verify_wallet_pin($pdo, $password)) {
+            mobile_json_err('Incorrect wallet PIN', 401);
         }
 
         $session = mobile_create_session(

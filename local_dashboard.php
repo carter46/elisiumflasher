@@ -507,7 +507,7 @@ tailwind.config = {
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="remark" class="text-sm font-medium text-on-surface">Narration</label>
-          <input type="text" id="remark" placeholder="Optional remark" maxlength="120" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface"/>
+          <input type="text" id="remark" placeholder="Narration / remark (optional)" maxlength="120" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface"/>
         </div>
         <p id="amountError" class="text-xs text-error hidden"></p>
         <div class="flex gap-3 mt-1">
@@ -616,8 +616,8 @@ tailwind.config = {
                 <span class="text-xs text-on-surface-variant">Status</span>
                 <span id="modalStatus" class="text-xs font-semibold text-money">—</span>
               </div>
-              <div id="modalRemarkRow" class="flex justify-between gap-3 hidden">
-                <span class="text-xs text-on-surface-variant">Remark</span>
+              <div id="modalRemarkRow" class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Narration</span>
                 <span id="modalRemark" class="text-xs text-on-surface-variant text-right max-w-[60%]">—</span>
               </div>
             </div>
@@ -1015,6 +1015,7 @@ tailwind.config = {
   }
 
   let latestBalanceValue = null;
+  let localSenderProfile = { account_name: '', account_number: '' };
   let balanceVisible = true;
   try {
     const savedVis = sessionStorage.getItem('balanceVisible');
@@ -1045,6 +1046,12 @@ tailwind.config = {
     const el = document.getElementById('totalBalanceDisplay');
     if (!wrap || !el) return;
     const profile = payload && payload.data && payload.data.profile;
+    if (profile) {
+      localSenderProfile = {
+        account_name: String(profile.account_name || '').trim(),
+        account_number: String(profile.account_number || '').trim(),
+      };
+    }
     if (profile && profile.balance != null && profile.balance !== '') {
       latestBalanceValue = profile.balance;
       renderBalanceDisplay();
@@ -1670,14 +1677,13 @@ tailwind.config = {
     );
     const remarkRow = document.getElementById('modalRemarkRow');
     const remarkEl = document.getElementById('modalRemark');
-    if (tx.purpose || tx.remark) {
-      remarkRow.classList.remove('hidden');
-      remarkEl.textContent = tx.purpose || tx.remark;
-    } else {
-      remarkRow.classList.add('hidden');
-    }
-    document.getElementById('modalSenderName').textContent = tx.sender_name || '—';
-    document.getElementById('modalSenderAccount').textContent = maskAccount(tx.sender_account);
+    const narration = String(tx.purpose || tx.remark || '').trim();
+    if (remarkRow) remarkRow.classList.remove('hidden');
+    if (remarkEl) remarkEl.textContent = narration || '—';
+    const senderName = String(tx.sender_name || localSenderProfile.account_name || '').trim();
+    const senderAcct = String(tx.sender_account || localSenderProfile.account_number || '').trim();
+    document.getElementById('modalSenderName').textContent = senderName || '—';
+    document.getElementById('modalSenderAccount').textContent = maskAccount(senderAcct);
     document.getElementById('modalFooterTimestamp').textContent = new Date().toISOString();
   }
 
@@ -1723,6 +1729,9 @@ tailwind.config = {
       currency: selectedCurrency,
       reference: '—',
       purpose: (remark.value || '').trim(),
+      remark: (remark.value || '').trim(),
+      sender_name: localSenderProfile.account_name || '',
+      sender_account: localSenderProfile.account_number || '',
       transaction_date: new Date().toISOString()
     }, title, body);
   }
@@ -1995,31 +2004,44 @@ tailwind.config = {
       }
 
       const txStatus = String((txData.transaction && txData.transaction.status) || 'SUCCESSFUL').toUpperCase();
-      const txForReceipt = Object.assign({}, txData.transaction || {
-        reference,
-        bank_name: bankName,
-        beneficiary_bank: bankName,
-        beneficiary_account: acctNum,
-        beneficiary_name: finalAccountName,
-        amount: amt,
-        currency: selectedCurrency,
-        country_code: selectedCountryCode,
-        country_name: selectedCountryName,
-        purpose: remarkVal,
-        status: txStatus,
-        transaction_date: new Date().toISOString()
-      }, {
+      const apiTx = txData.transaction || {};
+      const txForReceipt = Object.assign({}, apiTx, {
+        reference: apiTx.reference || reference,
         bank_code: bankCode,
         bank_name: bankName,
-        beneficiary_bank: (txData.transaction && txData.transaction.beneficiary_bank) || bankName,
-        status: txStatus
+        beneficiary_bank: apiTx.beneficiary_bank || bankName,
+        beneficiary_account: apiTx.beneficiary_account || acctNum,
+        beneficiary_name: apiTx.beneficiary_name || finalAccountName,
+        amount: apiTx.amount != null ? apiTx.amount : amt,
+        currency: apiTx.currency || selectedCurrency,
+        country_code: selectedCountryCode,
+        country_name: selectedCountryName,
+        purpose: apiTx.purpose || apiTx.remark || remarkVal || null,
+        remark: apiTx.purpose || apiTx.remark || remarkVal || null,
+        sender_name: apiTx.sender_name || localSenderProfile.account_name || '',
+        sender_account: apiTx.sender_account || localSenderProfile.account_number || '',
+        status: txStatus,
+        transaction_date: apiTx.transaction_date || new Date().toISOString()
       });
 
       await minProcessWait;
       if (sendModal.classList.contains('hidden')) return;
 
       loadTransactions();
-      refreshTotalBalance();
+      await refreshTotalBalance();
+      if (!txForReceipt.sender_name) {
+        txForReceipt.sender_name = localSenderProfile.account_name || '';
+      }
+      if (!txForReceipt.sender_account) {
+        txForReceipt.sender_account = localSenderProfile.account_number || '';
+      }
+      if (!txForReceipt.purpose && remarkVal) {
+        txForReceipt.purpose = remarkVal;
+        txForReceipt.remark = remarkVal;
+      }
+      try {
+        sessionStorage.setItem('lastLocalTransaction', JSON.stringify(txForReceipt));
+      } catch (e) {}
       showModalReceipt(txForReceipt);
     } catch (err) {
       showResult('Transfer Failed', err.message || 'Transfer failed', true);

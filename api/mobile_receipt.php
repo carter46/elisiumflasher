@@ -28,7 +28,7 @@ try {
         mobile_json_err('Receipt not found', 404);
     }
 
-    mobile_json_ok(mobile_receipt_dto($row, $session['bank_code']));
+    mobile_json_ok(mobile_receipt_dto($row, $session['bank_code'], $pdo));
 } catch (Throwable $e) {
     mobile_json_err('Failed to load receipt', 500);
 }

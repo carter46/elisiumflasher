@@ -134,10 +134,15 @@ switch ($method) {
         // Client authenticated transaction creation.
         require_login();
 
-        if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
+        if ($_SERVER['CONTENT_TYPE'] === 'application/json' || str_contains((string) ($_SERVER['CONTENT_TYPE'] ?? ''), 'application/json') || str_contains((string) ($_SERVER['HTTP_CONTENT_TYPE'] ?? ''), 'application/json')) {
             $input = json_decode(file_get_contents('php://input') ?: '{}', true);
+            if (!is_array($input)) {
+                $input = [];
+            }
         } else {
-            $input = [];
+            $raw = file_get_contents('php://input') ?: '';
+            $decoded = json_decode($raw, true);
+            $input = is_array($decoded) ? $decoded : [];
         }
 
         $bankCode = trim((string) ($input['bank_code'] ?? ''));

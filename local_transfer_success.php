@@ -118,8 +118,8 @@ tailwind.config = {
           <span class="text-xs text-slate-500">Status</span>
           <span id="status" class="text-xs font-semibold text-green-600">SUCCESSFUL</span>
         </div>
-        <div id="remarkRow" class="flex justify-between gap-3 hidden">
-          <span class="text-xs text-slate-500">Remark</span>
+        <div id="remarkRow" class="flex justify-between gap-3">
+          <span class="text-xs text-slate-500">Narration</span>
           <span id="remark" class="text-xs text-slate-700 text-right max-w-[60%]">--</span>
         </div>
       </div>
@@ -364,6 +364,9 @@ tailwind.config = {
     if (tx.purpose || tx.remark) {
       remarkRow.classList.remove('hidden');
       remark.textContent = tx.purpose || tx.remark;
+    } else {
+      remarkRow.classList.remove('hidden');
+      remark.textContent = '--';
     }
 
     senderName.textContent = tx.sender_name || '--';
