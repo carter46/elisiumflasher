@@ -415,7 +415,16 @@ if (is_dir($sliderDir)) {
         sessionStorage.setItem('selectedCurrency', String(snap.currency || 'NGN'));
         sessionStorage.setItem('selectedServerIp', String(snap.serverIp || ''));
       } catch (err) {}
-      window.location.href = LOCAL_PATH;
+
+      // Refresh PHP session activity before navigating so require_login() on the dashboard does not bounce to /.
+      fetch('/api/auth.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: 'check' })
+      }).catch(function () { /* continue anyway */ }).finally(function () {
+        window.location.href = LOCAL_PATH;
+      });
     }, 1200);
   }
 

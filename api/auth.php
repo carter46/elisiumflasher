@@ -19,7 +19,11 @@ if ($action === 'login') {
 }
 
 if ($action === 'check') {
-    json_response(['success' => true, 'authenticated' => is_logged_in()]);
+    $ok = is_logged_in();
+    if ($ok) {
+        $_SESSION['last_activity'] = time();
+    }
+    json_response(['success' => true, 'authenticated' => $ok]);
 }
 
 if ($action === 'logout') {

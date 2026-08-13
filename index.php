@@ -3,564 +3,298 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
 
-// If already authenticated, skip to transfer selection
 if (is_logged_in()) {
     header('Location: /transfer_selection.php');
     exit;
 }
+
+$bgMap = '/assets/' . rawurlencode('world map_7325629.png');
+$logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLfG5t89iSCEgECKyN-t8IDzK0Fdw42m7A_q66Iy6j2A2qvFJ4cLAngjtlkZQTOPInJ84ykd5znTULXFKtt11AcPpyOY57--4EXCxRrdEMJaYQid8yaOFG2rnzdmq3MffpLatLCNfu3sBs2RpnkAdIdyeTBnlmm_zNAZLH3IqBvJR0DrBLiRBL7nVe_dtWUeWTdetVyoM31s8NhND9TW_p_-u-b1qTU_K_A8Y';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Elysium Server | Initialize</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "JetBrains Mono", "Courier New", monospace;
-  }
-
-  body {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a0a 0%, #2d2d00 25%, #3d3d00 50%, #1a1a0a 100%);
-    padding: 40px 60px 48px;
-    position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  @media (max-width: 768px) {
-    body {
-      padding: 30px 20px 40px;
-    }
-  }
-
-  .bg-watermark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    height: 500px;
-    opacity: 0.05;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .content {
-    position: relative;
-    z-index: 1;
-    max-width: 600px;
-    width: 100%;
-    margin: clamp(16px, 4vw, 40px) auto;
-    padding: clamp(24px, 5vw, 48px);
-    border: 2px solid rgba(212, 160, 0, 0.4);
-    border-radius: 20px;
-    background: rgba(0, 0, 0, 0.35);
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  }
-
-  @media (max-width: 768px) {
-    .content {
-      margin: 16px 12px;
-      padding: 22px 18px;
-    }
-  }
-
-  .logo-section {
-    margin-bottom: 40px;
-  }
-
-  .logo-section img,
-  .logo-section svg {
-    height: 70px;
-    width: auto;
-    display: block;
-    margin: 0 auto;
-  }
-
-  .logo-section svg {
-    color: #d4a000;
-  }
-
-  @media (min-width: 768px) {
-    .logo-section img,
-    .logo-section svg {
-      height: 80px;
-    }
-  }
-
-  .title {
-    font-size: 28px;
-    font-weight: 800;
-    color: #d4a000;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  @media (min-width: 768px) {
-    .title {
-      font-size: 36px;
-    }
-  }
-
-  .subtitle {
-    font-size: 14px;
-    color: #888;
-    letter-spacing: 2px;
-  }
-
-  @media (min-width: 768px) {
-    .subtitle {
-      font-size: 16px;
-    }
-  }
-
-  .description {
-    color: #777;
-    font-size: 14px;
-    line-height: 1.7;
-    margin-bottom: 15px;
-  }
-
-  @media (min-width: 768px) {
-    .description {
-      font-size: 16px;
-    }
-  }
-
-  .start-btn {
-    background: linear-gradient(135deg, #d4a000 0%, #b8860b 100%);
-    color: #000;
-    border: none;
-    padding: 18px 56px;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 30px;
-  }
-
-  @media (min-width: 768px) {
-    .start-btn {
-      padding: 20px 64px;
-      font-size: 18px;
-    }
-  }
-
-  .start-btn:hover {
-    background: linear-gradient(135deg, #e6b000 0%, #d4a000 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(212, 160, 0, 0.3);
-  }
-
-  .start-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  .loading-section {
-    display: none;
-    margin-top: 30px;
-  }
-
-  .loading-section.active {
-    display: block;
-  }
-
-  .loading-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
-  }
-
-  .spinner {
-    width: 32px;
-    height: 32px;
-    border: 4px solid rgba(212, 160, 0, 0.2);
-    border-top-color: #d4a000;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .loading-text {
-    font-size: 16px;
-    font-weight: 700;
-    color: #d4a000;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  @media (min-width: 768px) {
-    .loading-text {
-      font-size: 18px;
-    }
-  }
-
-  .progress-container {
-    background: rgba(255, 255, 255, 0.1);
-    height: 10px;
-    width: 100%;
-    overflow: hidden;
-    margin-bottom: 15px;
-  }
-
-  .progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #d4a000 0%, #ffd700 50%, #d4a000 100%);
-    background-size: 200% 100%;
-    animation: shimmer 2s linear infinite;
-    transition: width 0.1s linear;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  .progress-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .progress-percent {
-    font-size: 32px;
-    font-weight: 800;
-    color: #d4a000;
-  }
-
-  @media (min-width: 768px) {
-    .progress-percent {
-      font-size: 40px;
-    }
-  }
-
-  .progress-status {
-    font-size: 12px;
-    color: #888;
-    text-align: right;
-    max-width: 220px;
-  }
-
-  @media (min-width: 768px) {
-    .progress-status {
-      font-size: 13px;
-    }
-  }
-
-  .log-section {
-    margin-top: 30px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(212, 160, 0, 0.2);
-    padding: 15px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .log-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: #666;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .log-entry {
-    font-size: 11px;
-    color: #6a6a6a;
-    margin: 4px 0;
-    padding-left: 10px;
-    border-left: 2px solid #333;
-  }
-
-  .log-entry.success {
-    color: #4a9;
-    border-left-color: #4a9;
-  }
-
-  .log-entry.warning {
-    color: #d4a000;
-    border-left-color: #d4a000;
-  }
-
-  .log-entry.info {
-    color: #888;
-    border-left-color: #555;
-  }
-
-  .version-info {
-    max-width: 600px;
-    margin: 8px auto 0;
-    padding: 0 4px;
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.35);
-    letter-spacing: 1px;
-    text-align: center;
-  }
-
-  /* Login Section */
-  .login-section {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1a1a0a 0%, #2d2d00 25%, #3d3d00 50%, #1a1a0a 100%);
-    z-index: 100;
-  }
-
-  .login-section.active {
-    display: flex;
-  }
-
-  .login-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
-    max-width: 420px;
-    width: 90%;
-  }
-
-  .login-card-header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-
-  .login-card-header img,
-  .login-card-header svg {
-    height: 50px;
-    width: auto;
-    display: block;
-    margin: 0 auto 15px;
-  }
-
-  .login-card-header svg {
-    color: #d4a000;
-  }
-
-  .login-card-title {
-    font-family: "Inter", sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    color: #1a1a1a;
-    margin-bottom: 5px;
-  }
-
-  .login-card-subtitle {
-    font-size: 12px;
-    color: #666;
-    letter-spacing: 1px;
-  }
-
-  .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .login-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .login-label {
-    font-family: "Inter", sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    color: #555;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .login-input-wrap {
-    border: 2px solid #0f0f0f;
-    border-radius: 12px;
-    padding: 0 15px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .login-input-wrap:focus-within {
-    border-color: #d4a000;
-    box-shadow: 0 0 0 3px rgba(212, 160, 0, 0.15);
-  }
-
-  .login-input {
-    font-family: "Inter", sans-serif;
-    width: 100%;
-    border: none;
-    outline: none;
-    padding: 14px 0;
-    font-size: 14px;
-    color: #1a1a1a;
-    background: transparent;
-  }
-
-  .login-input::placeholder {
-    color: #aaa;
-  }
-
-  .login-message {
-    display: none;
-    font-family: "Inter", sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    text-align: center;
-    padding: 10px;
-    border-radius: 8px;
-  }
-
-  .login-message.error {
-    display: block;
-    background: #fef2f2;
-    color: #dc2626;
-  }
-
-  .login-message.success {
-    display: block;
-    background: #f0fdf4;
-    color: #16a34a;
-  }
-
-  .login-btn {
-    font-family: "Inter", sans-serif;
-    background: linear-gradient(135deg, #d4a000 0%, #b8860b 100%);
-    color: #000;
-    border: none;
-    padding: 16px;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 10px;
-  }
-
-  .login-btn:hover {
-    background: linear-gradient(135deg, #e6b000 0%, #d4a000 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(212, 160, 0, 0.3);
-  }
-
-  .login-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  .login-footer {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 10px;
-    color: #999;
-    letter-spacing: 1px;
-  }
+@layer base {
+  html, body { margin: 0; padding: 0; }
+  body { overscroll-behavior: none; }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+}
+::-webkit-scrollbar { display: none; }
+.technical-grid {
+  background-image:
+    linear-gradient(to right, #F1F5F9 1px, transparent 1px),
+    linear-gradient(to bottom, #F1F5F9 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.page-map-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url('<?= htmlspecialchars($bgMap, ENT_QUOTES, 'UTF-8') ?>');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.page-map-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: rgba(247, 249, 251, 0.72);
+  pointer-events: none;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 </style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'on-tertiary': '#ffffff',
+        'on-secondary-container': '#5c647a',
+        'secondary-fixed': '#dae2fd',
+        'primary-fixed-dim': '#b8c4ff',
+        'error-container': '#ffdad6',
+        'on-background': '#191c1e',
+        'on-secondary': '#ffffff',
+        'tertiary': '#611e00',
+        'tertiary-fixed': '#ffdbce',
+        'secondary-container': '#dae2fd',
+        'on-primary-fixed-variant': '#173bab',
+        'primary': '#00288e',
+        'on-error': '#ffffff',
+        'surface-dim': '#d8dadc',
+        'inverse-on-surface': '#eff1f3',
+        'tertiary-fixed-dim': '#ffb59a',
+        'error': '#ba1a1a',
+        'on-primary-fixed': '#001453',
+        'surface-tint': '#3755c3',
+        'inverse-surface': '#2d3133',
+        'on-surface': '#191c1e',
+        'on-tertiary-fixed-variant': '#802a00',
+        'on-primary-container': '#a8b8ff',
+        'technical-grid': '#F1F5F9',
+        'surface-container-lowest': '#ffffff',
+        'secondary': '#565e74',
+        'surface-container-highest': '#e0e3e5',
+        'on-tertiary-fixed': '#380d00',
+        'on-secondary-fixed': '#131b2e',
+        'surface-variant': '#e0e3e5',
+        'border-subtle': '#E2E8F0',
+        'primary-fixed': '#dde1ff',
+        'surface-container-high': '#e6e8ea',
+        'on-primary': '#ffffff',
+        'on-secondary-fixed-variant': '#3f465c',
+        'surface-container-low': '#f2f4f6',
+        'surface': '#f7f9fb',
+        'outline': '#757684',
+        'tertiary-container': '#872d00',
+        'surface-bright': '#f7f9fb',
+        'outline-variant': '#c4c5d5',
+        'primary-container': '#1e40af',
+        'surface-container': '#eceef0',
+        'background': '#f7f9fb',
+        'on-error-container': '#93000a',
+        'on-surface-variant': '#444653',
+        'secondary-fixed-dim': '#bec6e0',
+        'inverse-primary': '#b8c4ff',
+        'on-tertiary-container': '#ffa583',
+      },
+      borderRadius: {
+        DEFAULT: '0.125rem',
+        lg: '0.25rem',
+        xl: '0.5rem',
+        full: '0.75rem',
+      },
+      spacing: {
+        'grid-unit': '4px',
+        gutter: '24px',
+        'container-max': '1440px',
+        'margin-mobile': '16px',
+        'margin-desktop': '40px',
+      },
+      fontFamily: {
+        'headline-lg': ['Manrope'],
+        'headline-md': ['Manrope'],
+        'meta-mono': ['JetBrains Mono'],
+        'body-md': ['Manrope'],
+        'meta-technical': ['JetBrains Mono'],
+        'headline-sm': ['Manrope'],
+        'body-lg': ['Manrope'],
+        'body-sm': ['Manrope'],
+      },
+      fontSize: {
+        'headline-lg': ['30px', { lineHeight: '40px', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'headline-md': ['24px', { lineHeight: '32px', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'meta-mono': ['12px', { lineHeight: '16px', letterSpacing: '0em', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0em', fontWeight: '400' }],
+        'meta-technical': ['12px', { lineHeight: '16px', letterSpacing: '0.06em', fontWeight: '500' }],
+        'headline-sm': ['18px', { lineHeight: '24px', letterSpacing: '0em', fontWeight: '600' }],
+        'body-lg': ['16px', { lineHeight: '24px', letterSpacing: '0em', fontWeight: '400' }],
+        'body-sm': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '400' }],
+      },
+    },
+  },
+};
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
-<body>
+<body class="bg-surface font-body-md text-on-surface technical-grid min-h-screen flex flex-col relative">
+<div class="page-map-bg" aria-hidden="true"></div>
+<div class="page-map-veil" aria-hidden="true"></div>
 
-<div class="content">
-  <div class="logo-section">
-    <svg viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="currentColor" d="M28 2 6 12v18c0 14.5 9.2 27.4 22 32 12.8-4.6 22-17.5 22-32V12L28 2Z"/>
-      <path fill="#fff" fill-opacity=".2" d="M28 8 14 14.2V28c0 10.2 6.4 19.3 14 23 7.6-3.7 14-12.8 14-23V14.2L28 8Z"/>
-    </svg>
-    <div class="title" style="margin-top: 20px;">Elysium Server</div>
-    <div class="subtitle">Secure Transfer Gateway v7.2.1</div>
-  </div>
-
-  <!-- Initial State -->
-  <div id="initialState">
-    <div class="description">
-      Initialize a secure connection to the Elysium transfer gateway.<br>
-      All sessions are encrypted and authenticated.
+<header class="fixed top-0 w-full z-50 bg-surface/40 backdrop-blur-sm">
+  <div class="h-16 w-full px-margin-desktop flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <img alt="Elysium" class="h-8 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+      <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">ELYSIUM SERVER</span>
     </div>
-    <button class="start-btn" id="startBtn">Start Server</button>
-  </div>
-
-  <!-- Loading State -->
-  <div class="loading-section" id="loadingSection">
-    <div class="loading-header">
-      <div class="spinner"></div>
-      <div class="loading-text" id="loadingText">Initializing Server...</div>
-    </div>
-
-    <div class="progress-container">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-
-    <div class="progress-info">
-      <div class="progress-percent"><span id="progressPercent">0</span>%</div>
-      <div class="progress-status" id="progressStatus">Preparing secure environment...</div>
-    </div>
-
-    <div class="log-section" id="logSection">
-      <div class="log-title">System Log</div>
-      <div id="logEntries"></div>
+    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+      <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
     </div>
   </div>
+</header>
 
-  <!-- Login State -->
-  <div class="login-section" id="loginSection">
-    <div class="login-card">
-      <div class="login-card-header">
-        <svg viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path fill="currentColor" d="M28 2 6 12v18c0 14.5 9.2 27.4 22 32 12.8-4.6 22-17.5 22-32V12L28 2Z"/>
-          <path fill="#fff" fill-opacity=".2" d="M28 8 14 14.2V28c0 10.2 6.4 19.3 14 23 7.6-3.7 14-12.8 14-23V14.2L28 8Z"/>
-        </svg>
-        <div class="login-card-title">Server Online</div>
-        <div class="login-card-subtitle">Enter your license key to continue</div>
+<main class="relative z-10 flex-1 w-full pt-16 max-w-container-max mx-auto px-margin-desktop">
+  <div class="flex flex-col w-full h-full min-h-[calc(100vh-128px)] justify-center items-center py-20 relative">
+
+    <!-- Central Alignment Container -->
+    <div class="flex flex-col items-center w-full max-w-2xl relative z-10 px-8 bg-surface-container-lowest border border-border-subtle rounded-xl py-20 shadow-sm">
+
+      <!-- Subtle Structural Lines (Background Detail) -->
+      <div aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none flex justify-center -z-10">
+        <div class="w-[1px] h-full bg-border-subtle opacity-50 relative">
+          <!-- Crosshairs -->
+          <div class="absolute top-[20%] -left-3 w-6 h-[1px] bg-border-subtle opacity-50"></div>
+          <div class="absolute top-[80%] -left-3 w-6 h-[1px] bg-border-subtle opacity-50"></div>
+        </div>
+        <div class="absolute top-1/2 left-0 w-full h-[1px] bg-border-subtle opacity-30 transform -translate-y-1/2"></div>
       </div>
-      <form class="login-form" id="loginForm">
-        <div class="login-field">
-          <label class="login-label" for="licenseKey">License Key</label>
-          <div class="login-input-wrap">
-            <input class="login-input" type="text" id="licenseKey" placeholder="Enter license key" required autocomplete="off" />
+
+      <!-- Header / Logo -->
+      <div id="brandBlock" class="mb-12 relative flex flex-col items-center">
+        <!-- Decorative corner brackets -->
+        <div class="absolute -top-4 -left-4 w-4 h-4 border-t border-l border-primary/30"></div>
+        <div class="absolute -top-4 -right-4 w-4 h-4 border-t border-r border-primary/30"></div>
+        <div class="absolute -bottom-4 -left-4 w-4 h-4 border-b border-l border-primary/30"></div>
+        <div class="absolute -bottom-4 -right-4 w-4 h-4 border-b border-r border-primary/30"></div>
+        <img alt="Elysium App Identity" class="w-24 h-24 object-contain mb-8 mix-blend-multiply" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight uppercase mb-2">Elysium Server</h1>
+        <div class="flex items-center gap-3">
+          <span class="font-body-md text-body-md text-primary tracking-wide">Secure Transfer Gateway</span>
+          <span class="font-meta-mono text-meta-mono text-primary bg-primary-fixed-dim/20 px-2 py-0.5 rounded-sm">v7.2.1</span>
+        </div>
+      </div>
+
+      <!-- Initial state (matches design sample) -->
+      <div id="initialState" class="w-full flex flex-col items-center">
+        <!-- Message -->
+        <p class="font-body-lg text-body-lg text-on-surface-variant text-center max-w-md mb-16 leading-relaxed">
+          Initialize a secure connection to the Elysium transfer gateway.
+        </p>
+        <!-- CTA & Status Area -->
+        <div class="flex flex-col items-center w-full gap-8">
+          <button id="startBtn" type="button" class="bg-primary text-on-primary font-headline-sm text-headline-sm px-12 py-4 rounded-sm hover:bg-primary/90 transition-colors duration-300 w-full sm:w-auto relative group overflow-hidden border border-primary disabled:opacity-60">
+            <span class="relative z-10 flex items-center justify-center gap-2">
+              START SERVER
+              <span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </span>
+            <!-- Subtle inner interaction border -->
+            <div class="absolute inset-0 border border-white/20 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </button>
+          <!-- Status -->
+          <div class="flex flex-col items-center gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-primary" style="font-variation-settings: 'FILL' 1;">●</span>
+              <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">System Ready</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface-variant/70 text-center">
+              All sessions are encrypted and authenticated.
+            </p>
           </div>
         </div>
-        <div class="login-message" id="loginMessage"></div>
-        <button type="submit" class="login-btn" id="loginBtn">Authenticate</button>
-      </form>
-      <div class="login-footer">
-        BUILD: 2024.03.27 | ELYSIUM
+      </div>
+
+      <!-- Loading (runtime, not in design sample) -->
+      <div id="loadingSection" class="hidden w-full">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full" style="animation: spin 1s linear infinite;"></div>
+          <div id="loadingText" class="font-headline-sm text-headline-sm text-on-surface">Initializing Server...</div>
+        </div>
+        <div class="w-full h-2 bg-surface-container-high rounded-sm overflow-hidden mb-4">
+          <div id="progressBar" class="h-full w-0 bg-primary transition-all duration-100" style="background-size: 200% 100%; animation: shimmer 2s linear infinite;"></div>
+        </div>
+        <div class="flex items-center justify-between gap-4 mb-6">
+          <div class="font-headline-md text-headline-md text-primary tabular-nums"><span id="progressPercent">0</span>%</div>
+          <div id="progressStatus" class="font-body-sm text-body-sm text-on-surface-variant text-right max-w-[220px]">Preparing secure environment...</div>
+        </div>
+        <div class="w-full border border-border-subtle bg-surface-container-low rounded-lg p-4 max-h-48 overflow-y-auto">
+          <div class="font-meta-technical text-meta-technical text-outline tracking-widest uppercase mb-3">System Log</div>
+          <div id="logEntries" class="font-meta-mono text-meta-mono space-y-1 text-on-surface-variant"></div>
+        </div>
+      </div>
+
+      <!-- Login (runtime, not in design sample) -->
+      <div id="loginSection" class="hidden w-full max-w-md mx-auto">
+        <div class="text-center mb-8">
+          <div class="font-headline-sm text-headline-sm text-on-surface mb-1">Server Online</div>
+          <div class="font-body-sm text-body-sm text-on-surface-variant">Enter your license key to continue</div>
+        </div>
+        <form id="loginForm" class="flex flex-col gap-5">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-meta-technical text-meta-technical text-on-surface-variant tracking-widest uppercase" for="licenseKey">License Key</label>
+            <input id="licenseKey" class="w-full border border-border-subtle rounded-sm bg-white px-3 py-3 font-body-md text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" type="text" placeholder="Enter license key" required autocomplete="off"/>
+          </div>
+          <div id="loginMessage" class="hidden text-sm px-3 py-2 rounded-sm"></div>
+          <button type="submit" id="loginBtn" class="w-full bg-primary text-on-primary font-headline-sm text-headline-sm px-8 py-4 rounded-sm hover:bg-primary/90 transition-colors border border-primary disabled:opacity-60">
+            Authenticate
+          </button>
+        </form>
+        <div class="mt-6 text-center font-meta-mono text-meta-mono text-outline-variant tracking-widest uppercase">
+          BUILD: 2024.03.27 | ELYSIUM
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Metadata -->
+    <div class="absolute bottom-12 w-full flex justify-center pb-8 border-b border-transparent">
+      <div class="font-meta-mono text-meta-mono text-outline-variant tracking-widest uppercase flex items-center gap-4">
+        <span>BUILD: 2024.03.27</span>
+        <span class="w-[1px] h-3 bg-outline-variant"></span>
+        <span>ELYSIUM</span>
       </div>
     </div>
   </div>
-</div>
+</main>
 
-<div class="version-info">
-  BUILD: 2024.03.27 | ELYSIUM
-</div>
+<footer class="relative z-10 w-full py-6 border-t border-border-subtle bg-surface/80 backdrop-blur-md">
+  <div class="max-w-container-max mx-auto px-margin-desktop flex justify-between items-center gap-4 flex-wrap">
+    <div class="flex gap-gutter flex-wrap">
+      <span class="font-meta-technical text-meta-technical text-on-surface-variant uppercase">Environment: Production</span>
+      <span class="font-meta-technical text-meta-technical text-on-surface-variant uppercase">Build: v4.2.0-stable</span>
+    </div>
+    <div class="font-meta-mono text-meta-mono text-outline">SECURE NODE CONNECTED</div>
+  </div>
+</footer>
 
 <script>
-(function() {
+(function () {
   var startBtn = document.getElementById('startBtn');
   var initialState = document.getElementById('initialState');
   var loadingSection = document.getElementById('loadingSection');
@@ -576,9 +310,10 @@ if (is_logged_in()) {
   var loginBtn = document.getElementById('loginBtn');
   var loginMessage = document.getElementById('loginMessage');
 
-  var TOTAL_DURATION = 25000; // 25 seconds
+  var TOTAL_DURATION = 25000;
   var startTime = null;
   var animationFrame = null;
+  var lastLogIndex = -1;
 
   var statusMessages = [
     { pct: 0, status: 'Preparing secure environment...', log: 'System boot initiated', type: 'info' },
@@ -604,14 +339,13 @@ if (is_logged_in()) {
     { pct: 100, status: 'Server ready!', log: 'Elysium Gateway online', type: 'success' }
   ];
 
-  var lastLogIndex = -1;
-
   function addLogEntry(text, type) {
     var entry = document.createElement('div');
-    entry.className = 'log-entry ' + (type || 'info');
+    var color = type === 'success' ? 'text-primary' : (type === 'warning' ? 'text-tertiary' : 'text-on-surface-variant');
+    entry.className = color;
     var now = new Date();
-    var time = String(now.getHours()).padStart(2, '0') + ':' + 
-               String(now.getMinutes()).padStart(2, '0') + ':' + 
+    var time = String(now.getHours()).padStart(2, '0') + ':' +
+               String(now.getMinutes()).padStart(2, '0') + ':' +
                String(now.getSeconds()).padStart(2, '0');
     entry.textContent = '[' + time + '] ' + text;
     logEntries.appendChild(entry);
@@ -621,7 +355,6 @@ if (is_logged_in()) {
   function updateProgress(percent) {
     progressBar.style.width = percent + '%';
     progressPercent.textContent = Math.floor(percent);
-
     for (var i = statusMessages.length - 1; i >= 0; i--) {
       if (percent >= statusMessages[i].pct) {
         progressStatus.textContent = statusMessages[i].status;
@@ -632,21 +365,14 @@ if (is_logged_in()) {
         break;
       }
     }
-
-    if (percent >= 50) {
-      loadingText.textContent = 'Connecting to Transfer Gateway...';
-    }
-    if (percent >= 80) {
-      loadingText.textContent = 'Finalizing Configuration...';
-    }
-    if (percent >= 100) {
-      loadingText.textContent = 'Server Ready!';
-    }
+    if (percent >= 50) loadingText.textContent = 'Connecting to Transfer Gateway...';
+    if (percent >= 80) loadingText.textContent = 'Finalizing Configuration...';
+    if (percent >= 100) loadingText.textContent = 'Server Ready!';
   }
 
   function showLoginSection() {
-    loadingSection.classList.remove('active');
-    loginSection.classList.add('active');
+    loadingSection.classList.add('hidden');
+    loginSection.classList.remove('hidden');
     if (licenseInput) licenseInput.focus();
   }
 
@@ -654,9 +380,7 @@ if (is_logged_in()) {
     if (!startTime) startTime = timestamp;
     var elapsed = timestamp - startTime;
     var percent = Math.min((elapsed / TOTAL_DURATION) * 100, 100);
-
     updateProgress(percent);
-
     if (percent < 100) {
       animationFrame = requestAnimationFrame(animate);
     } else {
@@ -664,79 +388,62 @@ if (is_logged_in()) {
     }
   }
 
-  startBtn.addEventListener('click', function() {
+  startBtn.addEventListener('click', function () {
     startBtn.disabled = true;
-    initialState.style.display = 'none';
-    loadingSection.classList.add('active');
-    
+    initialState.classList.add('hidden');
+    loadingSection.classList.remove('hidden');
     addLogEntry('User initiated server start', 'info');
-    
     animationFrame = requestAnimationFrame(animate);
   });
 
-  // Login form handling
   function showMessage(text, isError) {
     if (!loginMessage) return;
     loginMessage.textContent = text;
-    loginMessage.className = 'login-message ' + (isError ? 'error' : 'success');
+    loginMessage.className = isError
+      ? 'text-sm px-3 py-2 rounded-sm bg-error-container text-on-error-container border border-error/20'
+      : 'text-sm px-3 py-2 rounded-sm bg-primary-fixed text-on-primary-fixed border border-primary/20';
+    loginMessage.classList.remove('hidden');
   }
 
   function hideMessage() {
     if (loginMessage) {
-      loginMessage.className = 'login-message';
+      loginMessage.classList.add('hidden');
       loginMessage.textContent = '';
     }
   }
 
-  // Post-login gateway connection loading
   function showGatewayConnectionLoading() {
-    var loginCard = document.querySelector('.login-card');
-    if (loginCard) {
-      loginCard.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-          <svg style="height: 60px; width: 52px; margin: 0 auto 20px; color: #d4a000;" viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path fill="currentColor" d="M28 2 6 12v18c0 14.5 9.2 27.4 22 32 12.8-4.6 22-17.5 22-32V12L28 2Z"/>
-            <path fill="#fff" fill-opacity=".2" d="M28 8 14 14.2V28c0 10.2 6.4 19.3 14 23 7.6-3.7 14-12.8 14-23V14.2L28 8Z"/>
-          </svg>
-          <div style="margin-bottom: 20px;">
-            <div style="width: 50px; height: 50px; border: 4px solid rgba(212, 160, 0, 0.2); border-top-color: #d4a000; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-          </div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #d4a000; letter-spacing: 1px; margin-bottom: 10px;">
-            CONNECTING TO ELYSIUM SERVER
-          </div>
-          <div style="font-family: 'Inter', sans-serif; font-size: 13px; color: #666;">
-            Establishing secure connection...
-          </div>
-          <div style="margin-top: 20px; background: rgba(212, 160, 0, 0.1); height: 6px; border-radius: 3px; overflow: hidden;">
-            <div id="gatewayProgressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #d4a000 0%, #ffd700 50%, #d4a000 100%); transition: width 0.1s linear;"></div>
-          </div>
-        </div>
-      `;
-
-      var progress = 0;
-      var gatewayBar = document.getElementById('gatewayProgressBar');
-      var interval = setInterval(function() {
-        progress += 2;
-        if (gatewayBar) gatewayBar.style.width = progress + '%';
-        if (progress >= 100) {
-          clearInterval(interval);
-          window.location.href = '/transfer_selection.php';
-        }
-      }, 100);
-    }
+    if (!loginSection) return;
+    loginSection.innerHTML =
+      '<div class="text-center py-6">' +
+        '<div class="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full mx-auto mb-6" style="animation: spin 1s linear infinite;"></div>' +
+        '<div class="font-headline-sm text-headline-sm text-primary tracking-wide mb-2">CONNECTING TO ELYSIUM SERVER</div>' +
+        '<div class="font-body-sm text-body-sm text-on-surface-variant mb-6">Establishing secure connection...</div>' +
+        '<div class="w-full h-1.5 bg-surface-container-high rounded-sm overflow-hidden">' +
+          '<div id="gatewayProgressBar" class="h-full w-0 bg-primary transition-all duration-100"></div>' +
+        '</div>' +
+      '</div>';
+    var progress = 0;
+    var gatewayBar = document.getElementById('gatewayProgressBar');
+    var interval = setInterval(function () {
+      progress += 2;
+      if (gatewayBar) gatewayBar.style.width = progress + '%';
+      if (progress >= 100) {
+        clearInterval(interval);
+        window.location.href = '/transfer_selection.php';
+      }
+    }, 100);
   }
 
   if (loginForm) {
-    loginForm.addEventListener('submit', async function(e) {
+    loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       hideMessage();
-
       var key = (licenseInput && licenseInput.value || '').trim();
       if (!key) {
         showMessage('License key is required.', true);
         return;
       }
-
       if (loginBtn) loginBtn.disabled = true;
       try {
         var res = await fetch('/api/auth.php', {
@@ -745,15 +452,11 @@ if (is_logged_in()) {
           body: JSON.stringify({ action: 'login', client_key: key })
         });
         var data = await res.json();
-        if (!res.ok || !data.success) {
-          throw new Error(data.message || 'Authentication failed');
-        }
+        if (!res.ok || !data.success) throw new Error(data.message || 'Authentication failed');
         showMessage('Authentication successful!', false);
-        setTimeout(function() {
-          showGatewayConnectionLoading();
-        }, 500);
+        setTimeout(showGatewayConnectionLoading, 500);
       } catch (err) {
-        showMessage(err.message, true);
+        showMessage(err.message || 'Authentication failed', true);
         if (loginBtn) loginBtn.disabled = false;
       }
     });

@@ -8,7 +8,7 @@ define('DB_PASS', getenv('DB_PASS') ?: 'Secretpass0721//');
 define('DB_CHARSET', 'utf8mb4');
 
 define('SESSION_NAME', 'ELESIUM_FLASHER_SESSION');
-define('SESSION_LIFETIME', 60 * 15); // 15 minutes of inactivity
+define('SESSION_LIFETIME', 60 * 60 * 2); // 2 hours of inactivity (server-side)
 
 function get_db(): PDO
 {
@@ -52,8 +52,10 @@ function start_app_session(): void
     session_name(SESSION_NAME);
 
     $secure = is_https_request();
+    // Cookie lasts for the browser session. Inactivity is enforced server-side via SESSION_LIFETIME.
+    // Using SESSION_LIFETIME as cookie max-age caused early logouts (cookie died even while using the app).
     session_set_cookie_params([
-        'lifetime' => SESSION_LIFETIME,
+        'lifetime' => 0,
         'path' => '/',
         'secure' => $secure,
         'httponly' => true,

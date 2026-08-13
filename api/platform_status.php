@@ -2,7 +2,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../includes/admin_auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = get_db();
@@ -27,6 +26,7 @@ switch ($method) {
         break;
 
     case 'PUT':
+        require_once __DIR__ . '/../includes/admin_auth.php';
         validate_admin_session();
 
         $input = json_decode(file_get_contents('php://input') ?: '{}', true);
@@ -52,4 +52,3 @@ switch ($method) {
     default:
         json_response(['success' => false, 'message' => 'Method not allowed'], 405);
 }
-
