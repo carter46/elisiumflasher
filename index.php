@@ -33,17 +33,13 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
 }
 .page-map-bg {
   position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
   z-index: 0;
-  width: min(640px, 70vw);
-  height: min(360px, 42vh);
   background-image: url('<?= htmlspecialchars($bgMap, ENT_QUOTES, 'UTF-8') ?>');
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.22;
+  background-size: 420px auto;
+  background-position: center top;
+  background-repeat: repeat;
+  opacity: 0.16;
   pointer-events: none;
 }
 .page-map-veil {
@@ -179,7 +175,7 @@ tailwind.config = {
   <div class="flex flex-col flex-1 min-h-0 w-full justify-center items-center py-4 relative">
 
     <!-- Central Alignment Container -->
-    <div class="flex flex-col items-center w-full max-w-xl relative z-10 px-6 sm:px-8 bg-surface-container-lowest border border-border-subtle rounded-xl py-8 sm:py-10 shadow-sm">
+    <div class="flex flex-col items-center w-full max-w-xl relative z-10 px-6 sm:px-8 bg-surface-container-lowest/92 backdrop-blur-[2px] border border-border-subtle rounded-xl py-8 sm:py-10 shadow-sm">
 
       <!-- Subtle Structural Lines (Background Detail) -->
       <div aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none flex justify-center -z-10">
