@@ -27,9 +27,9 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
 ::-webkit-scrollbar { display: none; }
 .technical-grid {
   background-image:
-    linear-gradient(to right, #F1F5F9 1px, transparent 1px),
-    linear-gradient(to bottom, #F1F5F9 1px, transparent 1px);
-  background-size: 24px 24px;
+    linear-gradient(to right, rgba(226, 232, 240, 0.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.7) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 .page-map-bg {
   position: fixed;
@@ -39,17 +39,27 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
   background-size: 420px auto;
   background-position: center top;
   background-repeat: repeat;
-  opacity: 0.15;
+  opacity: 0.1;
   pointer-events: none;
-}
-.page-map-veil {
-  display: none;
 }
 body.home-fit {
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
 }
+.app-titlebar, .app-statusbar {
+  background: rgba(247, 249, 251, 0.92);
+  backdrop-filter: blur(10px);
+}
+.app-panel {
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+.app-control:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.18);
+}
+.app-btn:active { transform: translateY(0.5px); }
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -57,26 +67,12 @@ body.home-fit {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-@keyframes success-pop {
-  0% { transform: scale(0.6); opacity: 0; }
-  60% { transform: scale(1.08); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes success-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-@keyframes confetti-fall {
-  0% { transform: translate3d(0, -12px, 0) rotate(0deg); opacity: 1; }
-  100% { transform: translate3d(var(--dx), 120px, 0) rotate(var(--rot)); opacity: 0; }
-}
-.success-pop {
-  animation: success-pop 0.55s cubic-bezier(0.2, 0.9, 0.2, 1) both;
-}
-.confetti-piece {
-  position: absolute;
-  top: 28%;
-  left: 50%;
-  width: 8px;
-  height: 10px;
-  border-radius: 1px;
-  animation: confetti-fall 1.35s ease-out forwards;
+.success-in {
+  animation: success-in 0.35s ease-out both;
 }
 </style>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -177,133 +173,110 @@ tailwind.config = {
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
-<body class="home-fit bg-surface font-body-md text-on-surface technical-grid min-h-0 flex flex-col relative">
+<body class="home-fit bg-surface-container-low font-body-md text-on-surface technical-grid min-h-0 flex flex-col relative">
 <div class="page-map-bg" aria-hidden="true"></div>
 
-<header class="shrink-0 relative z-50 bg-surface/40 backdrop-blur-sm">
-  <div class="h-12 w-full px-margin-desktop flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <span id="headerServerIp" class="font-meta-mono text-meta-mono text-on-surface tracking-wide">—.—.—.—</span>
+<header class="app-titlebar shrink-0 relative z-50 border-b border-border-subtle">
+  <div class="h-10 w-full px-4 md:px-6 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3 min-w-0">
+      <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Elysium Server</span>
+      <span class="hidden sm:inline w-px h-3 bg-border-subtle"></span>
+      <span class="hidden sm:inline font-meta-mono text-meta-mono text-on-surface-variant">Gateway Console</span>
     </div>
-    <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
-      <span class="material-symbols-outlined text-on-primary text-[16px]">person</span>
+    <div class="flex items-center gap-3 shrink-0">
+      <span class="inline-flex items-center gap-1.5 font-meta-mono text-meta-mono text-on-surface-variant">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        ONLINE
+      </span>
+      <span class="w-px h-3 bg-border-subtle"></span>
+      <span id="headerServerIp" class="font-meta-mono text-meta-mono text-on-surface tracking-wide">—.—.—.—</span>
     </div>
   </div>
 </header>
 
-<main class="relative z-10 flex-1 min-h-0 w-full max-w-container-max mx-auto px-margin-desktop flex flex-col">
-  <div class="flex flex-col flex-1 min-h-0 w-full justify-center items-center py-4 relative">
-
-    <!-- Central Alignment Container -->
-    <div class="flex flex-col items-center w-full max-w-xl relative z-10 px-6 sm:px-8 bg-surface-container-lowest border border-border-subtle rounded-xl py-8 sm:py-10 shadow-sm">
-
-      <!-- Subtle Structural Lines (Background Detail) -->
-      <div aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none flex justify-center -z-10">
-        <div class="w-[1px] h-full bg-border-subtle opacity-50 relative">
-          <div class="absolute top-[20%] -left-3 w-6 h-[1px] bg-border-subtle opacity-50"></div>
-          <div class="absolute top-[80%] -left-3 w-6 h-[1px] bg-border-subtle opacity-50"></div>
+<main class="relative z-10 flex-1 min-h-0 w-full px-4 md:px-6 py-4 flex flex-col">
+  <div class="flex flex-col flex-1 min-h-0 w-full justify-center items-center">
+    <section class="app-panel w-full max-w-xl bg-surface-container-lowest border border-border-subtle rounded overflow-hidden flex flex-col">
+      <div class="h-9 px-3 border-b border-border-subtle bg-surface-container-low flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="material-symbols-outlined text-[16px] text-primary">dns</span>
+          <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase truncate">Session Bootstrap</span>
         </div>
-        <div class="absolute top-1/2 left-0 w-full h-[1px] bg-border-subtle opacity-30 transform -translate-y-1/2"></div>
+        <span class="font-meta-mono text-meta-mono text-on-surface-variant shrink-0">v7.2.1</span>
       </div>
 
-      <!-- Header / Logo -->
-      <div id="brandBlock" class="mb-6 relative flex flex-col items-center">
-        <div class="absolute -top-3 -left-3 w-3 h-3 border-t border-l border-primary/30"></div>
-        <div class="absolute -top-3 -right-3 w-3 h-3 border-t border-r border-primary/30"></div>
-        <div class="absolute -bottom-3 -left-3 w-3 h-3 border-b border-l border-primary/30"></div>
-        <div class="absolute -bottom-3 -right-3 w-3 h-3 border-b border-r border-primary/30"></div>
-        <img alt="Elysium App Identity" class="w-14 h-14 object-contain mb-4 mix-blend-multiply" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
-        <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight uppercase mb-1">Elysium Server</h1>
-        <div class="flex items-center gap-3">
-          <span class="font-body-md text-body-md text-primary tracking-wide">Secure Transfer Gateway</span>
-          <span class="font-meta-mono text-meta-mono text-primary bg-primary-fixed-dim/20 px-2 py-0.5 rounded-sm">v7.2.1</span>
+      <div class="px-5 py-5 sm:px-6 sm:py-6 flex flex-col items-center">
+        <div id="brandBlock" class="mb-5 flex flex-col items-center text-center">
+          <img alt="Elysium App Identity" class="w-11 h-11 object-contain mb-3 mix-blend-multiply" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+          <h1 class="font-headline-md text-headline-md text-on-surface tracking-tight uppercase mb-1">Elysium Server</h1>
+          <p class="font-meta-mono text-meta-mono text-on-surface-variant">Secure Transfer Gateway</p>
         </div>
-      </div>
 
-      <!-- Initial state -->
-      <div id="initialState" class="w-full flex flex-col items-center">
-        <p class="font-body-lg text-body-lg text-on-surface-variant text-center max-w-md mb-8 leading-relaxed">
-          Initialize a secure connection to the Elysium transfer gateway.
-        </p>
-        <div class="flex flex-col items-center w-full gap-5">
-          <button id="startBtn" type="button" class="bg-primary text-on-primary font-headline-sm text-headline-sm px-12 py-3.5 rounded-sm hover:bg-primary/90 transition-colors duration-300 w-full sm:w-auto relative group overflow-hidden border border-primary disabled:opacity-60">
-            <span class="relative z-10 flex items-center justify-center gap-2">
-              START SERVER
-              <span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
-            </span>
-            <div class="absolute inset-0 border border-white/20 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div id="initialState" class="w-full flex flex-col items-center">
+          <p class="font-body-sm text-body-sm text-on-surface-variant text-center max-w-md mb-5">
+            Initialize a secure connection to the transfer gateway.
+          </p>
+          <button id="startBtn" type="button" class="app-btn bg-primary text-on-primary font-meta-technical text-meta-technical tracking-widest uppercase h-9 px-6 rounded-sm hover:bg-primary/90 transition-colors w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-primary disabled:opacity-50 disabled:cursor-not-allowed">
+            Start Server
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
           </button>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] text-primary" style="font-variation-settings: 'FILL' 1;">●</span>
-              <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">System Ready</span>
+          <div class="mt-4 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+            <span class="font-meta-technical text-meta-technical text-on-surface-variant tracking-widest uppercase">System Ready</span>
+          </div>
+        </div>
+
+        <div id="loadingSection" class="hidden w-full">
+          <div class="flex items-center gap-2.5 mb-4">
+            <div class="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full" style="animation: spin 0.8s linear infinite;"></div>
+            <div id="loadingText" class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Initializing Server</div>
+          </div>
+          <div class="w-full h-1.5 bg-surface-container-high rounded-sm overflow-hidden mb-3">
+            <div id="progressBar" class="h-full w-0 bg-primary transition-all duration-100" style="background-size: 200% 100%; animation: shimmer 2s linear infinite;"></div>
+          </div>
+          <div class="flex items-center justify-between gap-4 mb-4">
+            <div class="font-meta-mono text-[18px] leading-6 text-primary tabular-nums font-semibold"><span id="progressPercent">0</span>%</div>
+            <div id="progressStatus" class="font-body-sm text-body-sm text-on-surface-variant text-right max-w-[240px]">Preparing secure environment...</div>
+          </div>
+          <div class="w-full border border-border-subtle bg-surface-container-low rounded-sm p-3 max-h-40 overflow-y-auto">
+            <div class="font-meta-technical text-meta-technical text-outline tracking-widest uppercase mb-2">System Log</div>
+            <div id="logEntries" class="font-meta-mono text-meta-mono space-y-1 text-on-surface-variant"></div>
+          </div>
+        </div>
+
+        <div id="loginSection" class="hidden w-full max-w-md mx-auto">
+          <div class="mb-4 text-center">
+            <div class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase mb-1">Server Online</div>
+            <div class="font-body-sm text-body-sm text-on-surface-variant">Enter license key to authenticate</div>
+          </div>
+          <form id="loginForm" class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1">
+              <label class="font-meta-technical text-meta-technical text-on-surface-variant tracking-widest uppercase" for="licenseKey">License Key</label>
+              <input id="licenseKey" class="app-control w-full h-9 border border-border-subtle rounded-sm bg-white px-3 font-meta-mono text-meta-mono text-on-surface" type="text" placeholder="XXXX-XXXX-XXXX" required autocomplete="off"/>
             </div>
-            <p class="font-body-sm text-body-sm text-on-surface-variant/70 text-center">
-              All sessions are encrypted and authenticated.
-            </p>
-          </div>
+            <div id="loginMessage" class="hidden text-sm px-3 py-2 rounded-sm"></div>
+            <button type="submit" id="loginBtn" class="app-btn w-full h-9 bg-primary text-on-primary font-meta-technical text-meta-technical tracking-widest uppercase rounded-sm hover:bg-primary/90 transition-colors border border-primary disabled:opacity-50 disabled:cursor-not-allowed">
+              Authenticate
+            </button>
+          </form>
         </div>
       </div>
 
-      <!-- Loading (runtime, not in design sample) -->
-      <div id="loadingSection" class="hidden w-full">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full" style="animation: spin 1s linear infinite;"></div>
-          <div id="loadingText" class="font-headline-sm text-headline-sm text-on-surface">Initializing Server...</div>
-        </div>
-        <div class="w-full h-2 bg-surface-container-high rounded-sm overflow-hidden mb-4">
-          <div id="progressBar" class="h-full w-0 bg-primary transition-all duration-100" style="background-size: 200% 100%; animation: shimmer 2s linear infinite;"></div>
-        </div>
-        <div class="flex items-center justify-between gap-4 mb-6">
-          <div class="font-headline-md text-headline-md text-primary tabular-nums"><span id="progressPercent">0</span>%</div>
-          <div id="progressStatus" class="font-body-sm text-body-sm text-on-surface-variant text-right max-w-[220px]">Preparing secure environment...</div>
-        </div>
-        <div class="w-full border border-border-subtle bg-surface-container-low rounded-lg p-4 max-h-48 overflow-y-auto">
-          <div class="font-meta-technical text-meta-technical text-outline tracking-widest uppercase mb-3">System Log</div>
-          <div id="logEntries" class="font-meta-mono text-meta-mono space-y-1 text-on-surface-variant"></div>
-        </div>
+      <div class="h-8 px-3 border-t border-border-subtle bg-surface-container-low flex items-center justify-between gap-3">
+        <span class="font-meta-mono text-meta-mono text-on-surface-variant">BUILD 2024.03.27</span>
+        <span class="font-meta-mono text-meta-mono text-on-surface-variant">TLS 1.3</span>
       </div>
-
-      <!-- Login (runtime, not in design sample) -->
-      <div id="loginSection" class="hidden w-full max-w-md mx-auto">
-        <div class="text-center mb-8">
-          <div class="font-headline-sm text-headline-sm text-on-surface mb-1">Server Online</div>
-          <div class="font-body-sm text-body-sm text-on-surface-variant">Enter your license key to continue</div>
-        </div>
-        <form id="loginForm" class="flex flex-col gap-5">
-          <div class="flex flex-col gap-1.5">
-            <label class="font-meta-technical text-meta-technical text-on-surface-variant tracking-widest uppercase" for="licenseKey">License Key</label>
-            <input id="licenseKey" class="w-full border border-border-subtle rounded-sm bg-white px-3 py-3 font-body-md text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" type="text" placeholder="Enter license key" required autocomplete="off"/>
-          </div>
-          <div id="loginMessage" class="hidden text-sm px-3 py-2 rounded-sm"></div>
-          <button type="submit" id="loginBtn" class="w-full bg-primary text-on-primary font-headline-sm text-headline-sm px-8 py-4 rounded-sm hover:bg-primary/90 transition-colors border border-primary disabled:opacity-60">
-            Authenticate
-          </button>
-        </form>
-        <div class="mt-6 text-center font-meta-mono text-meta-mono text-outline-variant tracking-widest uppercase">
-          BUILD: 2024.03.27 | ELYSIUM
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer Metadata -->
-    <div class="mt-4 w-full flex justify-center">
-      <div class="font-meta-mono text-meta-mono text-outline-variant tracking-widest uppercase flex items-center gap-4">
-        <span>BUILD: 2024.03.27</span>
-        <span class="w-[1px] h-3 bg-outline-variant"></span>
-        <span>ELYSIUM</span>
-      </div>
-    </div>
+    </section>
   </div>
 </main>
 
-<footer class="relative z-10 shrink-0 w-full py-3 border-t border-border-subtle bg-surface/80 backdrop-blur-md">
-  <div class="max-w-container-max mx-auto px-margin-desktop flex justify-between items-center gap-4 flex-wrap">
-    <div class="flex gap-gutter flex-wrap">
-      <span class="font-meta-technical text-meta-technical text-on-surface-variant uppercase">Environment: Production</span>
-      <span class="font-meta-technical text-meta-technical text-on-surface-variant uppercase">Build: v4.2.0-stable</span>
+<footer class="app-statusbar relative z-10 shrink-0 w-full h-8 border-t border-border-subtle">
+  <div class="h-full px-4 md:px-6 flex justify-between items-center gap-4">
+    <div class="flex items-center gap-4 min-w-0">
+      <span class="font-meta-mono text-meta-mono text-on-surface-variant uppercase truncate">ENV Production</span>
+      <span class="hidden sm:inline font-meta-mono text-meta-mono text-on-surface-variant uppercase">Build v4.2.0-stable</span>
     </div>
-    <div class="font-meta-mono text-meta-mono text-outline">SECURE NODE CONNECTED</div>
+    <div class="font-meta-mono text-meta-mono text-primary uppercase shrink-0">Secure Node Connected</div>
   </div>
 </footer>
 
@@ -435,33 +408,13 @@ tailwind.config = {
     }
   }
 
-  function spawnCelebration() {
-    var burst = document.getElementById('celebrationBurst');
-    if (!burst) return;
-    var colors = ['#10b981', '#34d399', '#00288e', '#60a5fa', '#f59e0b', '#f472b6'];
-    for (var i = 0; i < 28; i++) {
-      var piece = document.createElement('span');
-      piece.className = 'confetti-piece';
-      var dx = (Math.random() * 220 - 110).toFixed(1) + 'px';
-      var rot = (Math.random() * 520 - 260).toFixed(1) + 'deg';
-      piece.style.setProperty('--dx', dx);
-      piece.style.setProperty('--rot', rot);
-      piece.style.background = colors[i % colors.length];
-      piece.style.marginLeft = (Math.random() * 24 - 12).toFixed(1) + 'px';
-      piece.style.animationDelay = (Math.random() * 0.2).toFixed(2) + 's';
-      piece.style.width = (6 + Math.random() * 6).toFixed(1) + 'px';
-      piece.style.height = (8 + Math.random() * 8).toFixed(1) + 'px';
-      burst.appendChild(piece);
-    }
-  }
-
   function showGatewayConnectionLoading() {
     if (!loginSection) return;
     loginSection.innerHTML =
-      '<div id="gatewayConnectPhase" class="text-center py-6">' +
-        '<div class="w-12 h-12 border-2 border-primary/20 border-t-primary rounded-full mx-auto mb-6" style="animation: spin 1s linear infinite;"></div>' +
-        '<div class="font-headline-sm text-headline-sm text-primary tracking-wide mb-2">CONNECTING TO ELYSIUM SERVER</div>' +
-        '<div class="font-body-sm text-body-sm text-on-surface-variant mb-6">Establishing secure connection...</div>' +
+      '<div id="gatewayConnectPhase" class="text-center py-4">' +
+        '<div class="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full mx-auto mb-4" style="animation: spin 0.8s linear infinite;"></div>' +
+        '<div class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase mb-1">Connecting</div>' +
+        '<div class="font-body-sm text-body-sm text-on-surface-variant mb-4">Establishing secure session…</div>' +
         '<div class="w-full h-1.5 bg-surface-container-high rounded-sm overflow-hidden">' +
           '<div id="gatewayProgressBar" class="h-full w-0 bg-primary transition-all duration-100"></div>' +
         '</div>' +
@@ -475,18 +428,16 @@ tailwind.config = {
       if (progress >= 100) {
         clearInterval(interval);
         loginSection.innerHTML =
-          '<div class="text-center py-8 flex flex-col items-center gap-4 relative overflow-hidden">' +
-            '<div id="celebrationBurst" class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true"></div>' +
-            '<div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center success-pop relative z-10">' +
-              '<span class="material-symbols-outlined text-emerald-600 text-[40px]" style="font-variation-settings: \'FILL\' 1;">check_circle</span>' +
+          '<div class="text-center py-5 flex flex-col items-center gap-3 success-in">' +
+            '<div class="w-10 h-10 rounded-sm bg-emerald-50 border border-emerald-200 flex items-center justify-center">' +
+              '<span class="material-symbols-outlined text-emerald-600 text-[28px]" style="font-variation-settings: \'FILL\' 1;">check</span>' +
             '</div>' +
-            '<div class="font-headline-sm text-headline-sm text-emerald-600 tracking-wide relative z-10 success-pop">Connection successful</div>' +
-            '<div class="font-body-sm text-body-sm text-on-surface-variant relative z-10">Secure session ready. Continuing…</div>' +
+            '<div class="font-meta-technical text-meta-technical text-emerald-700 tracking-widest uppercase">Connection Successful</div>' +
+            '<div class="font-meta-mono text-meta-mono text-on-surface-variant">Secure session ready · continuing</div>' +
           '</div>';
-        spawnCelebration();
         setTimeout(function () {
           window.location.href = '/transfer_selection.php';
-        }, 3000);
+        }, 2200);
       }
     }, 100);
   }

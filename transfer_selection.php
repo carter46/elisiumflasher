@@ -21,6 +21,30 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
 }
 ::-webkit-scrollbar { display: none; }
 #termBody { scrollbar-width: thin; }
+body.page-fit {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+.technical-grid {
+  background-image:
+    linear-gradient(to right, rgba(226, 232, 240, 0.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.7) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.app-titlebar, .app-statusbar {
+  background: rgba(247, 249, 251, 0.92);
+  backdrop-filter: blur(10px);
+}
+.app-panel {
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+.app-control:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.18);
+}
+.app-btn:active { transform: translateY(0.5px); }
 </style>
 <script src="https://cdn.tailwindcss.com"></script>
 <script id="tailwind-config">
@@ -101,15 +125,15 @@ tailwind.config = {
       },
       fontFamily: {
         'headline-sm': ['Manrope'],
-        'body-sm': ['Inter'],
+        'body-sm': ['Manrope'],
         'headline-lg': ['Manrope'],
         'headline-md': ['Manrope'],
-        'label-caps': ['Inter'],
+        'label-caps': ['Manrope'],
         'code-mono': ['JetBrains Mono'],
         'meta-mono': ['JetBrains Mono'],
-        'meta-technical': ['Inter'],
-        'body-lg': ['Inter'],
-        'body-md': ['Inter'],
+        'meta-technical': ['JetBrains Mono'],
+        'body-lg': ['Manrope'],
+        'body-md': ['Manrope'],
       },
       fontSize: {
         'headline-sm': ['18px', { lineHeight: '26px', fontWeight: '600' }],
@@ -131,117 +155,120 @@ tailwind.config = {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
-<body class="bg-surface-dim p-unit-2 min-h-screen">
-<div class="bg-surface rounded-xl shadow-2xl flex overflow-hidden min-h-[calc(100vh-32px)] border border-outline-variant/30">
-  <div class="flex-1 flex flex-col min-w-0 bg-background">
-    <header class="h-12 flex items-center justify-between px-unit-3 border-b border-border-subtle bg-surface-primary/50 backdrop-blur-sm">
-      <div class="flex items-center gap-unit-2">
-        <span class="font-label-caps text-label-caps text-secondary">NODE_01 // SECURE</span>
+<body class="page-fit bg-surface-container-low font-body-md text-on-surface technical-grid flex flex-col">
+<header class="app-titlebar shrink-0 relative z-50 border-b border-border-subtle">
+  <div class="h-10 w-full px-4 md:px-6 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3 min-w-0">
+      <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Elysium Server</span>
+      <span class="hidden sm:inline w-px h-3 bg-border-subtle"></span>
+      <span class="hidden sm:inline font-meta-mono text-meta-mono text-on-surface-variant">Transfer Selection</span>
+    </div>
+    <div class="flex items-center gap-3 shrink-0">
+      <span class="inline-flex items-center gap-1.5 font-meta-mono text-meta-mono text-on-surface-variant">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        AUTHENTICATED
+      </span>
+      <span class="w-px h-3 bg-border-subtle"></span>
+      <span class="font-meta-mono text-meta-mono text-on-surface tracking-wide">KEY LOG 4.09</span>
+    </div>
+  </div>
+</header>
+
+<main class="relative z-10 flex-1 min-h-0 w-full overflow-y-auto px-4 md:px-6 py-4 flex flex-col">
+  <div class="flex-1 min-h-0 flex flex-col items-center justify-center">
+    <form id="initiateLogForm" class="app-panel relative z-10 w-full max-w-xl bg-surface-container-lowest border border-border-subtle rounded overflow-hidden flex flex-col">
+      <div class="h-9 px-3 border-b border-border-subtle bg-surface-container-low flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="material-symbols-outlined text-[16px] text-primary">tune</span>
+          <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase truncate">Session Configuration</span>
+        </div>
+        <span class="font-meta-mono text-meta-mono text-on-surface-variant shrink-0">NG Local</span>
       </div>
-      <div class="flex items-center gap-unit-2">
-        <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-surface-container rounded-lg transition-colors" aria-label="Minimize">
-          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">minimize</span>
-        </button>
-        <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-surface-container rounded-lg transition-colors" aria-label="Maximize">
-          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">check_box_outline_blank</span>
-        </button>
-        <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-error/10 group transition-colors rounded-lg" aria-label="Close">
-          <span class="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-error">close</span>
-        </button>
+
+      <div class="px-4 py-4 border-b border-border-subtle bg-surface-bright flex items-center gap-3">
+        <img alt="Elysium Logo" class="w-9 h-9 object-contain shrink-0" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+        <div class="min-w-0">
+          <div class="font-headline-sm text-headline-sm text-on-surface leading-tight">Elysium Server</div>
+          <div class="font-meta-mono text-meta-mono text-on-surface-variant">Configure transfer endpoint parameters</div>
+        </div>
       </div>
-    </header>
 
-    <main class="flex-1 overflow-y-auto p-margin">
-      <div class="max-w-6xl mx-auto">
-        <div class="flex flex-col w-full h-full relative">
-          <div class="absolute inset-0 pointer-events-none opacity-20" style="background-size: 24px 24px; background-image: linear-gradient(to right, #E2E8F0 1px, transparent 1px), linear-gradient(to bottom, #E2E8F0 1px, transparent 1px);"></div>
-
-          <div class="flex-1 flex flex-col items-center justify-center relative z-10 px-4 md:px-margin-desktop py-8 min-h-0">
-            <form id="initiateLogForm" class="w-full max-w-2xl bg-surface-container-lowest border border-border-subtle rounded-lg shadow-sm flex flex-col overflow-hidden">
-              <div class="px-gutter py-gutter border-b border-border-subtle flex flex-col items-center text-center bg-surface-bright">
-                <img alt="Elysium Logo" class="w-16 h-16 object-contain mb-4" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
-                <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Elysium Server</h1>
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-primary-container inline-block"></span>
-                  <span class="font-meta-mono text-meta-mono text-on-secondary-container tracking-wider">KEY LOG VERSION : 4.09</span>
-                </div>
-              </div>
-
-              <div class="p-gutter flex flex-col gap-6 bg-surface-container-lowest">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
-                  <div class="flex flex-col gap-2">
-                    <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="portInput">PORT</label>
-                    <input class="w-full h-10 px-3 bg-surface-container-lowest border border-border-subtle rounded font-meta-mono text-meta-mono text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" id="portInput" name="port" placeholder="e.g. 443" type="number" min="0" max="65535" inputmode="numeric" required/>
-                  </div>
-                  <div class="flex flex-col gap-2 relative">
-                    <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="serverSelect">SERVER</label>
-                    <div class="relative w-full h-10">
-                      <select class="w-full h-full appearance-none bg-surface-container-lowest border border-border-subtle rounded px-3 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all cursor-pointer" id="serverSelect" name="server" required>
-                        <option disabled selected value="">— Select —</option>
-                        <option value="ISO 20022">ISO 20022</option>
-                        <option value="BGD-234">BGD-234</option>
-                        <option value="JNV 2345">JNV 2345</option>
-                      </select>
-                      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                  <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest">ENCRYPTION KEY</label>
-                  <div class="flex items-center gap-4 border border-border-subtle rounded h-10 px-3 bg-surface-bright" role="radiogroup" aria-label="Encryption Key">
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                      <input class="w-4 h-4 text-primary-container bg-surface-container border-border-subtle focus:ring-primary-container focus:ring-1 transition-all" id="encSsl" name="enc_key" type="radio" value="SSL" required/>
-                      <span class="font-meta-mono text-meta-mono text-on-surface group-hover:text-primary-container transition-colors">SSL</span>
-                    </label>
-                    <div class="w-px h-4 bg-border-subtle"></div>
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                      <input class="w-4 h-4 text-primary-container bg-surface-container border-border-subtle focus:ring-primary-container focus:ring-1 transition-all" id="encTsl" name="enc_key" type="radio" value="TSL"/>
-                      <span class="font-meta-mono text-meta-mono text-on-surface group-hover:text-primary-container transition-colors">TSL</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                  <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="serverIpSelect">SERVER IP</label>
-                  <div class="relative w-full h-10">
-                    <select class="w-full h-full appearance-none bg-surface-container-lowest border border-border-subtle rounded px-3 pr-10 font-meta-mono text-meta-mono text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all cursor-pointer" id="serverIpSelect" name="server_ip" required>
-                      <option disabled selected value="">— Select —</option>
-                    </select>
-                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
-                  </div>
-                </div>
-
-                <div id="currencyFieldWrap" class="hidden flex flex-col gap-2">
-                  <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="currencySelect">CURRENCY</label>
-                  <div class="relative w-full h-10">
-                    <select class="w-full h-full appearance-none bg-surface-container-lowest border border-border-subtle rounded px-3 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all cursor-pointer" id="currencySelect" name="currency">
-                      <option value="">— Select —</option>
-                      <option value="NGN">Naira</option>
-                      <option value="USD">Dollars</option>
-                    </select>
-                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="px-gutter py-gutter border-t border-border-subtle bg-surface-bright flex justify-end">
-                <button type="submit" id="initiateBtn" class="bg-primary-container text-on-primary-container font-headline-sm text-headline-sm px-6 py-3 rounded flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-                  <span class="material-symbols-outlined text-[20px]">terminal</span>
-                  Initiate Log
-                </button>
-              </div>
-            </form>
-
-            <div class="mt-8 text-center w-full max-w-2xl">
-              <span class="font-meta-mono text-meta-mono text-on-secondary-container tracking-widest opacity-60">BUILD: 2024.03.27 | ELYSIUM</span>
+      <div class="px-4 py-4 flex flex-col gap-3 bg-surface-container-lowest">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase tracking-widest" for="portInput">Port</label>
+            <input class="app-control w-full h-8 px-2.5 bg-white border border-border-subtle rounded-sm font-meta-mono text-meta-mono text-on-surface placeholder:text-on-surface-variant" id="portInput" name="port" placeholder="443" type="number" min="0" max="65535" inputmode="numeric" required/>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase tracking-widest" for="serverSelect">Server</label>
+            <div class="relative w-full h-8">
+              <select class="app-control w-full h-full appearance-none bg-white border border-border-subtle rounded-sm px-2.5 pr-8 font-body-md text-body-md text-on-surface cursor-pointer" id="serverSelect" name="server" required>
+                <option disabled selected value="">Select</option>
+                <option value="ISO 20022">ISO 20022</option>
+                <option value="BGD-234">BGD-234</option>
+                <option value="JNV 2345">JNV 2345</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
             </div>
           </div>
         </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase tracking-widest">Encryption Key</label>
+          <div class="flex items-center h-8 border border-border-subtle rounded-sm bg-surface-container-low overflow-hidden" role="radiogroup" aria-label="Encryption Key">
+            <label class="flex-1 h-full flex items-center justify-center gap-2 cursor-pointer hover:bg-white/70 transition-colors border-r border-border-subtle">
+              <input class="w-3.5 h-3.5 accent-primary" id="encSsl" name="enc_key" type="radio" value="SSL" required/>
+              <span class="font-meta-mono text-meta-mono text-on-surface">SSL</span>
+            </label>
+            <label class="flex-1 h-full flex items-center justify-center gap-2 cursor-pointer hover:bg-white/70 transition-colors">
+              <input class="w-3.5 h-3.5 accent-primary" id="encTsl" name="enc_key" type="radio" value="TSL"/>
+              <span class="font-meta-mono text-meta-mono text-on-surface">TSL</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase tracking-widest" for="serverIpSelect">Server IP</label>
+          <div class="relative w-full h-8">
+            <select class="app-control w-full h-full appearance-none bg-white border border-border-subtle rounded-sm px-2.5 pr-8 font-meta-mono text-meta-mono text-on-surface cursor-pointer" id="serverIpSelect" name="server_ip" required>
+              <option disabled selected value="">Select</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
+          </div>
+        </div>
+
+        <div id="currencyFieldWrap" class="hidden flex flex-col gap-1">
+          <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase tracking-widest" for="currencySelect">Currency</label>
+          <div class="relative w-full h-8">
+            <select class="app-control w-full h-full appearance-none bg-white border border-border-subtle rounded-sm px-2.5 pr-8 font-body-md text-body-md text-on-surface cursor-pointer" id="currencySelect" name="currency">
+              <option value="">Select</option>
+              <option value="NGN">Naira</option>
+              <option value="USD">Dollars</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
+          </div>
+        </div>
       </div>
-    </main>
+
+      <div class="h-11 px-3 border-t border-border-subtle bg-surface-container-low flex items-center justify-end">
+        <button type="submit" id="initiateBtn" class="app-btn h-8 px-4 bg-primary text-on-primary font-meta-technical text-meta-technical tracking-widest uppercase rounded-sm inline-flex items-center gap-1.5 hover:bg-primary/90 transition-colors border border-primary disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-[16px]">terminal</span>
+          Initiate Log
+        </button>
+      </div>
+    </form>
   </div>
-</div>
+</main>
+
+<footer class="app-statusbar relative z-10 shrink-0 w-full h-8 border-t border-border-subtle">
+  <div class="h-full px-4 md:px-6 flex justify-between items-center gap-4">
+    <div class="flex items-center gap-4 min-w-0">
+      <span class="font-meta-mono text-meta-mono text-on-surface-variant uppercase truncate">ENV Production</span>
+      <span class="hidden sm:inline font-meta-mono text-meta-mono text-on-surface-variant uppercase">Build 2024.03.27</span>
+    </div>
+    <div class="font-meta-mono text-meta-mono text-primary uppercase shrink-0">Awaiting Configuration</div>
+  </div>
+</footer>
 
 <div id="protocolModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 p-4" aria-hidden="true">
   <div class="w-full max-w-lg rounded-xl border border-green-900/80 bg-[#070707] shadow-2xl overflow-hidden">
