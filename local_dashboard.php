@@ -31,6 +31,17 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
@@ -342,10 +353,21 @@ tailwind.config = {
       <!-- Step 1: Destination Account -->
       <div id="sendStep1" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label for="bankSelect" class="text-sm font-medium text-on-surface">Destination Bank</label>
-          <select id="bankSelect" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface">
-            <option value="">Select Institution...</option>
-          </select>
+          <label for="bankPickerBtn" class="text-sm font-medium text-on-surface">Destination Bank</label>
+          <div id="bankPicker" class="relative">
+            <select id="bankSelect" class="sr-only" tabindex="-1" aria-hidden="true">
+              <option value="">Select Institution...</option>
+            </select>
+            <button type="button" id="bankPickerBtn" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface inline-flex items-center gap-2.5 text-left">
+              <span class="w-7 h-7 rounded-md bg-surface border border-border-subtle inline-flex items-center justify-center overflow-hidden shrink-0">
+                <img id="bankPickerLogo" alt="" class="w-full h-full object-contain p-0.5 hidden"/>
+                <span id="bankPickerFallback" class="material-symbols-outlined text-on-surface-variant text-[18px]">account_balance</span>
+              </span>
+              <span id="bankPickerLabel" class="flex-1 truncate text-on-surface-variant">Select Institution...</span>
+              <span class="material-symbols-outlined text-on-surface-variant text-[20px]">expand_more</span>
+            </button>
+            <div id="bankPickerMenu" class="hidden absolute z-20 mt-1 w-full max-h-56 overflow-y-auto rounded-lg border border-border-subtle bg-white shadow-lg py-1"></div>
+          </div>
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="accountNumber" class="text-sm font-medium text-on-surface">Account Number</label>
@@ -353,9 +375,18 @@ tailwind.config = {
         </div>
         <div id="resolveRow" class="hidden flex flex-col gap-1.5 min-h-[24px]">
           <div id="resolveSpinner" class="hidden w-4 h-4 border-2 border-money/20 border-t-money rounded-full" style="animation: spin 0.8s linear infinite;"></div>
-          <div id="resolvedNameBlock" class="hidden flex flex-col gap-1 w-full rounded-lg border border-emerald-100/80 bg-emerald-50/50 px-3.5 py-3 shadow-none">
-            <span class="text-sm font-medium text-black">Account Name</span>
-            <p id="resolvedNameDisplay" class="text-sm font-semibold text-money"></p>
+          <div id="resolvedNameBlock" class="hidden flex flex-col gap-2 w-full rounded-lg border border-emerald-100/80 bg-emerald-50/50 px-3.5 py-3 shadow-none">
+            <div>
+              <span class="text-sm font-medium text-black">Account Name</span>
+              <p id="resolvedNameDisplay" class="text-sm font-semibold text-money"></p>
+            </div>
+            <div id="resolvedBankRow" class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-white border border-border-subtle inline-flex items-center justify-center overflow-hidden shrink-0">
+                <img id="resolvedBankLogo" alt="" class="w-full h-full object-contain p-0.5 hidden"/>
+                <span id="resolvedBankFallback" class="material-symbols-outlined text-on-surface-variant text-[16px]">account_balance</span>
+              </span>
+              <span id="resolvedBankDisplay" class="text-sm font-semibold text-on-surface truncate">—</span>
+            </div>
           </div>
           <p id="resolveError" class="text-xs text-error hidden"></p>
         </div>
@@ -386,9 +417,13 @@ tailwind.config = {
           <p class="text-sm text-on-surface-variant">Your bank account has been verified and linked to the system.</p>
         </div>
         <div class="rounded-xl bg-money-soft/70 border border-emerald-100 px-4 py-3 flex flex-col gap-2 text-sm">
-          <div class="flex justify-between gap-3">
+          <div class="flex justify-between gap-3 items-center">
             <span class="text-on-surface-variant">Bank</span>
-            <span id="syncCardBank" class="font-semibold text-on-surface text-right"></span>
+            <span class="inline-flex items-center gap-1.5 justify-end min-w-0">
+              <img id="syncCardBankLogo" alt="" class="w-5 h-5 rounded object-contain hidden bg-white border border-border-subtle"/>
+              <span id="syncCardBankFallback" class="material-symbols-outlined text-on-surface-variant text-[16px] hidden">account_balance</span>
+              <span id="syncCardBank" class="font-semibold text-on-surface text-right truncate"></span>
+            </span>
           </div>
           <div class="flex justify-between gap-3">
             <span class="text-on-surface-variant">Account Name</span>
@@ -416,9 +451,13 @@ tailwind.config = {
           <p class="text-sm text-on-surface-variant">This account cannot be syncronized due to security concerns or restrictions that prevents payment processing from our server, Please usea diffrent accout to try again</p>
         </div>
         <div class="rounded-lg border border-emerald-100/80 bg-emerald-50/50 px-3.5 py-3 flex flex-col gap-2 text-sm shadow-none">
-          <div class="flex justify-between gap-3">
+          <div class="flex justify-between gap-3 items-center">
             <span class="text-on-surface-variant">Bank</span>
-            <span id="linkFailBank" class="font-semibold text-on-surface text-right"></span>
+            <span class="inline-flex items-center gap-1.5 justify-end min-w-0">
+              <img id="linkFailBankLogo" alt="" class="w-5 h-5 rounded object-contain hidden bg-white border border-border-subtle"/>
+              <span id="linkFailBankFallback" class="material-symbols-outlined text-on-surface-variant text-[16px] hidden">account_balance</span>
+              <span id="linkFailBank" class="font-semibold text-on-surface text-right truncate"></span>
+            </span>
           </div>
           <div class="flex justify-between gap-3">
             <span class="text-on-surface-variant">Account Name</span>
@@ -442,9 +481,13 @@ tailwind.config = {
       <!-- Step 4: Payment Information -->
       <div id="sendStep4" class="hidden flex flex-col gap-4">
         <div class="rounded-xl bg-surface-container border border-border-subtle px-4 py-3 flex flex-col gap-2 text-sm">
-          <div class="flex justify-between gap-3">
+          <div class="flex justify-between gap-3 items-center">
             <span class="text-on-surface-variant">Bank</span>
-            <span id="payCardBank" class="font-semibold text-on-surface text-right"></span>
+            <span class="inline-flex items-center gap-1.5 justify-end min-w-0">
+              <img id="payCardBankLogo" alt="" class="w-5 h-5 rounded object-contain hidden bg-white border border-border-subtle"/>
+              <span id="payCardBankFallback" class="material-symbols-outlined text-on-surface-variant text-[16px] hidden">account_balance</span>
+              <span id="payCardBank" class="font-semibold text-on-surface text-right truncate"></span>
+            </span>
           </div>
           <div class="flex justify-between gap-3">
             <span class="text-on-surface-variant">Account Name</span>
@@ -528,14 +571,13 @@ tailwind.config = {
         </div>
 
         <div id="modalReceiptCard" class="rounded-xl overflow-hidden border border-border-subtle bg-white">
-          <div id="modalBankHeader" class="px-4 py-3.5 text-white" style="background: linear-gradient(135deg, #006c49 0%, #00a36c 100%);">
+          <div id="modalBankHeader" class="px-4 py-3.5 text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);">
             <div class="flex items-center gap-3">
               <div class="w-11 h-11 bg-white rounded-lg flex items-center justify-center overflow-hidden shrink-0">
-                <img id="modalBankLogoImg" alt="" class="w-full h-full object-contain p-1 hidden"/>
-                <span id="modalBankLogoFallback" class="material-symbols-outlined text-money text-[26px]">account_balance</span>
+                <img id="modalElysiumLogoImg" alt="Elysium Server" class="w-full h-full object-contain p-1"/>
               </div>
               <div class="min-w-0">
-                <h2 id="modalBankNameHeader" class="text-base font-bold truncate">—</h2>
+                <h2 id="modalBankNameHeader" class="text-base font-bold truncate">Elysium Server</h2>
                 <p class="text-white/70 text-xs">Transaction Receipt</p>
               </div>
             </div>
@@ -808,6 +850,14 @@ tailwind.config = {
   const sendStep6 = document.getElementById('sendStep6');
 
   const bankSelect = document.getElementById('bankSelect');
+  const bankPickerBtn = document.getElementById('bankPickerBtn');
+  const bankPickerMenu = document.getElementById('bankPickerMenu');
+  const bankPickerLabel = document.getElementById('bankPickerLabel');
+  const bankPickerLogo = document.getElementById('bankPickerLogo');
+  const bankPickerFallback = document.getElementById('bankPickerFallback');
+  const resolvedBankDisplay = document.getElementById('resolvedBankDisplay');
+  const resolvedBankLogo = document.getElementById('resolvedBankLogo');
+  const resolvedBankFallback = document.getElementById('resolvedBankFallback');
   const accountNumber = document.getElementById('accountNumber');
   const resolveRow = document.getElementById('resolveRow');
   const resolveSpinner = document.getElementById('resolveSpinner');
@@ -842,6 +892,7 @@ tailwind.config = {
   const modalDownloadBtn = document.getElementById('modalDownloadBtn');
 
   const BANK_LOGO_BASE = '/assets/bank_logos/';
+  const ELYSIUM_LOGO_URL = <?= json_encode($logoUrl, JSON_UNESCAPED_SLASHES) ?>;
   const bankLogoMap = [
     { codes: ['044'], patterns: [/access\s*bank/i], file: 'access bank copy-CA1pDmlE.jpg' },
     { codes: ['057'], patterns: [/zenith/i], file: 'Zenith Bank-Bk4Bp8zG.png' },
@@ -1031,10 +1082,64 @@ tailwind.config = {
     }
   }
 
+  function syncBankPickerUI() {
+    const code = bankSelect.value || '';
+    const name = bankMap[code] || '';
+    if (bankPickerLabel) {
+      bankPickerLabel.textContent = name || 'Select Institution...';
+      bankPickerLabel.classList.toggle('text-on-surface-variant', !name);
+      bankPickerLabel.classList.toggle('text-on-surface', !!name);
+    }
+    applyBankLogo(bankPickerLogo, bankPickerFallback, name, code);
+    if (resolvedBankDisplay) {
+      resolvedBankDisplay.textContent = name || '—';
+      applyBankLogo(resolvedBankLogo, resolvedBankFallback, name, code);
+    }
+  }
+
+  function closeBankPicker() {
+    if (bankPickerMenu) bankPickerMenu.classList.add('hidden');
+  }
+
+  function openBankPicker() {
+    if (bankPickerMenu) bankPickerMenu.classList.toggle('hidden');
+  }
+
+  function renderBankPickerMenu(banks) {
+    if (!bankPickerMenu) return;
+    bankPickerMenu.innerHTML = '';
+    if (!banks.length) {
+      bankPickerMenu.innerHTML = '<div class="px-3 py-2 text-sm text-on-surface-variant">No banks available</div>';
+      return;
+    }
+    banks.forEach((b) => {
+      const code = b.bank_code || '';
+      const name = b.bank_name || '';
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'w-full px-3 py-2.5 text-left text-sm hover:bg-surface inline-flex items-center gap-2.5';
+      row.innerHTML = `
+        <span class="w-7 h-7 rounded-md bg-surface border border-border-subtle inline-flex items-center justify-center overflow-hidden shrink-0">
+          <img alt="" class="bank-opt-logo w-full h-full object-contain p-0.5 hidden"/>
+          <span class="bank-opt-fallback material-symbols-outlined text-on-surface-variant text-[18px]">account_balance</span>
+        </span>
+        <span class="truncate font-medium text-on-surface">${name}</span>
+      `;
+      applyBankLogo(row.querySelector('.bank-opt-logo'), row.querySelector('.bank-opt-fallback'), name, code);
+      row.addEventListener('click', () => {
+        bankSelect.value = code;
+        bankSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        syncBankPickerUI();
+        closeBankPicker();
+      });
+      bankPickerMenu.appendChild(row);
+    });
+  }
+
   async function loadBanks() {
     try {
       let banks = [];
-      const res = await fetch('/api/dashboard_content.php?page=local');
+      const res = await fetch('/api/dashboard_content.php?page=local&_=' + Date.now(), { cache: 'no-store' });
       const data = await res.json().catch(() => ({}));
       if (redirectIfSessionExpired(res, data)) return;
       if (res.ok && data.success && data.data) {
@@ -1056,14 +1161,42 @@ tailwind.config = {
       if (banks.length === 0) {
         bankSelect.innerHTML = '<option value="">No banks available for Nigeria</option>';
       }
+      renderBankPickerMenu(banks);
+      syncBankPickerUI();
     } catch (e) {
       bankSelect.innerHTML = '<option value="">Failed to load banks</option>';
+      if (bankPickerLabel) bankPickerLabel.textContent = 'Failed to load banks';
+      renderBankPickerMenu([]);
     }
+  }
+
+  function statusBadgeHtml(statusRaw) {
+    const status = String(statusRaw || '').toUpperCase();
+    if (status === 'SUCCESSFUL') {
+      return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-money-soft text-money border border-emerald-100"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Successful</span>';
+    }
+    if (status === 'COMPLETED') {
+      return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>Completed</span>';
+    }
+    if (status === 'PENDING') {
+      return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>';
+    }
+    if (status === 'REVERSED') {
+      return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Reversed</span>';
+    }
+    return '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-700 border border-red-100"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Failed</span>';
   }
 
   async function loadTransactions() {
     try {
-      const res = await fetch('/api/local_transactions.php');
+      if (localTxRefreshBtn) {
+        localTxRefreshBtn.disabled = true;
+        localTxRefreshBtn.textContent = 'Refreshing…';
+      }
+      const res = await fetch('/api/local_transactions.php?limit=5&offset=0&_=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
       const data = await res.json().catch(() => ({}));
       if (redirectIfSessionExpired(res, data)) return;
 
@@ -1078,24 +1211,15 @@ tailwind.config = {
         return;
       }
 
-      localTxTbody.innerHTML = transactions.map(tx => {
-        const status = String(tx.status || '').toUpperCase();
-        const ok = status === 'SUCCESSFUL';
-        const pending = status === 'PENDING';
-        const reversed = status === 'REVERSED';
-        const badge = ok
-          ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-money-soft text-money border border-emerald-100"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Successful</span>'
-          : pending
-            ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>'
-            : reversed
-              ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Reversed</span>'
-            : '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-700 border border-red-100"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Failed</span>';
+      localTxTbody.innerHTML = transactions.map((tx, idx) => {
+        const badge = statusBadgeHtml(tx.status);
         const date = tx.transaction_date
           ? new Date(tx.transaction_date).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
           : '—';
         const curr = tx.currency || selectedCurrency;
         const sym = currencySymbols[curr] || curr + ' ';
         const bankLabel = tx.beneficiary_bank || tx.bank_name || '—';
+        const bankCode = tx.beneficiary_bank_code || tx.bank_code || '';
         const refLabel = tx.reference || '—';
         return `
           <tr class="hover:bg-surface/80 transition-colors">
@@ -1103,7 +1227,13 @@ tailwind.config = {
               <div class="font-medium text-on-surface">${tx.beneficiary_name || '—'}</div>
               <div class="text-[10px] font-mono text-on-surface-variant mt-0.5">${refLabel}</div>
             </td>
-            <td class="py-3 px-4 text-on-surface-variant">${bankLabel}</td>
+            <td class="py-3 px-4 text-on-surface-variant">
+              <span class="inline-flex items-center gap-1.5 min-w-0">
+                <img data-bank-logo="${idx}" alt="" class="w-5 h-5 rounded object-contain hidden bg-white border border-border-subtle shrink-0"/>
+                <span data-bank-fallback="${idx}" class="material-symbols-outlined text-on-surface-variant text-[16px] shrink-0">account_balance</span>
+                <span class="truncate">${bankLabel}</span>
+              </span>
+            </td>
             <td class="py-3 px-4 money text-right font-semibold text-money">${sym}${Number(tx.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
             <td class="py-3 px-4 text-center">
               <div class="inline-flex flex-col items-center gap-1">
@@ -1114,8 +1244,24 @@ tailwind.config = {
           </tr>
         `;
       }).join('');
+
+      transactions.forEach((tx, idx) => {
+        const bankLabel = tx.beneficiary_bank || tx.bank_name || '';
+        const bankCode = tx.beneficiary_bank_code || tx.bank_code || '';
+        applyBankLogo(
+          localTxTbody.querySelector(`[data-bank-logo="${idx}"]`),
+          localTxTbody.querySelector(`[data-bank-fallback="${idx}"]`),
+          bankLabel,
+          bankCode
+        );
+      });
     } catch (e) {
       localTxTbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-error">Failed to load transactions</td></tr>';
+    } finally {
+      if (localTxRefreshBtn) {
+        localTxRefreshBtn.disabled = false;
+        localTxRefreshBtn.textContent = 'Refresh';
+      }
     }
   }
 
@@ -1187,6 +1333,8 @@ tailwind.config = {
     amountError.classList.add('hidden');
     pinError.classList.add('hidden');
     confirmPinBtn.disabled = false;
+    syncBankPickerUI();
+    closeBankPicker();
   }
 
   function openSendModal() {
@@ -1388,6 +1536,7 @@ tailwind.config = {
       resolvedNameBlock.classList.add('flex');
       resolveError.classList.add('hidden');
       syncAccountBtn.disabled = false;
+      syncBankPickerUI();
     } catch (err) {
       if (seq !== resolveSeq) return;
       resolvedAccountName = '';
@@ -1414,6 +1563,8 @@ tailwind.config = {
     document.getElementById('payCardBank').textContent = bankName || '—';
     document.getElementById('payCardName').textContent = resolvedAccountName || '—';
     document.getElementById('payCardAcct').textContent = acctNum || '—';
+    applyBankLogo(document.getElementById('syncCardBankLogo'), document.getElementById('syncCardBankFallback'), bankName, bankCode);
+    applyBankLogo(document.getElementById('payCardBankLogo'), document.getElementById('payCardBankFallback'), bankName, bankCode);
   }
 
   function resolveBankLogo(bankName, bankCode) {
@@ -1482,6 +1633,7 @@ tailwind.config = {
   function statusHeadline(status) {
     const s = String(status || '').toUpperCase();
     if (s === 'SUCCESSFUL') return { title: 'Transfer Successful!', body: 'Your transfer has been completed successfully.', error: false };
+    if (s === 'COMPLETED') return { title: 'Transfer Completed', body: 'Your transfer has been marked as completed.', error: false };
     if (s === 'PENDING') return { title: 'Transfer Pending', body: 'Your transfer has been recorded as pending.', error: true };
     if (s === 'REVERSED') return { title: 'Transfer Reversed', body: 'Your transfer was recorded as reversed.', error: true };
     return { title: 'Transfer Failed', body: 'Your transfer was recorded as failed.', error: true };
@@ -1489,13 +1641,16 @@ tailwind.config = {
 
   function populateModalReceipt(tx) {
     const bankName = tx.beneficiary_bank || tx.bank_name || 'Unknown Bank';
-    const bankCode = tx.bank_code || '';
-    const color = getBankColor(bankName);
+    const bankCode = tx.beneficiary_bank_code || tx.bank_code || '';
     const status = String(tx.status || 'FAILED').toUpperCase();
     const header = document.getElementById('modalBankHeader');
-    if (header) header.style.background = `linear-gradient(135deg, ${color} 0%, ${adjustColor(color, 20)} 100%)`;
-    document.getElementById('modalBankNameHeader').textContent = bankName;
-    applyBankLogo(document.getElementById('modalBankLogoImg'), document.getElementById('modalBankLogoFallback'), bankName, bankCode);
+    if (header) header.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)';
+    const elysiumImg = document.getElementById('modalElysiumLogoImg');
+    if (elysiumImg && ELYSIUM_LOGO_URL) {
+      elysiumImg.src = ELYSIUM_LOGO_URL;
+      elysiumImg.alt = 'Elysium Server';
+    }
+    document.getElementById('modalBankNameHeader').textContent = 'Elysium Server';
     applyBankLogo(document.getElementById('modalBeneficiaryBankLogo'), document.getElementById('modalBeneficiaryBankFallback'), bankName, bankCode);
     document.getElementById('modalAmountDisplay').textContent = formatMoney(tx.amount);
     document.getElementById('modalBeneficiaryName').textContent = tx.beneficiary_name || '—';
@@ -1506,7 +1661,7 @@ tailwind.config = {
     const statusEl = document.getElementById('modalStatus');
     statusEl.textContent = status;
     statusEl.className = 'text-xs font-semibold ' + (
-      status === 'SUCCESSFUL' ? 'text-money' :
+      status === 'SUCCESSFUL' || status === 'COMPLETED' ? 'text-money' :
       status === 'PENDING' ? 'text-amber-600' :
       status === 'REVERSED' ? 'text-slate-600' : 'text-error'
     );
@@ -1529,7 +1684,7 @@ tailwind.config = {
     showStep(sendStep6, 'Transaction Receipt');
     resultTitle.textContent = titleOverride || headline.title;
     resultBody.textContent = bodyOverride || headline.body;
-    if (headline.error && status !== 'SUCCESSFUL') {
+    if (headline.error && status !== 'SUCCESSFUL' && status !== 'COMPLETED') {
       resultTitle.className = 'text-lg font-semibold text-error';
       resultIcon.textContent = status === 'PENDING' ? 'schedule' : 'error';
       resultIcon.className = 'material-symbols-outlined ' + (status === 'PENDING' ? 'text-amber-600' : 'text-error') + ' text-[28px]';
@@ -1620,6 +1775,7 @@ tailwind.config = {
     lastResolvedKey = '';
     resolvedAccountName = '';
     syncAccountBtn.disabled = true;
+    syncBankPickerUI();
     if ((accountNumber.value || '').replace(/\D/g, '').length === 10) {
       resolveAccount();
     } else {
@@ -1627,11 +1783,25 @@ tailwind.config = {
     }
   });
 
+  if (bankPickerBtn) {
+    bankPickerBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      openBankPicker();
+    });
+  }
+  document.addEventListener('click', function (e) {
+    const picker = document.getElementById('bankPicker');
+    if (!picker) return;
+    if (!picker.contains(e.target)) closeBankPicker();
+  });
+
   function showLinkWalletFail() {
     const bankCode = bankSelect.value || '';
-    if (linkFailBank) linkFailBank.textContent = bankMap[bankCode] || '—';
+    const bankName = bankMap[bankCode] || '—';
+    if (linkFailBank) linkFailBank.textContent = bankName;
     if (linkFailName) linkFailName.textContent = resolvedAccountName || '—';
     if (linkFailAcct) linkFailAcct.textContent = (accountNumber.value || '').replace(/\D/g, '') || '—';
+    applyBankLogo(document.getElementById('linkFailBankLogo'), document.getElementById('linkFailBankFallback'), bankName, bankCode);
     showStep(sendStepLinkFail, 'Link wallet failed');
   }
 
@@ -1887,6 +2057,9 @@ tailwind.config = {
     loadTransactions();
     refreshTotalBalance();
   });
+
+  // Ensure picker UI matches hidden select after first paint
+  syncBankPickerUI();
 
   const toggleBalanceBtn = document.getElementById('toggleBalanceBtn');
   if (toggleBalanceBtn) {

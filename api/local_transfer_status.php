@@ -9,7 +9,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $pdo = get_db();
 
 $allowedLink = ['on', 'off'];
-$allowedTransfer = ['successful', 'failed', 'pending', 'reversed'];
+$allowedTransfer = ['successful', 'failed', 'pending', 'reversed', 'completed'];
 
 function local_status_get(PDO $pdo, string $key, string $default): string
 {

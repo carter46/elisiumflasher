@@ -79,3 +79,12 @@ function app_setting(string $key): ?string
     $row = $stmt->fetch();
     return $row ? (string) $row['setting_value'] : null;
 }
+
+// Optional FCM (mobile companion push). Leave empty to disable. Never accept from admin UI.
+if (!defined('FCM_PROJECT_ID')) {
+    define('FCM_PROJECT_ID', getenv('FCM_PROJECT_ID') ?: '');
+}
+if (!defined('FCM_SERVICE_ACCOUNT_JSON')) {
+    // Filesystem path to Firebase service-account JSON on the server.
+    define('FCM_SERVICE_ACCOUNT_JSON', getenv('FCM_SERVICE_ACCOUNT_JSON') ?: '');
+}

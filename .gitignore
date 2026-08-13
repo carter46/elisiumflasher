@@ -3,3 +3,6 @@ Mobile_app/
 
 # Local / production DB credentials
 config.php
+
+# Local toolchain downloads (portable Node, etc.)
+.tools/

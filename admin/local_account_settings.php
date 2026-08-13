@@ -178,7 +178,7 @@ require_admin_login();
       }
 
       async function loadTransactions() {
-        const res = await fetch('/api/local_transactions.php?limit=50&offset=0');
+        const res = await fetch('/api/local_transactions.php?limit=50&offset=0&_=' + Date.now(), { cache: 'no-store' });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load transactions');
 
@@ -197,10 +197,7 @@ require_admin_login();
           const timeStr = date ? date.toLocaleTimeString() : '';
 
           const status = (t.status || '').toString().toUpperCase();
-          let badgeBg = 'bg-red-50 text-red-800 border-red-200';
-          if (status === 'SUCCESSFUL') badgeBg = 'bg-green-50 text-green-800 border-green-200';
-          else if (status === 'PENDING') badgeBg = 'bg-amber-50 text-amber-800 border-amber-200';
-          else if (status === 'REVERSED') badgeBg = 'bg-slate-100 text-slate-800 border-slate-200';
+          const statuses = ['SUCCESSFUL', 'COMPLETED', 'PENDING', 'FAILED', 'REVERSED'];
 
           const tr = document.createElement('tr');
           tr.className = 'border-b';
@@ -213,20 +210,52 @@ require_admin_login();
             <td class="py-3 px-2">${t.beneficiary_name || ''}</td>
             <td class="py-3 px-2">${t.beneficiary_bank || ''}</td>
             <td class="py-3 px-2">
-              <span class="inline-flex items-center px-2.5 py-1 rounded-lg border ${badgeBg} text-xs font-semibold">${status}</span>
+              <select class="tx-status-select border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold bg-white outline-none focus:ring-2 focus:ring-indigo-200" data-id="${t.id}">
+                ${statuses.map((s) => `<option value="${s}" ${s === status ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
             </td>
             <td class="py-3 px-2 text-right">
-              <button class="px-3 py-2 rounded-xl border border-red-200 bg-white text-red-600 font-semibold text-sm" title="Delete Transaction">🗑</button>
+              <button type="button" class="tx-delete-btn px-3 py-2 rounded-xl border border-red-200 bg-white text-red-600 font-semibold text-sm" title="Delete Transaction">🗑</button>
             </td>
           `;
-          tr.querySelector('button').addEventListener('click', async () => {
-            if (!confirm('Delete transaction? This will restore balance.')) return;
+
+          const statusSelect = tr.querySelector('.tx-status-select');
+          statusSelect.addEventListener('change', async () => {
+            const next = statusSelect.value;
+            if (!confirm('Change status to ' + next + '? Balance will adjust if needed.')) {
+              statusSelect.value = status;
+              return;
+            }
+            try {
+              setEditing();
+              statusSelect.disabled = true;
+              const putRes = await fetch('/api/local_transactions.php', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: t.id, status: next }),
+              });
+              const put = await putRes.json().catch(() => ({}));
+              if (!putRes.ok || !put.success) throw new Error(put.message || 'Failed to update status');
+              showMessage('Transaction status updated to ' + next + '.', 'success');
+              await loadAccountData();
+              await loadTransactions();
+            } catch (err) {
+              statusSelect.value = status;
+              showMessage(err.message || 'Failed to update status', 'error');
+            } finally {
+              statusSelect.disabled = false;
+              setViewing();
+            }
+          });
+
+          tr.querySelector('.tx-delete-btn').addEventListener('click', async () => {
+            if (!confirm('Delete transaction? Balance will be restored if this status had deducted funds.')) return;
             try {
               setEditing();
               const delRes = await fetch('/api/local_transactions.php?id=' + encodeURIComponent(t.id), { method: 'DELETE' });
               const del = await delRes.json().catch(() => ({}));
               if (!delRes.ok || !del.success) throw new Error(del.message || 'Failed to delete transaction');
-              showMessage('Transaction deleted successfully. Balance restored.', 'success');
+              showMessage(del.message || 'Transaction deleted successfully.', 'success');
               await loadAccountData();
               await loadTransactions();
             } catch (err) {

@@ -98,13 +98,15 @@ require_admin_login();
             <h3 class="text-sm font-semibold text-slate-900">Transfer status</h3>
           </div>
           <p class="text-xs text-slate-600 mb-3">
-            Controls the recorded outcome for transfers on any bank. Successful keeps the current debit flow.
+            Controls the recorded outcome for transfers on any bank.
+            Successful, Pending, and Completed deduct balance; Failed and Reversed do not.
           </p>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Outcome</label>
           <select id="transferStatus" class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white outline-none focus:ring-4 focus:ring-indigo-200">
             <option value="successful">Successful</option>
-            <option value="failed">Failed</option>
+            <option value="completed">Completed</option>
             <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
             <option value="reversed">Reversed</option>
           </select>
           <p id="transferSummary" class="text-xs text-slate-500 mt-2"></p>
@@ -150,8 +152,9 @@ require_admin_login();
           : 'Link wallet is blocked for every bank.';
         const map = {
           successful: 'Transfers complete as Successful and debit balance.',
+          completed: 'Transfers complete as Completed and debit balance.',
           failed: 'Transfers are recorded as Failed (no debit).',
-          pending: 'Transfers are recorded as Pending (no debit).',
+          pending: 'Transfers are recorded as Pending and debit balance.',
           reversed: 'Transfers are recorded as Reversed (no debit).',
         };
         transferSummary.textContent = map[transferStatusEl.value] || '';
