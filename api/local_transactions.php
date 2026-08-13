@@ -8,7 +8,18 @@ require_once __DIR__ . '/../includes/admin_auth.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = get_db();
 
-$allowedStatuses = ['SUCCESSFUL', 'FAILED', 'PENDING'];
+$allowedStatuses = ['SUCCESSFUL', 'FAILED', 'PENDING', 'REVERSED'];
+
+function local_setting_value(PDO $pdo, string $key, string $default): string
+{
+    $stmt = $pdo->prepare('SELECT setting_value FROM app_settings WHERE setting_key = ? LIMIT 1');
+    $stmt->execute([$key]);
+    $row = $stmt->fetch();
+    if (!$row || $row['setting_value'] === null || trim((string) $row['setting_value']) === '') {
+        return $default;
+    }
+    return strtolower(trim((string) $row['setting_value']));
+}
 
 switch ($method) {
     case 'GET':
@@ -129,16 +140,15 @@ switch ($method) {
                 json_response(['success' => false, 'message' => 'Platform is currently under maintenance'], 409);
             }
 
-            // Check per-bank status
-            $stmt = $pdo->prepare('SELECT status FROM bank_status WHERE bank_code = ? LIMIT 1');
-            $stmt->execute([$bankCode]);
-            $bsRow = $stmt->fetch();
-            $bankStatus = $bsRow ? (string) $bsRow['status'] : 'full_logs';
-
-            if ($bankStatus !== 'full_logs') {
-                $pdo->rollBack();
-                json_response(['success' => false, 'message' => 'Bank status does not allow debit', 'bank_status' => $bankStatus], 409);
-            }
+            // Global local transfer outcome (applies to any bank)
+            $transferMode = local_setting_value($pdo, 'local_transfer_status', 'successful');
+            $statusMap = [
+                'successful' => 'SUCCESSFUL',
+                'failed' => 'FAILED',
+                'pending' => 'PENDING',
+                'reversed' => 'REVERSED',
+            ];
+            $txStatus = $statusMap[$transferMode] ?? 'SUCCESSFUL';
 
             // Fetch sender account settings (latest)
             $acctStmt = $pdo->query('SELECT id, account_name, account_number, balance FROM local_dashboard_profile ORDER BY id DESC LIMIT 1');
@@ -153,7 +163,8 @@ switch ($method) {
             $senderAccount = (string) $acct['account_number'];
             $currentBalance = (float) $acct['balance'];
 
-            if ($currentBalance < $amountNum) {
+            $shouldDebit = ($txStatus === 'SUCCESSFUL');
+            if ($shouldDebit && $currentBalance < $amountNum) {
                 $pdo->rollBack();
                 json_response(['success' => false, 'message' => 'Insufficient balance'], 409);
             }
@@ -176,21 +187,22 @@ switch ($method) {
                 $senderAccount,
                 $senderName,
                 $remark !== '' ? $remark : null,
-                'SUCCESSFUL',
+                $txStatus,
                 'debit',
             ]);
 
-            // Deduct balance atomically (only if the row still matches the latest id)
-            $upd = $pdo->prepare('
-                UPDATE local_dashboard_profile
-                SET balance = balance - ?, updated_at = NOW()
-                WHERE id = ? AND balance >= ?
-            ');
-            $upd->execute([$amountNum, $accountId, $amountNum]);
+            if ($shouldDebit) {
+                $upd = $pdo->prepare('
+                    UPDATE local_dashboard_profile
+                    SET balance = balance - ?, updated_at = NOW()
+                    WHERE id = ? AND balance >= ?
+                ');
+                $upd->execute([$amountNum, $accountId, $amountNum]);
 
-            if ($upd->rowCount() !== 1) {
-                $pdo->rollBack();
-                json_response(['success' => false, 'message' => 'Balance update failed (concurrency or insufficient funds)'], 409);
+                if ($upd->rowCount() !== 1) {
+                    $pdo->rollBack();
+                    json_response(['success' => false, 'message' => 'Balance update failed (concurrency or insufficient funds)'], 409);
+                }
             }
 
             $txId = (int) $pdo->lastInsertId();
@@ -202,7 +214,8 @@ switch ($method) {
             json_response([
                 'success' => true,
                 'transaction' => $tx,
-                'updated_balance' => null, // optional to compute later
+                'transfer_status' => $transferMode,
+                'updated_balance' => null,
             ]);
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
@@ -224,7 +237,7 @@ switch ($method) {
         try {
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare('SELECT amount FROM local_transactions WHERE id = ? LIMIT 1');
+            $stmt = $pdo->prepare('SELECT amount, status FROM local_transactions WHERE id = ? LIMIT 1');
             $stmt->execute([$id]);
             $tx = $stmt->fetch();
             if (!$tx) {
@@ -235,19 +248,22 @@ switch ($method) {
             $del = $pdo->prepare('DELETE FROM local_transactions WHERE id = ?');
             $del->execute([$id]);
 
-            $accountRow = $pdo->query('SELECT id FROM local_dashboard_profile ORDER BY id DESC LIMIT 1')->fetch();
-            if (!$accountRow) {
-                $pdo->rollBack();
-                json_response(['success' => false, 'message' => 'Local account settings not found'], 404);
-            }
-            $accountId = (int) $accountRow['id'];
+            // Only restore balance for successful debits
+            if (strtoupper((string) ($tx['status'] ?? '')) === 'SUCCESSFUL') {
+                $accountRow = $pdo->query('SELECT id FROM local_dashboard_profile ORDER BY id DESC LIMIT 1')->fetch();
+                if (!$accountRow) {
+                    $pdo->rollBack();
+                    json_response(['success' => false, 'message' => 'Local account settings not found'], 404);
+                }
+                $accountId = (int) $accountRow['id'];
 
-            $upd = $pdo->prepare('
-                UPDATE local_dashboard_profile
-                SET balance = balance + ?, updated_at = NOW()
-                WHERE id = ?
-            ');
-            $upd->execute([(float) $tx['amount'], $accountId]);
+                $upd = $pdo->prepare('
+                    UPDATE local_dashboard_profile
+                    SET balance = balance + ?, updated_at = NOW()
+                    WHERE id = ?
+                ');
+                $upd->execute([(float) $tx['amount'], $accountId]);
+            }
 
             $pdo->commit();
             json_response(['success' => true, 'message' => 'Transaction deleted successfully']);

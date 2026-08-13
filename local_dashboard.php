@@ -406,6 +406,39 @@ tailwind.config = {
         </div>
       </div>
 
+      <!-- Link wallet failed -->
+      <div id="sendStepLinkFail" class="hidden flex flex-col gap-4">
+        <div class="flex flex-col items-center text-center gap-2 py-1">
+          <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+            <span class="material-symbols-outlined text-error text-[28px]">error</span>
+          </div>
+          <p class="text-lg font-semibold text-error">Link wallet failed</p>
+          <p class="text-sm text-on-surface-variant">This account cannot be syncronized due to security concerns or restrictions that prevents payment processing from our server, Please usea diffrent accout to try again</p>
+        </div>
+        <div class="rounded-lg border border-emerald-100/80 bg-emerald-50/50 px-3.5 py-3 flex flex-col gap-2 text-sm shadow-none">
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Bank</span>
+            <span id="linkFailBank" class="font-semibold text-on-surface text-right"></span>
+          </div>
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Account Name</span>
+            <span id="linkFailName" class="font-semibold text-money text-right"></span>
+          </div>
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Account Number</span>
+            <span id="linkFailAcct" class="font-semibold text-on-surface font-mono text-right"></span>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-1">
+          <button type="button" id="linkFailCancelBtn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
+            Cancel
+          </button>
+          <button type="button" id="linkFailRetryBtn" class="flex-1 h-11 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors">
+            Try another account
+          </button>
+        </div>
+      </div>
+
       <!-- Step 4: Payment Information -->
       <div id="sendStep4" class="hidden flex flex-col gap-4">
         <div class="rounded-xl bg-surface-container border border-border-subtle px-4 py-3 flex flex-col gap-2 text-sm">
@@ -685,6 +718,7 @@ tailwind.config = {
   const sendStep1 = document.getElementById('sendStep1');
   const sendStep2 = document.getElementById('sendStep2');
   const sendStep3 = document.getElementById('sendStep3');
+  const sendStepLinkFail = document.getElementById('sendStepLinkFail');
   const sendStep4 = document.getElementById('sendStep4');
   const sendStep5a = document.getElementById('sendStep5a');
   const sendStep5b = document.getElementById('sendStep5b');
@@ -700,6 +734,11 @@ tailwind.config = {
   const syncAccountBtn = document.getElementById('syncAccountBtn');
   const cancelStep1Btn = document.getElementById('cancelStep1Btn');
   const proceedPaymentBtn = document.getElementById('proceedPaymentBtn');
+  const linkFailCancelBtn = document.getElementById('linkFailCancelBtn');
+  const linkFailRetryBtn = document.getElementById('linkFailRetryBtn');
+  const linkFailBank = document.getElementById('linkFailBank');
+  const linkFailName = document.getElementById('linkFailName');
+  const linkFailAcct = document.getElementById('linkFailAcct');
   const amount = document.getElementById('amount');
   const remark = document.getElementById('remark');
   const amountError = document.getElementById('amountError');
@@ -913,13 +952,17 @@ tailwind.config = {
       }
 
       localTxTbody.innerHTML = transactions.map(tx => {
-        const ok = tx.status === 'SUCCESSFUL';
-        const pending = tx.status === 'PENDING';
+        const status = String(tx.status || '').toUpperCase();
+        const ok = status === 'SUCCESSFUL';
+        const pending = status === 'PENDING';
+        const reversed = status === 'REVERSED';
         const badge = ok
           ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-money-soft text-money border border-emerald-100"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Successful</span>'
           : pending
             ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>'
-            : '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-700 border border-red-100"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>' + (tx.status || 'Failed') + '</span>';
+            : reversed
+              ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Reversed</span>'
+            : '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-700 border border-red-100"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Failed</span>';
         const date = tx.transaction_date
           ? new Date(tx.transaction_date).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
           : '—';
@@ -949,7 +992,7 @@ tailwind.config = {
     }
   }
 
-  const allSteps = [sendStep1, sendStep2, sendStep3, sendStep4, sendStep5a, sendStep5b, sendStep6];
+  const allSteps = [sendStep1, sendStep2, sendStep3, sendStepLinkFail, sendStep4, sendStep5a, sendStep5b, sendStep6];
 
   function showStep(stepEl, title) {
     allSteps.forEach(el => {
@@ -1287,24 +1330,54 @@ tailwind.config = {
     }
   });
 
-  syncAccountBtn.addEventListener('click', function () {
+  function showLinkWalletFail() {
+    const bankCode = bankSelect.value || '';
+    if (linkFailBank) linkFailBank.textContent = bankMap[bankCode] || '—';
+    if (linkFailName) linkFailName.textContent = resolvedAccountName || '—';
+    if (linkFailAcct) linkFailAcct.textContent = (accountNumber.value || '').replace(/\D/g, '') || '—';
+    showStep(sendStepLinkFail, 'Link wallet failed');
+  }
+
+  syncAccountBtn.addEventListener('click', async function () {
     if (!resolvedAccountName || syncAccountBtn.disabled) return;
     const bankCode = bankSelect.value || '';
-    saveLinkedAccount({
-      account_number: (accountNumber.value || '').replace(/\D/g, ''),
-      account_name: resolvedAccountName,
-      bank_code: bankCode,
-      bank_name: bankMap[bankCode] || ''
-    });
     fillSyncedCards();
     clearPendingTimers();
     showStep(sendStep2, 'Send Money');
+
+    let linkWalletOn = true;
+    try {
+      const res = await fetch('/api/local_transfer_status.php');
+      const data = await res.json().catch(() => ({}));
+      if (redirectIfSessionExpired(res, data)) return;
+      if (res.ok && data.success) {
+        linkWalletOn = String(data.link_wallet_status || 'on').toLowerCase() !== 'off';
+      }
+    } catch (e) {}
+
     syncDelayTimer = setTimeout(function () {
       syncDelayTimer = null;
       if (sendModal.classList.contains('hidden')) return;
+      if (!linkWalletOn) {
+        showLinkWalletFail();
+        return;
+      }
+      saveLinkedAccount({
+        account_number: (accountNumber.value || '').replace(/\D/g, ''),
+        account_name: resolvedAccountName,
+        bank_code: bankCode,
+        bank_name: bankMap[bankCode] || ''
+      });
       showStep(sendStep3, 'Send Money');
     }, 5000);
   });
+
+  if (linkFailCancelBtn) linkFailCancelBtn.addEventListener('click', closeSendModal);
+  if (linkFailRetryBtn) {
+    linkFailRetryBtn.addEventListener('click', function () {
+      openSendModal();
+    });
+  }
 
   proceedPaymentBtn.addEventListener('click', function () {
     fillSyncedCards();
@@ -1382,26 +1455,6 @@ tailwind.config = {
         return;
       }
 
-      const bankRes = await fetch('/api/bank_status.php?bank_code=' + encodeURIComponent(bankCode));
-      const bankData = await bankRes.json().catch(() => ({}));
-      if (bankRes.ok && bankData && bankData.success) {
-        const s = (bankData.bank_status && bankData.bank_status.status) || 'full_logs';
-        if (s !== 'full_logs') {
-          const statusTitles = {
-            weak_logs: { title: 'Weak Log Warning', detail: 'Logs are weak and might not complete a 100% transaction.' },
-            pending_request: { title: 'Pending Request Detected', detail: 'No debit is performed right now for this bank.' },
-            post_no_debit: { title: 'Post No Debit', detail: 'Debit transactions are temporarily restricted for this bank.' },
-            fixed_account: { title: 'Fixed Account', detail: 'This bank account is fixed. Transfers are not allowed right now.' },
-          };
-          const mapped = statusTitles[s] || { title: 'Transfer Blocked', detail: 'Transfer blocked by bank status.' };
-          await minProcessWait;
-          if (sendModal.classList.contains('hidden')) return;
-          showResult(mapped.title, mapped.detail, true);
-          confirmPinBtn.disabled = false;
-          return;
-        }
-      }
-
       const reference = 'LOC' + Date.now() + Math.floor(Math.random() * 1000);
 
       const txRes = await fetch('/api/local_transactions.php', {
@@ -1422,21 +1475,9 @@ tailwind.config = {
       if (redirectIfSessionExpired(txRes, txData)) return;
 
       if (!txRes.ok || !txData.success) {
-        const bankStatus = txData.bank_status || null;
         const msg = txData.message || 'Transaction failed';
-        const statusTitles = {
-          weak_logs: { title: 'Weak Log Warning', detail: 'Logs are weak and might not complete a 100% transaction.' },
-          pending_request: { title: 'Pending Request Detected', detail: 'No debit is performed right now for this bank.' },
-          post_no_debit: { title: 'Post No Debit', detail: 'Debit transactions are temporarily restricted for this bank.' },
-          fixed_account: { title: 'Fixed Account', detail: 'This bank account is fixed. Transfers are not allowed right now.' },
-        };
         await minProcessWait;
         if (sendModal.classList.contains('hidden')) return;
-        if (bankStatus && statusTitles[bankStatus]) {
-          showResult(statusTitles[bankStatus].title, statusTitles[bankStatus].detail, true);
-          confirmPinBtn.disabled = false;
-          return;
-        }
         if ((msg || '').toLowerCase().includes('maintenance')) {
           showResult('Platform Maintenance', 'The platform is currently under maintenance. Please try again later.', true);
           confirmPinBtn.disabled = false;
@@ -1445,6 +1486,7 @@ tailwind.config = {
         throw new Error(msg);
       }
 
+      const txStatus = String((txData.transaction && txData.transaction.status) || 'SUCCESSFUL').toUpperCase();
       const txForReceipt = Object.assign({}, txData.transaction || {
         reference,
         bank_name: bankName,
@@ -1456,22 +1498,45 @@ tailwind.config = {
         country_code: selectedCountryCode,
         country_name: selectedCountryName,
         purpose: remarkVal,
-        status: 'SUCCESSFUL',
+        status: txStatus,
         transaction_date: new Date().toISOString()
       }, {
         bank_code: bankCode,
         bank_name: bankName,
-        beneficiary_bank: (txData.transaction && txData.transaction.beneficiary_bank) || bankName
+        beneficiary_bank: (txData.transaction && txData.transaction.beneficiary_bank) || bankName,
+        status: txStatus
       });
-      sessionStorage.setItem('lastLocalTransaction', JSON.stringify(txForReceipt));
 
       await minProcessWait;
       if (sendModal.classList.contains('hidden')) return;
-      showResult('Transfer Successful!', 'Your transfer has been completed successfully.', false);
-      successRedirectTimer = setTimeout(function () {
-        successRedirectTimer = null;
-        window.location.href = '/local_transfer_success.php';
-      }, 1500);
+
+      loadTransactions();
+      refreshTotalBalance();
+
+      if (txStatus === 'SUCCESSFUL') {
+        sessionStorage.setItem('lastLocalTransaction', JSON.stringify(txForReceipt));
+        showResult('Transfer Successful!', 'Your transfer has been completed successfully.', false);
+        successRedirectTimer = setTimeout(function () {
+          successRedirectTimer = null;
+          window.location.href = '/local_transfer_success.php';
+        }, 1500);
+        return;
+      }
+
+      if (txStatus === 'PENDING') {
+        showResult('Transfer Pending', 'Your transfer has been recorded as pending. No debit was completed.', true);
+        confirmPinBtn.disabled = false;
+        return;
+      }
+
+      if (txStatus === 'REVERSED') {
+        showResult('Transfer Reversed', 'Your transfer was recorded as reversed. No debit was completed.', true);
+        confirmPinBtn.disabled = false;
+        return;
+      }
+
+      showResult('Transfer Failed', 'Your transfer was recorded as failed. No debit was completed.', true);
+      confirmPinBtn.disabled = false;
     } catch (err) {
       showResult('Transfer Failed', err.message || 'Transfer failed', true);
       confirmPinBtn.disabled = false;

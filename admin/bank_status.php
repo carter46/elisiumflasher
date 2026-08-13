@@ -48,7 +48,7 @@ require_admin_login();
             <h2 class="text-lg font-semibold text-slate-900">Platform Status</h2>
           </div>
           <p class="text-sm text-slate-600 max-w-xl">
-            When OFF, users cannot continue to local transfer. When ON, transfers follow the bank mode settings below.
+            When OFF, users cannot continue to local transfer. Separate from link wallet and transfer outcome settings below.
           </p>
           <p id="platformSummary" class="text-xs text-slate-500 mt-2"></p>
         </div>
@@ -67,17 +67,54 @@ require_admin_login();
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border p-6 mb-4">
-      <div class="flex items-center gap-2 mb-4">
+      <div class="flex items-center gap-2 mb-2">
         <span class="material-symbols-outlined text-slate-700">account_balance</span>
-        <h2 class="text-lg font-semibold text-slate-900">Local transfer bank</h2>
+        <h2 class="text-lg font-semibold text-slate-900">Local transfer bank status</h2>
       </div>
-      <p class="text-sm text-slate-600 mb-4 max-w-xl">This project uses a single local corridor (UBA). The status controls how transfers behave when that bank is selected.</p>
-      <div id="bankCards"></div>
-    </div>
+      <p class="text-sm text-slate-600 mb-6 max-w-2xl">
+        These settings apply to <strong>any</strong> bank used for local transfers — not a single bank corridor.
+      </p>
 
-    <div class="flex justify-end gap-3 mt-6">
-      <a href="/admin/index.php" class="px-5 py-2 rounded-xl border border-slate-200 bg-white font-semibold text-sm">Cancel</a>
-      <button id="saveAllBtn" class="px-5 py-2 rounded-xl bg-[#d61b1b] text-white font-semibold text-sm">Save bank status</button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="rounded-xl border border-slate-200 p-4 bg-slate-50/60">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-slate-700 text-[20px]">link</span>
+            <h3 class="text-sm font-semibold text-slate-900">Link wallet status</h3>
+          </div>
+          <p class="text-xs text-slate-600 mb-3">
+            When Off, Sync Account fails with a link-wallet error for every bank.
+          </p>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+          <select id="linkWalletStatus" class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white outline-none focus:ring-4 focus:ring-indigo-200">
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+          <p id="linkWalletSummary" class="text-xs text-slate-500 mt-2"></p>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 p-4 bg-slate-50/60">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-slate-700 text-[20px]">swap_horiz</span>
+            <h3 class="text-sm font-semibold text-slate-900">Transfer status</h3>
+          </div>
+          <p class="text-xs text-slate-600 mb-3">
+            Controls the recorded outcome for transfers on any bank. Successful keeps the current debit flow.
+          </p>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Outcome</label>
+          <select id="transferStatus" class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white outline-none focus:ring-4 focus:ring-indigo-200">
+            <option value="successful">Successful</option>
+            <option value="failed">Failed</option>
+            <option value="pending">Pending</option>
+            <option value="reversed">Reversed</option>
+          </select>
+          <p id="transferSummary" class="text-xs text-slate-500 mt-2"></p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <a href="/admin/index.php" class="px-5 py-2 rounded-xl border border-slate-200 bg-white font-semibold text-sm">Cancel</a>
+        <button id="saveLocalBtn" class="px-5 py-2 rounded-xl bg-[#d61b1b] text-white font-semibold text-sm">Save local status</button>
+      </div>
     </div>
   </div>
 
@@ -86,6 +123,10 @@ require_admin_login();
       const messageBox = document.getElementById('messageBox');
       const platformStatusEl = document.getElementById('platformStatus');
       const platformSummary = document.getElementById('platformSummary');
+      const linkWalletStatusEl = document.getElementById('linkWalletStatus');
+      const transferStatusEl = document.getElementById('transferStatus');
+      const linkWalletSummary = document.getElementById('linkWalletSummary');
+      const transferSummary = document.getElementById('transferSummary');
 
       function showMessage(text, type) {
         messageBox.classList.remove('hidden');
@@ -97,87 +138,46 @@ require_admin_login();
         messageBox.textContent = text || '';
       }
 
-      const STATUS_OPTIONS = [
-        { value: 'full_logs', label: 'Full Logs (Active)' },
-        { value: 'weak_logs', label: 'Weak Logs' },
-        { value: 'pending_request', label: 'Pending Request' },
-        { value: 'post_no_debit', label: 'Post No Debit' },
-        { value: 'fixed_account', label: 'Fixed Account' },
-      ];
-
-      const BANKS = [{ name: 'UBA', code: '033' }];
-
-      let bankStatuses = {};
-
       function statusSummary() {
         platformSummary.textContent = platformStatusEl.value === 'on'
-          ? 'Platform is available for local transfers (normal behavior)'
+          ? 'Platform is available for local transfers'
           : 'Platform is under maintenance (all transfers blocked)';
       }
 
-      function renderBanks() {
-        const wrap = document.getElementById('bankCards');
-        wrap.innerHTML = '';
-
-        BANKS.forEach((b) => {
-          const row = document.createElement('div');
-          row.className = 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4';
-          row.innerHTML = `
-            <div>
-              <div class="text-sm font-semibold text-slate-900">${b.name}</div>
-              <div class="text-xs text-slate-500 mt-1">Code ${b.code}</div>
-            </div>
-            <div class="w-full sm:w-64">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Transfer mode</label>
-              <select data-bank-code="${b.code}" class="w-full border border-slate-200 rounded-xl px-3 py-2 outline-none focus:ring-4 focus:ring-indigo-200">
-                ${STATUS_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
-              </select>
-            </div>
-          `;
-          wrap.appendChild(row);
-        });
-
-        wrap.querySelectorAll('select[data-bank-code]').forEach((sel) => {
-          const code = sel.getAttribute('data-bank-code');
-          sel.value = bankStatuses[code] || 'full_logs';
-          sel.addEventListener('change', () => {
-            bankStatuses[code] = sel.value;
-          });
-        });
+      function localSummaries() {
+        linkWalletSummary.textContent = linkWalletStatusEl.value === 'on'
+          ? 'Accounts can be synced / linked for any bank.'
+          : 'Link wallet is blocked for every bank.';
+        const map = {
+          successful: 'Transfers complete as Successful and debit balance.',
+          failed: 'Transfers are recorded as Failed (no debit).',
+          pending: 'Transfers are recorded as Pending (no debit).',
+          reversed: 'Transfers are recorded as Reversed (no debit).',
+        };
+        transferSummary.textContent = map[transferStatusEl.value] || '';
       }
 
       async function loadPlatformStatus() {
         const res = await fetch('/api/platform_status.php');
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load platform status');
-
         platformStatusEl.value = data.status || 'on';
         statusSummary();
       }
 
-      async function loadBankStatuses() {
-        const res = await fetch('/api/bank_status.php');
+      async function loadLocalStatus() {
+        const res = await fetch('/api/local_transfer_status.php');
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load bank statuses');
-
-        const list = Array.isArray(data.bank_statuses) ? data.bank_statuses : [];
-        bankStatuses = {};
-        list.forEach((s) => { bankStatuses[s.bank_code] = s.status; });
-        const allowed = new Set(BANKS.map((b) => b.code));
-        bankStatuses = Object.fromEntries(
-          Object.entries(bankStatuses).filter(([code]) => allowed.has(code))
-        );
-        BANKS.forEach((b) => {
-          if (!bankStatuses[b.code]) {
-            bankStatuses[b.code] = 'full_logs';
-          }
-        });
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load local transfer status');
+        linkWalletStatusEl.value = data.link_wallet_status || 'on';
+        transferStatusEl.value = data.transfer_status || 'successful';
+        localSummaries();
       }
 
       async function savePlatform() {
         const res = await fetch('/api/platform_status.php', {
           method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: platformStatusEl.value })
         });
         const data = await res.json().catch(() => ({}));
@@ -186,19 +186,19 @@ require_admin_login();
         statusSummary();
       }
 
-      async function saveAll() {
-        const statuses = BANKS.map((b) => ({
-          bank_code: b.code,
-          status: bankStatuses[b.code] || 'full_logs',
-        }));
-        const res = await fetch('/api/bank_status.php', {
+      async function saveLocal() {
+        const res = await fetch('/api/local_transfer_status.php', {
           method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ statuses })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            link_wallet_status: linkWalletStatusEl.value,
+            transfer_status: transferStatusEl.value
+          })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.success) throw new Error(data.message || 'Failed to update bank statuses');
-        showMessage('Bank status saved.', 'success');
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed to update local status');
+        showMessage('Local transfer status saved.', 'success');
+        localSummaries();
       }
 
       document.getElementById('savePlatformBtn').addEventListener('click', async () => {
@@ -210,23 +210,25 @@ require_admin_login();
         }
       });
 
-      document.getElementById('saveAllBtn').addEventListener('click', async () => {
+      document.getElementById('saveLocalBtn').addEventListener('click', async () => {
         try {
-          await saveAll();
+          showMessage('Saving...', 'success');
+          await saveLocal();
         } catch (err) {
-          showMessage(err.message || 'Failed to save bank statuses', 'error');
+          showMessage(err.message || 'Failed to save local status', 'error');
         }
       });
 
       platformStatusEl.addEventListener('change', statusSummary);
+      linkWalletStatusEl.addEventListener('change', localSummaries);
+      transferStatusEl.addEventListener('change', localSummaries);
 
       (async () => {
         try {
           await loadPlatformStatus();
-          await loadBankStatuses();
-          renderBanks();
+          await loadLocalStatus();
         } catch (err) {
-          showMessage(err.message || 'Failed to load bank status data', 'error');
+          showMessage(err.message || 'Failed to load status data', 'error');
         }
       })();
     })();

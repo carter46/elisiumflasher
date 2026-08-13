@@ -196,8 +196,11 @@ require_admin_login();
           const dateStr = date ? date.toLocaleDateString() : '';
           const timeStr = date ? date.toLocaleTimeString() : '';
 
-          const status = (t.status || '').toString();
-          const badgeBg = status === 'SUCCESSFUL' ? 'bg-green-50 text-green-800 border-green-200' : 'bg-red-50 text-red-800 border-red-200';
+          const status = (t.status || '').toString().toUpperCase();
+          let badgeBg = 'bg-red-50 text-red-800 border-red-200';
+          if (status === 'SUCCESSFUL') badgeBg = 'bg-green-50 text-green-800 border-green-200';
+          else if (status === 'PENDING') badgeBg = 'bg-amber-50 text-amber-800 border-amber-200';
+          else if (status === 'REVERSED') badgeBg = 'bg-slate-100 text-slate-800 border-slate-200';
 
           const tr = document.createElement('tr');
           tr.className = 'border-b';
