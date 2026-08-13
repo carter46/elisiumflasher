@@ -332,12 +332,12 @@ tailwind.config = {
 </div>
 
 <!-- Send Money Modal -->
-<div id="sendModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6" aria-hidden="true">
-  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-    <div class="px-5 py-4 border-b border-border-subtle sticky top-0 bg-white z-10">
+<div id="sendModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-3 sm:px-4 py-3 sm:py-6" aria-hidden="true">
+  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="px-5 py-4 border-b border-border-subtle shrink-0 bg-white">
       <h3 id="sendModalTitle" class="text-lg font-semibold text-on-surface">Send Money</h3>
     </div>
-    <div class="px-5 py-5">
+    <div class="px-5 py-5 overflow-y-auto flex-1 min-h-0">
 
       <!-- Step 1: Destination Account -->
       <div id="sendStep1" class="flex flex-col gap-4">
@@ -517,18 +517,99 @@ tailwind.config = {
         </div>
       </div>
 
-      <!-- Step 6: Result -->
-      <div id="sendStep6" class="hidden flex flex-col items-center text-center py-6 gap-3">
-        <div id="resultIconWrap" class="w-12 h-12 rounded-full flex items-center justify-center bg-money-soft">
-          <span id="resultIcon" class="material-symbols-outlined text-money text-[28px]">check_circle</span>
+      <!-- Step 6: Receipt result -->
+      <div id="sendStep6" class="hidden flex flex-col gap-4">
+        <div class="text-center">
+          <div id="resultIconWrap" class="w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center bg-money-soft">
+            <span id="resultIcon" class="material-symbols-outlined text-money text-[28px]">check_circle</span>
+          </div>
+          <p id="resultTitle" class="text-lg font-semibold text-on-surface">Transfer status</p>
+          <p id="resultBody" class="text-sm text-on-surface-variant mt-1"></p>
         </div>
-        <p id="resultTitle" class="text-lg font-semibold text-on-surface">Transfer status</p>
-        <p id="resultBody" class="text-sm text-on-surface-variant"></p>
-        <div class="flex gap-3 mt-2 w-full">
-          <button type="button" id="resultCloseBtn" class="flex-1 h-11 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors">
-            Close
+
+        <div id="modalReceiptCard" class="rounded-xl overflow-hidden border border-border-subtle bg-white">
+          <div id="modalBankHeader" class="px-4 py-3.5 text-white" style="background: linear-gradient(135deg, #006c49 0%, #00a36c 100%);">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 bg-white rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                <img id="modalBankLogoImg" alt="" class="w-full h-full object-contain p-1 hidden"/>
+                <span id="modalBankLogoFallback" class="material-symbols-outlined text-money text-[26px]">account_balance</span>
+              </div>
+              <div class="min-w-0">
+                <h2 id="modalBankNameHeader" class="text-base font-bold truncate">—</h2>
+                <p class="text-white/70 text-xs">Transaction Receipt</p>
+              </div>
+            </div>
+          </div>
+          <div class="px-4 py-4 space-y-3">
+            <div class="text-center py-2 border-b border-border-subtle">
+              <p class="text-[11px] text-on-surface-variant uppercase tracking-wider mb-0.5">Amount Transferred</p>
+              <p id="modalAmountDisplay" class="text-2xl font-bold text-on-surface money">—</p>
+            </div>
+            <div class="space-y-2.5">
+              <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Beneficiary Name</span>
+                <span id="modalBeneficiaryName" class="text-xs font-semibold text-on-surface text-right">—</span>
+              </div>
+              <div class="flex justify-between gap-3 items-center">
+                <span class="text-xs text-on-surface-variant">Beneficiary Bank</span>
+                <span class="inline-flex items-center gap-1.5 justify-end min-w-0">
+                  <img id="modalBeneficiaryBankLogo" alt="" class="w-5 h-5 rounded object-contain hidden bg-white border border-border-subtle"/>
+                  <span id="modalBeneficiaryBankFallback" class="material-symbols-outlined text-on-surface-variant text-[16px] hidden">account_balance</span>
+                  <span id="modalBeneficiaryBank" class="text-xs font-semibold text-on-surface text-right truncate">—</span>
+                </span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Account Number</span>
+                <span id="modalAccountNumber" class="text-xs font-mono font-semibold text-on-surface">—</span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Reference</span>
+                <span id="modalReference" class="text-xs font-mono text-on-surface-variant">—</span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Date & Time</span>
+                <span id="modalDateTime" class="text-xs text-on-surface-variant text-right">—</span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Status</span>
+                <span id="modalStatus" class="text-xs font-semibold text-money">—</span>
+              </div>
+              <div id="modalRemarkRow" class="flex justify-between gap-3 hidden">
+                <span class="text-xs text-on-surface-variant">Remark</span>
+                <span id="modalRemark" class="text-xs text-on-surface-variant text-right max-w-[60%]">—</span>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-border-subtle space-y-2.5">
+              <p class="text-[11px] text-on-surface-variant uppercase tracking-wider">Sender Details</p>
+              <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Sender Name</span>
+                <span id="modalSenderName" class="text-xs font-semibold text-on-surface text-right">—</span>
+              </div>
+              <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">Sender Account</span>
+                <span id="modalSenderAccount" class="text-xs font-mono text-on-surface-variant">—</span>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-border-subtle text-center">
+              <p class="text-[11px] text-on-surface-variant">Transaction processed by Elysium Server</p>
+              <p class="text-[11px] text-on-surface-variant mt-0.5" id="modalFooterTimestamp">—</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button type="button" id="modalPrintBtn" class="flex-1 h-11 rounded-lg bg-slate-800 text-white text-sm font-semibold hover:bg-slate-700 transition-colors inline-flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px]">print</span>
+            Print
+          </button>
+          <button type="button" id="modalDownloadBtn" class="flex-1 h-11 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors inline-flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+            Download PDF
           </button>
         </div>
+        <button type="button" id="resultCloseBtn" class="w-full h-11 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors">
+          Close
+        </button>
       </div>
 
     </div>
@@ -589,6 +670,8 @@ tailwind.config = {
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (function () {
   const appSidebar = document.getElementById('appSidebar');
@@ -755,6 +838,50 @@ tailwind.config = {
   const resultCloseBtn = document.getElementById('resultCloseBtn');
   const waitStepTitle = document.getElementById('waitStepTitle');
   const waitStepBody = document.getElementById('waitStepBody');
+  const modalPrintBtn = document.getElementById('modalPrintBtn');
+  const modalDownloadBtn = document.getElementById('modalDownloadBtn');
+
+  const BANK_LOGO_BASE = '/assets/bank_logos/';
+  const bankLogoMap = [
+    { codes: ['044'], patterns: [/access\s*bank/i], file: 'access bank copy-CA1pDmlE.jpg' },
+    { codes: ['057'], patterns: [/zenith/i], file: 'Zenith Bank-Bk4Bp8zG.png' },
+    { codes: ['011'], patterns: [/first\s*bank|firstbank/i], file: 'FirstBank-receipt-logo-CigPY1wl.png' },
+    { codes: ['058'], patterns: [/guaranty\s*trust|\bgtbank\b|\bgt\s*bank\b/i], file: 'GT BANK copy-Ci_apJ6b.jpg' },
+    { codes: ['033'], patterns: [/\buba\b|united\s*bank/i], file: 'uba logo-dAnDPcuW.png' },
+    { codes: ['070'], patterns: [/fidelity/i], file: 'Fidelity bank-DrJvLoF-.jpg' },
+    { codes: ['032'], patterns: [/union\s*bank/i], file: 'Union Bank-B0hCf2DG.png' },
+    { codes: ['232'], patterns: [/sterling/i], file: 'Sterling-CkhNfBRJ.jpg' },
+    { codes: ['035'], patterns: [/wema/i], file: 'Wema Bank-x--rG7Uw.png' },
+    { codes: ['082'], patterns: [/keystone/i], file: 'Keystone Bank-DKUU8Y29.jpeg' },
+    { codes: ['030'], patterns: [/heritage/i], file: 'Heritage Bank-Ckn2H2OC.jpeg' },
+    { codes: ['301'], patterns: [/jaiz/i], file: 'Jaiz Bank-KOojfEuW.jpg' },
+    { codes: ['215'], patterns: [/unity\s*bank/i], file: 'Unity Bank-Dr4MHinx.jpg' },
+    { codes: ['50211'], patterns: [/kuda/i], file: 'Kuda Bank-B3N3qDe-.jpeg' },
+    { codes: ['50515'], patterns: [/moniepoint/i], file: 'Moniepoint-Dr-VIKCi.jpeg' },
+    { codes: ['999992'], patterns: [/opay/i], file: 'OPay-Vx731-Wp.JPEG' },
+    { codes: ['100033'], patterns: [/palmpay/i], file: 'PalmPay-Byc834Oz.jpg' },
+  ];
+  const bankColors = {
+    'Access Bank': '#f26f21',
+    'Zenith Bank': '#ed1c24',
+    'First Bank': '#002d72',
+    'UBA': '#ce181e',
+    'GTBank': '#ff6600',
+    'Guaranty Trust Bank': '#ff6600',
+    'Fidelity Bank': '#00a650',
+    'Union Bank': '#003366',
+    'Sterling Bank': '#ed1c24',
+    'Wema Bank': '#662d91',
+    'Keystone Bank': '#00a1e0',
+    'Heritage Bank': '#00703c',
+    'Jaiz Bank': '#01a85a',
+    'Unity Bank': '#00a651',
+    'Kuda Bank': '#40196d',
+    'Moniepoint': '#ff5a00',
+    'OPay': '#1dbf73',
+    'PalmPay': '#8b5cf6',
+    'default': '#006c49'
+  };
 
   const addFundsModal = document.getElementById('addFundsModal');
   const stubFeatureModal = document.getElementById('stubFeatureModal');
@@ -1289,21 +1416,191 @@ tailwind.config = {
     document.getElementById('payCardAcct').textContent = acctNum || '—';
   }
 
-  function showResult(title, body, isError) {
-    showStep(sendStep6, 'Transfer status');
-    resultTitle.textContent = title;
-    resultBody.textContent = body;
-    if (isError) {
+  function resolveBankLogo(bankName, bankCode) {
+    const code = String(bankCode || '').trim();
+    const name = String(bankName || '');
+    for (const entry of bankLogoMap) {
+      if (code && entry.codes.includes(code)) return BANK_LOGO_BASE + encodeURIComponent(entry.file);
+    }
+    for (const entry of bankLogoMap) {
+      if (entry.patterns.some(re => re.test(name))) return BANK_LOGO_BASE + encodeURIComponent(entry.file);
+    }
+    return null;
+  }
+
+  function applyBankLogo(imgEl, fallbackEl, bankName, bankCode) {
+    const src = resolveBankLogo(bankName, bankCode);
+    if (!imgEl || !fallbackEl) return;
+    imgEl.onload = function () {
+      imgEl.classList.remove('hidden');
+      fallbackEl.classList.add('hidden');
+    };
+    imgEl.onerror = function () {
+      imgEl.classList.add('hidden');
+      imgEl.removeAttribute('src');
+      fallbackEl.classList.remove('hidden');
+    };
+    if (src) {
+      fallbackEl.classList.add('hidden');
+      imgEl.classList.add('hidden');
+      imgEl.alt = bankName || 'Bank logo';
+      imgEl.src = src;
+    } else {
+      imgEl.classList.add('hidden');
+      imgEl.removeAttribute('src');
+      fallbackEl.classList.remove('hidden');
+    }
+  }
+
+  function getBankColor(bankName) {
+    for (const [key, color] of Object.entries(bankColors)) {
+      if (bankName && bankName.toLowerCase().includes(key.toLowerCase())) return color;
+    }
+    return bankColors.default;
+  }
+
+  function adjustColor(hex, percent) {
+    const num = parseInt(String(hex).replace('#', ''), 16);
+    const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+    const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+    return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+  }
+
+  function maskAccount(acct) {
+    const s = String(acct || '');
+    if (s.length < 6) return s || '—';
+    return '*'.repeat(s.length - 4) + s.slice(-4);
+  }
+
+  function formatReceiptDate(dateStr) {
+    if (!dateStr) return new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function statusHeadline(status) {
+    const s = String(status || '').toUpperCase();
+    if (s === 'SUCCESSFUL') return { title: 'Transfer Successful!', body: 'Your transfer has been completed successfully.', error: false };
+    if (s === 'PENDING') return { title: 'Transfer Pending', body: 'Your transfer has been recorded as pending.', error: true };
+    if (s === 'REVERSED') return { title: 'Transfer Reversed', body: 'Your transfer was recorded as reversed.', error: true };
+    return { title: 'Transfer Failed', body: 'Your transfer was recorded as failed.', error: true };
+  }
+
+  function populateModalReceipt(tx) {
+    const bankName = tx.beneficiary_bank || tx.bank_name || 'Unknown Bank';
+    const bankCode = tx.bank_code || '';
+    const color = getBankColor(bankName);
+    const status = String(tx.status || 'FAILED').toUpperCase();
+    const header = document.getElementById('modalBankHeader');
+    if (header) header.style.background = `linear-gradient(135deg, ${color} 0%, ${adjustColor(color, 20)} 100%)`;
+    document.getElementById('modalBankNameHeader').textContent = bankName;
+    applyBankLogo(document.getElementById('modalBankLogoImg'), document.getElementById('modalBankLogoFallback'), bankName, bankCode);
+    applyBankLogo(document.getElementById('modalBeneficiaryBankLogo'), document.getElementById('modalBeneficiaryBankFallback'), bankName, bankCode);
+    document.getElementById('modalAmountDisplay').textContent = formatMoney(tx.amount);
+    document.getElementById('modalBeneficiaryName').textContent = tx.beneficiary_name || '—';
+    document.getElementById('modalBeneficiaryBank').textContent = bankName;
+    document.getElementById('modalAccountNumber').textContent = tx.beneficiary_account || '—';
+    document.getElementById('modalReference').textContent = tx.reference || '—';
+    document.getElementById('modalDateTime').textContent = formatReceiptDate(tx.transaction_date || tx.created_at);
+    const statusEl = document.getElementById('modalStatus');
+    statusEl.textContent = status;
+    statusEl.className = 'text-xs font-semibold ' + (
+      status === 'SUCCESSFUL' ? 'text-money' :
+      status === 'PENDING' ? 'text-amber-600' :
+      status === 'REVERSED' ? 'text-slate-600' : 'text-error'
+    );
+    const remarkRow = document.getElementById('modalRemarkRow');
+    const remarkEl = document.getElementById('modalRemark');
+    if (tx.purpose || tx.remark) {
+      remarkRow.classList.remove('hidden');
+      remarkEl.textContent = tx.purpose || tx.remark;
+    } else {
+      remarkRow.classList.add('hidden');
+    }
+    document.getElementById('modalSenderName').textContent = tx.sender_name || '—';
+    document.getElementById('modalSenderAccount').textContent = maskAccount(tx.sender_account);
+    document.getElementById('modalFooterTimestamp').textContent = new Date().toISOString();
+  }
+
+  function showModalReceipt(tx, titleOverride, bodyOverride) {
+    const status = String((tx && tx.status) || 'FAILED').toUpperCase();
+    const headline = statusHeadline(status);
+    showStep(sendStep6, 'Transaction Receipt');
+    resultTitle.textContent = titleOverride || headline.title;
+    resultBody.textContent = bodyOverride || headline.body;
+    if (headline.error && status !== 'SUCCESSFUL') {
       resultTitle.className = 'text-lg font-semibold text-error';
-      resultIcon.textContent = 'error';
-      resultIcon.className = 'material-symbols-outlined text-error text-[28px]';
-      resultIconWrap.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-50';
+      resultIcon.textContent = status === 'PENDING' ? 'schedule' : 'error';
+      resultIcon.className = 'material-symbols-outlined ' + (status === 'PENDING' ? 'text-amber-600' : 'text-error') + ' text-[28px]';
+      resultIconWrap.className = 'w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center ' + (status === 'PENDING' ? 'bg-amber-50' : 'bg-red-50');
     } else {
       resultTitle.className = 'text-lg font-semibold text-money';
       resultIcon.textContent = 'check_circle';
       resultIcon.className = 'material-symbols-outlined text-money text-[28px]';
-      resultIconWrap.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-money-soft';
+      resultIconWrap.className = 'w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center bg-money-soft';
     }
+    populateModalReceipt(tx || {});
+    confirmPinBtn.disabled = false;
+    const body = sendModal.querySelector('.overflow-y-auto');
+    if (body) body.scrollTop = 0;
+  }
+
+  function showResult(title, body, isError) {
+    // Fallback for non-transfer errors without a receipt payload
+    const bankCode = bankSelect.value || '';
+    showModalReceipt({
+      status: isError ? 'FAILED' : 'SUCCESSFUL',
+      bank_code: bankCode,
+      bank_name: bankMap[bankCode] || '',
+      beneficiary_bank: bankMap[bankCode] || '',
+      beneficiary_name: resolvedAccountName || '—',
+      beneficiary_account: (accountNumber.value || '').replace(/\D/g, '') || '—',
+      amount: parseFloat(amount.value) || 0,
+      currency: selectedCurrency,
+      reference: '—',
+      purpose: (remark.value || '').trim(),
+      transaction_date: new Date().toISOString()
+    }, title, body);
+  }
+
+  async function downloadModalReceiptPdf() {
+    const receipt = document.getElementById('modalReceiptCard');
+    if (!receipt || !window.html2canvas || !window.jspdf) {
+      alert('PDF tools not loaded');
+      return;
+    }
+    try {
+      const canvas = await window.html2canvas(receipt, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, Math.min(imgHeight, pageHeight - 20));
+      const refText = (document.getElementById('modalReference').textContent || 'receipt').replace(/\s+/g, '_');
+      pdf.save('local_transfer_' + refText + '.pdf');
+    } catch (e) {
+      alert('Failed to generate PDF');
+    }
+  }
+
+  function printModalReceipt() {
+    const receipt = document.getElementById('modalReceiptCard');
+    if (!receipt) return;
+    const w = window.open('', '_blank', 'width=480,height=720');
+    if (!w) {
+      window.print();
+      return;
+    }
+    w.document.write('<html><head><title>Receipt</title><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:Manrope,system-ui,sans-serif;padding:16px;background:#fff;color:#191c1e} .money{font-variant-numeric:tabular-nums}</style></head><body>');
+    w.document.write(receipt.outerHTML);
+    w.document.write('</body></html>');
+    w.document.close();
+    w.focus();
+    setTimeout(function () { w.print(); w.close(); }, 400);
   }
 
   accountNumber.addEventListener('input', function () {
@@ -1545,31 +1842,7 @@ tailwind.config = {
 
       loadTransactions();
       refreshTotalBalance();
-
-      if (txStatus === 'SUCCESSFUL') {
-        sessionStorage.setItem('lastLocalTransaction', JSON.stringify(txForReceipt));
-        showResult('Transfer Successful!', 'Your transfer has been completed successfully.', false);
-        successRedirectTimer = setTimeout(function () {
-          successRedirectTimer = null;
-          window.location.href = '/local_transfer_success.php';
-        }, 1500);
-        return;
-      }
-
-      if (txStatus === 'PENDING') {
-        showResult('Transfer Pending', 'Your transfer has been recorded as pending. No debit was completed.', true);
-        confirmPinBtn.disabled = false;
-        return;
-      }
-
-      if (txStatus === 'REVERSED') {
-        showResult('Transfer Reversed', 'Your transfer was recorded as reversed. No debit was completed.', true);
-        confirmPinBtn.disabled = false;
-        return;
-      }
-
-      showResult('Transfer Failed', 'Your transfer was recorded as failed. No debit was completed.', true);
-      confirmPinBtn.disabled = false;
+      showModalReceipt(txForReceipt);
     } catch (err) {
       showResult('Transfer Failed', err.message || 'Transfer failed', true);
       confirmPinBtn.disabled = false;
@@ -1584,6 +1857,8 @@ tailwind.config = {
   cancelStep4Btn.addEventListener('click', closeSendModal);
   cancelPinBtn.addEventListener('click', closeSendModal);
   resultCloseBtn.addEventListener('click', closeSendModal);
+  if (modalPrintBtn) modalPrintBtn.addEventListener('click', printModalReceipt);
+  if (modalDownloadBtn) modalDownloadBtn.addEventListener('click', downloadModalReceiptPdf);
 
   openSendBtn.addEventListener('click', openSendModal);
   openAddFundsBtn.addEventListener('click', openAddFundsModal);
