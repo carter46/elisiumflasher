@@ -37,6 +37,30 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+.app-sidebar {
+  transition: transform 0.25s ease;
+}
+@media (max-width: 1023px) {
+  .app-sidebar {
+    transform: translateX(-100%);
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12);
+  }
+  .app-sidebar.is-open {
+    transform: translateX(0);
+  }
+  body.sidebar-open {
+    overflow: hidden;
+  }
+}
+.sidebar-backdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.sidebar-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
 </style>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
@@ -105,25 +129,30 @@ tailwind.config = {
 </head>
 <body class="bg-surface font-sans text-on-surface antialiased min-h-screen">
 
-<aside class="app-sidebar fixed left-0 top-0 h-full w-sidebar-w border-r border-border-subtle z-50 flex flex-col">
-  <div class="h-14 px-5 flex items-center gap-3 border-b border-border-subtle shrink-0">
-    <img alt="Logo" class="h-8 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
-    <div class="min-w-0">
-      <div class="text-sm font-semibold text-on-surface leading-tight">Operations</div>
-      <div class="text-xs text-on-surface-variant">Local transfers</div>
+<aside id="appSidebar" class="app-sidebar fixed left-0 top-0 h-full w-sidebar-w border-r border-border-subtle z-[60] flex flex-col" aria-label="Main navigation">
+  <div class="h-14 px-5 flex items-center justify-between gap-3 border-b border-border-subtle shrink-0">
+    <div class="flex items-center gap-3 min-w-0">
+      <img alt="Logo" class="h-8 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+      <div class="min-w-0">
+        <div class="text-sm font-semibold text-on-surface leading-tight">Operations</div>
+        <div class="text-xs text-on-surface-variant">Local transfers</div>
+      </div>
     </div>
+    <button type="button" id="sidebarCloseBtn" class="lg:hidden h-9 w-9 inline-flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" aria-label="Close menu">
+      <span class="material-symbols-outlined text-[20px]">close</span>
+    </button>
   </div>
-  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-    <a class="flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#overview">
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" id="sidebarNav">
+    <a class="sidebar-link flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#overview">
       <span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span>Overview
     </a>
-    <a aria-current="page" class="flex items-center px-3 h-10 rounded-lg text-sm font-semibold bg-primary text-on-primary" href="#transfer">
+    <a aria-current="page" class="sidebar-link flex items-center px-3 h-10 rounded-lg text-sm font-semibold bg-primary text-on-primary" href="#transfer">
       <span class="material-symbols-outlined mr-3 text-[20px]">account_balance_wallet</span>Local Transfer
     </a>
-    <a class="flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#logs">
+    <a class="sidebar-link flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#logs">
       <span class="material-symbols-outlined mr-3 text-[20px]">terminal</span>Activity Log
     </a>
-    <a class="flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="/transfer_selection.php">
+    <a class="sidebar-link flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="/transfer_selection.php">
       <span class="material-symbols-outlined mr-3 text-[20px]">tune</span>Session
     </a>
   </nav>
@@ -138,20 +167,27 @@ tailwind.config = {
   </div>
 </aside>
 
-<div class="pl-sidebar-w min-h-screen flex flex-col">
-  <header class="app-titlebar sticky top-0 h-14 border-b border-border-subtle z-40 flex items-center justify-between px-margin-desktop">
-    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
-      <span class="material-symbols-outlined text-[18px]">dns</span>
-      <span class="font-medium text-on-surface">Main server</span>
-      <span class="text-outline">·</span>
-      <span>Node 04</span>
-    </div>
-    <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2 px-3 h-8 bg-money-soft rounded-full border border-emerald-100">
-        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-        <span class="text-xs font-semibold text-money">14 ms latency</span>
+<div id="sidebarBackdrop" class="sidebar-backdrop fixed inset-0 z-[55] bg-black/40 lg:hidden" aria-hidden="true"></div>
+
+<div class="lg:pl-sidebar-w min-h-screen flex flex-col">
+  <header class="app-titlebar sticky top-0 h-14 border-b border-border-subtle z-40 flex items-center justify-between px-4 sm:px-6 lg:px-margin-desktop gap-2">
+    <div class="flex items-center gap-2 min-w-0">
+      <button type="button" id="sidebarOpenBtn" class="lg:hidden h-9 w-9 inline-flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors shrink-0" aria-label="Open menu" aria-controls="appSidebar" aria-expanded="false">
+        <span class="material-symbols-outlined text-[22px]">menu</span>
+      </button>
+      <div class="flex items-center gap-2 text-sm text-on-surface-variant min-w-0">
+        <span class="material-symbols-outlined text-[18px] shrink-0">dns</span>
+        <span class="font-medium text-on-surface truncate">Main server</span>
+        <span class="text-outline hidden sm:inline">·</span>
+        <span class="hidden sm:inline">Node 04</span>
       </div>
-      <button type="button" id="logoutBtn" class="h-9 px-3 inline-flex items-center gap-1.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-red-50 hover:text-error transition-colors" aria-label="Sign out" title="Sign out">
+    </div>
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div class="hidden xs:flex sm:flex items-center gap-2 px-2.5 sm:px-3 h-8 bg-money-soft rounded-full border border-emerald-100">
+        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+        <span class="text-xs font-semibold text-money whitespace-nowrap">14 ms</span>
+      </div>
+      <button type="button" id="logoutBtn" class="h-9 px-2.5 sm:px-3 inline-flex items-center gap-1.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-red-50 hover:text-error transition-colors" aria-label="Sign out" title="Sign out">
         <span class="material-symbols-outlined text-[18px]">power_settings_new</span>
         <span class="hidden sm:inline">Sign out</span>
       </button>
@@ -159,20 +195,25 @@ tailwind.config = {
   </header>
 
   <main class="relative flex-1">
-    <div id="overview" class="relative z-10 w-full max-w-container-max mx-auto px-margin-desktop py-7 flex flex-col gap-6">
-      <section class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+    <div id="overview" class="relative z-10 w-full max-w-container-max mx-auto px-4 sm:px-6 lg:px-margin-desktop py-5 sm:py-7 flex flex-col gap-5 sm:gap-6">
+      <section class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-5">
         <div class="flex flex-col gap-2">
-          <h1 class="text-3xl font-bold tracking-tight text-on-surface">Transfer dashboard</h1>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">Transfer dashboard</h1>
           <p class="text-sm text-on-surface-variant max-w-lg">Send local settlements, monitor rail health, and review recent transactions.</p>
         </div>
-        <div id="totalBalanceWrap" class="hidden flex flex-col md:items-end bg-white border border-border-subtle rounded-xl px-5 py-4 shadow-sm min-w-[240px]">
-          <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">Available balance</span>
-          <div id="totalBalanceDisplay" class="money text-[28px] leading-8 font-bold text-primary">—</div>
+        <div id="totalBalanceWrap" class="hidden flex flex-col md:items-end bg-white border border-border-subtle rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 shadow-sm w-full md:w-auto md:min-w-[240px]">
+          <div class="w-full flex items-center justify-between gap-3 mb-1">
+            <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Available balance</span>
+            <button type="button" id="toggleBalanceBtn" class="h-7 w-7 inline-flex items-center justify-center rounded-md text-on-surface-variant hover:bg-surface hover:text-on-surface transition-colors" aria-label="Hide balance" title="Hide balance">
+              <span id="toggleBalanceIcon" class="material-symbols-outlined text-[18px]">visibility</span>
+            </button>
+          </div>
+          <div id="totalBalanceDisplay" class="money text-[24px] sm:text-[28px] leading-8 font-bold text-primary">—</div>
         </div>
       </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div id="transfer" class="lg:col-span-5 flex flex-col min-h-[420px]">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+        <div id="transfer" class="lg:col-span-5 flex flex-col min-h-0 lg:min-h-[420px]">
           <div class="bg-white border border-border-subtle rounded-xl shadow-sm flex flex-col h-full overflow-hidden">
             <div class="px-5 py-4 border-b border-border-subtle shrink-0">
               <h2 class="text-lg font-semibold text-on-surface">Local transfer</h2>
@@ -219,7 +260,7 @@ tailwind.config = {
           </div>
         </div>
 
-        <div id="settlements" class="lg:col-span-7 flex flex-col min-h-[420px]">
+        <div id="settlements" class="lg:col-span-7 flex flex-col min-h-0 lg:min-h-[420px]">
           <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
             <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3 shrink-0">
               <div>
@@ -231,10 +272,9 @@ tailwind.config = {
               </button>
             </div>
             <div class="overflow-auto flex-1 min-h-0">
-              <table class="w-full text-left border-collapse min-w-[640px]">
+              <table class="w-full text-left border-collapse min-w-[560px]">
                 <thead class="sticky top-0 z-[1]">
                   <tr class="bg-surface border-b border-border-subtle">
-                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Reference</th>
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Beneficiary</th>
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Bank</th>
                     <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Amount</th>
@@ -249,9 +289,9 @@ tailwind.config = {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[280px]">
-          <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3 shrink-0">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
+        <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[240px] sm:h-[280px]">
+          <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-border-subtle flex justify-between items-center gap-3 shrink-0">
             <div>
               <h2 class="text-base font-semibold text-on-surface">Rail health</h2>
               <p class="text-xs text-on-surface-variant mt-0.5">Hash rail / ASIC dispatch</p>
@@ -277,15 +317,15 @@ tailwind.config = {
           </div>
         </div>
 
-        <div id="logs" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[280px]">
-          <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center shrink-0">
+        <div id="logs" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[240px] sm:h-[280px]">
+          <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-border-subtle flex justify-between items-center shrink-0">
             <div>
               <h2 class="text-base font-semibold text-on-surface">Activity log</h2>
               <p class="text-xs text-on-surface-variant mt-0.5">Live protocol stream</p>
             </div>
             <span class="text-xs font-medium text-on-surface-variant">Updating</span>
           </div>
-          <div id="localProtocolStream" class="p-4 overflow-y-auto font-mono text-[12px] leading-6 text-on-surface flex-1 flex flex-col gap-1 bg-slate-50/60 min-h-0"></div>
+          <div id="localProtocolStream" class="p-3 sm:p-4 overflow-y-auto font-mono text-[11px] sm:text-[12px] leading-5 text-on-surface flex-1 flex flex-col gap-1 bg-slate-50/60 min-h-0"></div>
         </div>
       </div>
     </div>
@@ -314,7 +354,7 @@ tailwind.config = {
         </div>
         <div id="resolveRow" class="hidden flex flex-col gap-1.5 min-h-[24px]">
           <div id="resolveSpinner" class="hidden w-4 h-4 border-2 border-money/20 border-t-money rounded-full" style="animation: spin 0.8s linear infinite;"></div>
-          <div id="resolvedNameBlock" class="hidden flex flex-col gap-0.5">
+          <div id="resolvedNameBlock" class="hidden flex flex-col gap-1 w-full rounded-lg border border-emerald-100/80 bg-emerald-50/50 px-3.5 py-3 shadow-none">
             <span class="text-sm font-medium text-black">Account Name</span>
             <p id="resolvedNameDisplay" class="text-sm font-semibold text-money"></p>
           </div>
@@ -519,6 +559,40 @@ tailwind.config = {
 
 <script>
 (function () {
+  const appSidebar = document.getElementById('appSidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  const sidebarOpenBtn = document.getElementById('sidebarOpenBtn');
+  const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+
+  function setSidebarOpen(open) {
+    if (!appSidebar) return;
+    appSidebar.classList.toggle('is-open', open);
+    if (sidebarBackdrop) {
+      sidebarBackdrop.classList.toggle('is-open', open);
+      sidebarBackdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+    document.body.classList.toggle('sidebar-open', open);
+    if (sidebarOpenBtn) sidebarOpenBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function openSidebar() { setSidebarOpen(true); }
+  function closeSidebar() { setSidebarOpen(false); }
+
+  if (sidebarOpenBtn) sidebarOpenBtn.addEventListener('click', openSidebar);
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+  if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.sidebar-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (window.matchMedia('(max-width: 1023px)').matches) closeSidebar();
+    });
+  });
+  window.addEventListener('resize', function () {
+    if (window.matchMedia('(min-width: 1024px)').matches) closeSidebar();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeSidebar();
+  });
+
   const CODEX = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%*?';
 
   function gibToken(len) {
@@ -599,14 +673,14 @@ tailwind.config = {
       '<span class="' + item.cls + ' shrink-0">' + item.tag + '</span>' +
       '<span>' + item.msg + '</span>';
     container.appendChild(line);
-    while (container.childElementCount > 40) container.removeChild(container.firstChild);
+    while (container.childElementCount > 5) container.removeChild(container.firstChild);
     container.scrollTop = container.scrollHeight;
   }
 
   setInterval(fillMetricsTable, 2000);
   setInterval(appendProtocolLine, 800);
   fillMetricsTable();
-  for (let i = 0; i < 8; i++) appendProtocolLine();
+  for (let i = 0; i < 5; i++) appendProtocolLine();
 
   const sendModal = document.getElementById('sendModal');
   const sendModalTitle = document.getElementById('sendModalTitle');
@@ -725,16 +799,44 @@ tailwind.config = {
     return '₦' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  let latestBalanceValue = null;
+  let balanceVisible = true;
+  try {
+    const savedVis = sessionStorage.getItem('balanceVisible');
+    if (savedVis === '0') balanceVisible = false;
+  } catch (e) {}
+
+  function renderBalanceDisplay() {
+    const el = document.getElementById('totalBalanceDisplay');
+    const icon = document.getElementById('toggleBalanceIcon');
+    const btn = document.getElementById('toggleBalanceBtn');
+    if (!el) return;
+    if (latestBalanceValue == null || latestBalanceValue === '') {
+      el.textContent = '—';
+    } else if (balanceVisible) {
+      el.textContent = formatBalanceNGN(latestBalanceValue);
+    } else {
+      el.textContent = '••••••';
+    }
+    if (icon) icon.textContent = balanceVisible ? 'visibility' : 'visibility_off';
+    if (btn) {
+      btn.setAttribute('aria-label', balanceVisible ? 'Hide balance' : 'Show balance');
+      btn.title = balanceVisible ? 'Hide balance' : 'Show balance';
+    }
+  }
+
   function applyTotalBalanceFromPayload(payload) {
     const wrap = document.getElementById('totalBalanceWrap');
     const el = document.getElementById('totalBalanceDisplay');
     if (!wrap || !el) return;
     const profile = payload && payload.data && payload.data.profile;
     if (profile && profile.balance != null && profile.balance !== '') {
-      el.textContent = formatBalanceNGN(profile.balance);
+      latestBalanceValue = profile.balance;
+      renderBalanceDisplay();
       wrap.classList.remove('hidden');
       wrap.classList.add('flex');
     } else {
+      latestBalanceValue = null;
       el.textContent = '—';
       wrap.classList.add('hidden');
       wrap.classList.remove('flex');
@@ -752,11 +854,13 @@ tailwind.config = {
       if (res.ok && data.success && data.data) {
         applyTotalBalanceFromPayload(data);
       } else {
+        latestBalanceValue = null;
         el.textContent = '—';
         wrap.classList.add('hidden');
         wrap.classList.remove('flex');
       }
     } catch (e) {
+      latestBalanceValue = null;
       el.textContent = '—';
       wrap.classList.add('hidden');
       wrap.classList.remove('flex');
@@ -800,13 +904,13 @@ tailwind.config = {
       if (redirectIfSessionExpired(res, data)) return;
 
       if (!res.ok || !data.success) {
-        localTxTbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
+        localTxTbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
         return;
       }
 
-      const transactions = Array.isArray(data.transactions) ? data.transactions : [];
+      const transactions = (Array.isArray(data.transactions) ? data.transactions : []).slice(0, 5);
       if (transactions.length === 0) {
-        localTxTbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
+        localTxTbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-on-surface-variant">No transactions found</td></tr>';
         return;
       }
 
@@ -823,19 +927,23 @@ tailwind.config = {
           : '—';
         const curr = tx.currency || selectedCurrency;
         const sym = currencySymbols[curr] || curr + ' ';
+        const bankLabel = tx.beneficiary_bank || tx.bank_name || '—';
+        const refLabel = tx.reference || '—';
         return `
           <tr class="hover:bg-surface/80 transition-colors">
-            <td class="py-3.5 px-4 font-mono text-[13px] text-on-surface-variant">${tx.reference || '—'}</td>
-            <td class="py-3.5 px-4 font-medium">${tx.beneficiary_name || '—'}</td>
-            <td class="py-3.5 px-4 text-on-surface-variant">${tx.bank_name || '—'}</td>
-            <td class="py-3.5 px-4 money text-right font-semibold text-money">${sym}${Number(tx.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-            <td class="py-3.5 px-4 text-on-surface-variant">${date}</td>
-            <td class="py-3.5 px-4 text-center">${badge}</td>
+            <td class="py-3 px-4">
+              <div class="font-medium text-on-surface">${tx.beneficiary_name || '—'}</div>
+              <div class="text-[11px] font-mono text-on-surface-variant mt-0.5">${refLabel}</div>
+            </td>
+            <td class="py-3 px-4 text-on-surface-variant">${bankLabel}</td>
+            <td class="py-3 px-4 money text-right font-semibold text-money">${sym}${Number(tx.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+            <td class="py-3 px-4 text-on-surface-variant">${date}</td>
+            <td class="py-3 px-4 text-center">${badge}</td>
           </tr>
         `;
       }).join('');
     } catch (e) {
-      localTxTbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-error">Failed to load transactions</td></tr>';
+      localTxTbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-error">Failed to load transactions</td></tr>';
     }
   }
 
@@ -1404,6 +1512,17 @@ tailwind.config = {
     loadTransactions();
     refreshTotalBalance();
   });
+
+  const toggleBalanceBtn = document.getElementById('toggleBalanceBtn');
+  if (toggleBalanceBtn) {
+    toggleBalanceBtn.addEventListener('click', function () {
+      balanceVisible = !balanceVisible;
+      try {
+        sessionStorage.setItem('balanceVisible', balanceVisible ? '1' : '0');
+      } catch (e) {}
+      renderBalanceDisplay();
+    });
+  }
 
   logoutBtn.addEventListener('click', signOut);
   panelLogoutBtn.addEventListener('click', signOut);
