@@ -162,8 +162,7 @@ tailwind.config = {
 <header class="shrink-0 relative z-50 bg-surface/40 backdrop-blur-sm">
   <div class="h-12 w-full px-margin-desktop flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <img alt="Elysium" class="h-7 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
-      <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">ELYSIUM SERVER</span>
+      <span id="headerServerIp" class="font-meta-mono text-meta-mono text-on-surface tracking-wide">—.—.—.—</span>
     </div>
     <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
       <span class="material-symbols-outlined text-on-primary text-[16px]">person</span>
@@ -175,7 +174,7 @@ tailwind.config = {
   <div class="flex flex-col flex-1 min-h-0 w-full justify-center items-center py-4 relative">
 
     <!-- Central Alignment Container -->
-    <div class="flex flex-col items-center w-full max-w-xl relative z-10 px-6 sm:px-8 bg-surface-container-lowest/92 backdrop-blur-[2px] border border-border-subtle rounded-xl py-8 sm:py-10 shadow-sm">
+    <div class="flex flex-col items-center w-full max-w-xl relative z-10 px-6 sm:px-8 bg-surface-container-lowest border border-border-subtle rounded-xl py-8 sm:py-10 shadow-sm">
 
       <!-- Subtle Structural Lines (Background Detail) -->
       <div aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none flex justify-center -z-10">
@@ -289,6 +288,15 @@ tailwind.config = {
 
 <script>
 (function () {
+  var headerServerIp = document.getElementById('headerServerIp');
+  function randomOctet() {
+    return Math.floor(Math.random() * 254) + 1;
+  }
+  if (headerServerIp) {
+    headerServerIp.textContent =
+      randomOctet() + '.' + randomOctet() + '.' + randomOctet() + '.' + randomOctet();
+  }
+
   var startBtn = document.getElementById('startBtn');
   var initialState = document.getElementById('initialState');
   var loadingSection = document.getElementById('loadingSection');
