@@ -39,7 +39,7 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
   background-size: 420px auto;
   background-position: center top;
   background-repeat: repeat;
-  opacity: 0.22;
+  opacity: 0.15;
   pointer-events: none;
 }
 .page-map-veil {
