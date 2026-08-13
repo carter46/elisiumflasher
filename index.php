@@ -179,9 +179,7 @@ tailwind.config = {
 <header class="app-titlebar shrink-0 relative z-50 border-b border-border-subtle">
   <div class="h-10 w-full px-4 md:px-6 flex items-center justify-between gap-4">
     <div class="flex items-center gap-3 min-w-0">
-      <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Elysium Server</span>
-      <span class="hidden sm:inline w-px h-3 bg-border-subtle"></span>
-      <span class="hidden sm:inline font-meta-mono text-meta-mono text-on-surface-variant">Gateway Console</span>
+      <span class="font-meta-mono text-meta-mono text-on-surface-variant">Gateway Console</span>
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="inline-flex items-center gap-1.5 font-meta-mono text-meta-mono text-on-surface-variant">
