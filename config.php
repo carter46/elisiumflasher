@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-define('DB_HOST', getenv('DB_HOST') ?: 'sql202.infinityfree.com');
-define('DB_NAME', getenv('DB_NAME') ?: 'if0_40085505_elysium');
-define('DB_USER', getenv('DB_USER') ?: 'if0_40085505');
-define('DB_PASS', getenv('DB_PASS') ?: 'Secretpass0721');
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'u502532383_elysiumflash');
+define('DB_USER', getenv('DB_USER') ?: 'u502532383_elysiumflash');
+define('DB_PASS', getenv('DB_PASS') ?: 'Secretpass0721//');
 define('DB_CHARSET', 'utf8mb4');
 
 define('SESSION_NAME', 'ELESIUM_FLASHER_SESSION');

@@ -1,2 +1,5 @@
 # Nested app with its own git repository
 Mobile_app/
+
+# Local / production DB credentials
+config.php
