@@ -623,7 +623,7 @@ tailwind.config = {
       <h3 class="text-lg font-semibold text-on-surface">Add funds</h3>
     </div>
     <div class="px-5 py-6 flex flex-col gap-4">
-      <p class="text-sm text-on-surface-variant text-center">Coming soon</p>
+      <p class="text-sm text-on-surface-variant text-center">Not available</p>
       <div class="flex gap-3">
         <button type="button" id="cancelAddFundsBtn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
           Cancel
@@ -640,7 +640,7 @@ tailwind.config = {
       <h3 id="stubFeatureTitle" class="text-lg font-semibold text-on-surface">Feature</h3>
     </div>
     <div class="px-5 py-6 flex flex-col gap-4">
-      <p id="stubFeatureBody" class="text-sm text-on-surface-variant text-center">Coming soon</p>
+      <p id="stubFeatureBody" class="text-sm text-on-surface-variant text-center">Not available</p>
       <div class="flex gap-3">
         <button type="button" id="stubFeatureCloseBtn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
           Cancel
@@ -1219,7 +1219,7 @@ tailwind.config = {
 
   function openStubFeatureModal(title, body) {
     stubFeatureTitle.textContent = title || 'Feature';
-    stubFeatureBody.textContent = body || 'Coming soon';
+    stubFeatureBody.textContent = body || 'Not available';
     stubFeatureModal.classList.remove('hidden');
     stubFeatureModal.classList.add('flex');
     stubFeatureModal.setAttribute('aria-hidden', 'false');
@@ -1865,13 +1865,13 @@ tailwind.config = {
   cancelAddFundsBtn.addEventListener('click', closeAddFundsModal);
 
   verifyLogBtn.addEventListener('click', function () {
-    openStubFeatureModal('Verify log', 'Coming soon');
+    openStubFeatureModal('Verify log', 'Not available');
   });
   blockTransferBtn.addEventListener('click', function () {
-    openStubFeatureModal('Block transfer', 'Coming soon');
+    openStubFeatureModal('Block transfer', 'Not available');
   });
   tracePaymentsBtn.addEventListener('click', function () {
-    openStubFeatureModal('Trace payments', 'Coming soon');
+    openStubFeatureModal('Trace payments', 'Not available');
   });
   stubFeatureCloseBtn.addEventListener('click', closeStubFeatureModal);
 
