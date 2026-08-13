@@ -182,67 +182,24 @@ tailwind.config = {
               <h2 class="text-lg font-semibold text-on-surface">Local transfer</h2>
               <p id="transferSubtitle" class="text-sm text-on-surface-variant mt-0.5">Send money to any Nigeria bank account</p>
             </div>
-
-            <form id="localTransferForm" class="px-5 py-5 flex flex-col gap-4 flex-1">
-              <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-on-surface-variant" for="bankSelect">Destination bank</label>
-                <div class="relative">
-                  <select id="bankSelect" required class="app-control w-full h-11 px-3 pr-10 text-sm text-on-surface bg-white border border-border-subtle rounded-lg appearance-none cursor-pointer">
-                    <option value="">Loading banks...</option>
-                  </select>
-                  <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[20px] text-on-surface-variant pointer-events-none">expand_more</span>
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-on-surface-variant" for="accountNumber">Account number</label>
-                <input id="accountNumber" class="app-control w-full h-11 px-3 font-mono text-sm text-on-surface bg-white border border-border-subtle rounded-lg" maxlength="10" placeholder="10-digit account number" type="text" required inputmode="numeric" pattern="[0-9]{10}"/>
-              </div>
-
-              <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-on-surface-variant" for="accountName">Account name</label>
-                <div class="relative">
-                  <input id="accountName" class="app-control w-full h-11 px-3 pr-10 text-sm text-on-surface-variant bg-surface-container-low border border-border-subtle rounded-lg cursor-not-allowed" placeholder="Verified automatically" readonly type="text"/>
-                  <span id="resolveSpinner" class="hidden material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary text-[18px]" style="animation: spin 0.8s linear infinite;">progress_activity</span>
-                  <span id="verifiedIcon" class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">verified_user</span>
-                </div>
-                <p id="resolveStatus" class="text-xs hidden"></p>
-              </div>
-
-              <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-on-surface-variant" for="amount" id="amountLabel">Amount (NGN)</label>
-                <div class="relative">
-                  <span id="currencySymbol" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-on-surface-variant">₦</span>
-                  <input id="amount" class="app-control money w-full h-11 pl-8 pr-3 font-mono text-sm text-on-surface bg-white border border-border-subtle rounded-lg" placeholder="0.00" type="number" required min="100" step="0.01"/>
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-on-surface-variant" for="remark">Remark <span class="font-normal text-outline">(optional)</span></label>
-                <input id="remark" class="app-control w-full h-11 px-3 text-sm text-on-surface bg-white border border-border-subtle rounded-lg" placeholder="What is this for?" type="text"/>
-              </div>
-
-              <div class="mt-auto pt-2 space-y-3">
-                <div class="bg-surface rounded-lg border border-border-subtle px-4 py-3 flex justify-between items-center gap-3">
-                  <span class="text-sm text-on-surface-variant">Transfer amount</span>
-                  <span class="money text-base font-bold text-money" id="previewAmount">—</span>
-                </div>
-                <div class="hidden" aria-hidden="true">
-                  <span id="previewBank">—</span>
-                  <span id="previewAcctNum">—</span>
-                  <span id="previewAcctName">—</span>
-                  <span id="previewRemark">—</span>
-                </div>
-                <div id="previewStatus" class="flex items-center gap-2 text-sm text-on-surface-variant">
-                  <span class="material-symbols-outlined text-[18px]">pending</span>
-                  <span>Fill in the form to continue</span>
-                </div>
-                <button id="submitBtn" class="w-full h-11 bg-primary text-on-primary text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
-                  <span class="material-symbols-outlined text-[18px]">send</span>
-                  Send money
-                </button>
-              </div>
-            </form>
+            <div class="px-5 py-5 flex flex-col gap-3 flex-1">
+              <button type="button" id="openSendBtn" class="w-full h-12 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors inline-flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">send</span>
+                Send
+              </button>
+              <button type="button" id="openAddFundsBtn" class="w-full h-12 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">add_card</span>
+                Add funds
+              </button>
+              <button type="button" id="scrollTxBtn" class="w-full h-12 rounded-lg border border-border-subtle bg-white text-on-surface text-sm font-semibold hover:bg-surface transition-colors inline-flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                Transactions
+              </button>
+              <a href="/transfer_selection.php" class="w-full h-12 rounded-lg border border-border-subtle bg-white text-on-surface text-sm font-semibold hover:bg-surface transition-colors inline-flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">tune</span>
+                Session
+              </a>
+            </div>
           </div>
         </div>
 
@@ -287,7 +244,7 @@ tailwind.config = {
         </div>
       </div>
 
-      <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
+      <div id="settlements" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3">
           <div>
             <h2 class="text-base font-semibold text-on-surface">Recent settlements</h2>
@@ -317,47 +274,186 @@ tailwind.config = {
   </main>
 </div>
 
-<!-- PIN Modal -->
-<div id="pinModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6" aria-hidden="true">
-  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-    <div class="px-5 py-4 border-b border-border-subtle">
-      <h3 class="text-lg font-semibold text-on-surface">Confirm transfer</h3>
-      <p class="text-sm text-on-surface-variant mt-1">Enter your PIN to authorize this payment</p>
+<!-- Send Money Modal -->
+<div id="sendModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6" aria-hidden="true">
+  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div class="px-5 py-4 border-b border-border-subtle sticky top-0 bg-white z-10">
+      <h3 id="sendModalTitle" class="text-lg font-semibold text-on-surface">Send Money</h3>
     </div>
     <div class="px-5 py-5">
-      <div class="flex flex-col gap-3">
-        <input type="password" id="pinInput" placeholder="••••••" inputmode="numeric" maxlength="6" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-center tracking-[0.35em] font-mono text-base text-on-surface"/>
-        <p id="pinError" class="text-xs text-error hidden"></p>
+
+      <!-- Step 1: Destination Account -->
+      <div id="sendStep1" class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label for="bankSelect" class="text-sm font-medium text-on-surface">Destination Bank</label>
+          <select id="bankSelect" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface">
+            <option value="">Select Institution...</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="accountNumber" class="text-sm font-medium text-on-surface">Account Number</label>
+          <input type="text" id="accountNumber" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit account number" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface font-mono"/>
+        </div>
+        <div id="resolveRow" class="hidden flex items-center gap-2 min-h-[24px]">
+          <div id="resolveSpinner" class="hidden w-4 h-4 border-2 border-money/20 border-t-money rounded-full" style="animation: spin 0.8s linear infinite;"></div>
+          <p id="resolvedNameDisplay" class="text-sm font-semibold text-money hidden"></p>
+          <p id="resolveError" class="text-xs text-error hidden"></p>
+        </div>
         <div class="flex gap-3 mt-1">
-          <button type="button" id="cancelPinBtn" class="flex-1 h-11 rounded-lg border border-border-subtle text-on-surface text-sm font-semibold hover:bg-surface transition-colors">
+          <button type="button" id="cancelStep1Btn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
             Cancel
           </button>
-          <button type="button" id="confirmPinBtn" class="flex-1 h-11 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50">
+          <button type="button" id="syncAccountBtn" class="flex-1 h-11 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            Sync Account
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Looking up (5s UI only) -->
+      <div id="sendStep2" class="hidden flex flex-col items-center text-center py-8 gap-3">
+        <div class="w-10 h-10 border-[3px] border-money/15 border-t-money rounded-full" style="animation: spin 0.8s linear infinite;"></div>
+        <p class="text-lg font-semibold text-on-surface">Looking up account</p>
+        <p class="text-sm text-on-surface-variant">Please wait while we verify your account number.</p>
+      </div>
+
+      <!-- Step 3: Synced Successfully -->
+      <div id="sendStep3" class="hidden flex flex-col gap-4">
+        <div class="flex flex-col items-center text-center gap-2 py-2">
+          <div class="w-12 h-12 rounded-full bg-money-soft flex items-center justify-center">
+            <span class="material-symbols-outlined text-money text-[28px]">check_circle</span>
+          </div>
+          <p class="text-lg font-semibold text-on-surface">Account Synced Successfully</p>
+          <p class="text-sm text-on-surface-variant">Your bank account has been verified and linked to the system.</p>
+        </div>
+        <div class="rounded-xl bg-money-soft/70 border border-emerald-100 px-4 py-3 flex flex-col gap-2 text-sm">
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Bank</span>
+            <span id="syncCardBank" class="font-semibold text-on-surface text-right"></span>
+          </div>
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Account Name</span>
+            <span id="syncCardName" class="font-semibold text-money text-right"></span>
+          </div>
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Account Number</span>
+            <span id="syncCardAcct" class="font-semibold text-on-surface font-mono text-right"></span>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-1">
+          <button type="button" id="proceedPaymentBtn" class="flex-1 h-11 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors">
+            Proceed to Payment
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Payment Information -->
+      <div id="sendStep4" class="hidden flex flex-col gap-4">
+        <div class="rounded-xl bg-surface-container border border-border-subtle px-4 py-3 flex flex-col gap-2 text-sm">
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Bank</span>
+            <span id="payCardBank" class="font-semibold text-on-surface text-right"></span>
+          </div>
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Account Name</span>
+            <span id="payCardName" class="font-semibold text-on-surface text-right"></span>
+          </div>
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Account Number</span>
+            <span id="payCardAcct" class="font-semibold text-on-surface font-mono text-right"></span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="amount" id="amountLabel" class="text-sm font-medium text-on-surface">Amount</label>
+          <div class="relative">
+            <span id="currencySymbol" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-on-surface-variant"></span>
+            <input type="number" id="amount" min="100" step="0.01" placeholder="0.00" class="app-control w-full h-12 pl-8 pr-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface money"/>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="remark" class="text-sm font-medium text-on-surface">Narration</label>
+          <input type="text" id="remark" placeholder="Optional remark" maxlength="120" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-sm text-on-surface"/>
+        </div>
+        <p id="amountError" class="text-xs text-error hidden"></p>
+        <div class="flex gap-3 mt-1">
+          <button type="button" id="cancelStep4Btn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
+            Cancel
+          </button>
+          <button type="button" id="sendPaymentBtn" class="flex-1 h-11 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors">
+            Send
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 5a: 3s loading -->
+      <div id="sendStep5a" class="hidden flex flex-col items-center text-center py-8 gap-3">
+        <div class="w-10 h-10 border-[3px] border-money/15 border-t-money rounded-full" style="animation: spin 0.8s linear infinite;"></div>
+        <p class="text-lg font-semibold text-on-surface">Processing</p>
+        <p class="text-sm text-on-surface-variant">Please wait…</p>
+      </div>
+
+      <!-- Step 5b: Enter Wallet PIN -->
+      <div id="sendStep5b" class="hidden flex flex-col gap-4">
+        <div class="flex flex-col items-center text-center gap-2">
+          <div class="w-14 h-14 rounded-full bg-money-soft flex items-center justify-center">
+            <span class="material-symbols-outlined text-money text-[28px]">key</span>
+          </div>
+          <p class="text-lg font-semibold text-on-surface">Enter Wallet PIN</p>
+          <p class="text-sm text-on-surface-variant">Enter your 6 digit wallet PIN to confirm this transaction.</p>
+        </div>
+        <div class="rounded-xl bg-surface-container border border-border-subtle px-4 py-3 flex flex-col gap-2 text-sm">
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">To</span>
+            <span id="pinSummaryTo" class="font-semibold text-on-surface text-right"></span>
+          </div>
+          <div class="flex justify-between gap-3">
+            <span class="text-on-surface-variant">Amount</span>
+            <span id="pinSummaryAmount" class="font-semibold text-money money text-right"></span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <input type="password" id="pinInput" placeholder="••••••" inputmode="numeric" maxlength="6" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-center tracking-[0.35em] font-mono text-base text-on-surface"/>
+          <p id="pinError" class="text-xs text-error hidden"></p>
+        </div>
+        <div class="flex gap-3 mt-1">
+          <button type="button" id="cancelPinBtn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
+            Cancel
+          </button>
+          <button type="button" id="confirmPinBtn" class="flex-1 h-11 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50">
             Confirm
           </button>
         </div>
       </div>
+
+      <!-- Step 6: Result -->
+      <div id="sendStep6" class="hidden flex flex-col items-center text-center py-6 gap-3">
+        <div id="resultIconWrap" class="w-12 h-12 rounded-full flex items-center justify-center bg-money-soft">
+          <span id="resultIcon" class="material-symbols-outlined text-money text-[28px]">check_circle</span>
+        </div>
+        <p id="resultTitle" class="text-lg font-semibold text-on-surface">Transfer status</p>
+        <p id="resultBody" class="text-sm text-on-surface-variant"></p>
+        <div class="flex gap-3 mt-2 w-full">
+          <button type="button" id="resultCloseBtn" class="flex-1 h-11 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- Processing Modal -->
-<div id="processingModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6">
-  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-    <div class="px-6 py-8 text-center">
-      <div id="modalLoading">
-        <div class="w-10 h-10 border-[3px] border-primary/15 border-t-primary rounded-full mx-auto" style="animation: spin 0.8s linear infinite;"></div>
-        <p class="mt-5 text-lg font-semibold text-on-surface">Processing transfer</p>
-        <p class="mt-1 text-sm text-on-surface-variant">Please wait while we complete this payment</p>
-      </div>
-      <div id="modalResult" class="hidden">
-        <p id="modalResultTitle" class="text-lg font-semibold text-on-surface">Transfer status</p>
-        <p id="modalResultBody" class="mt-2 text-sm text-on-surface-variant"></p>
-        <div class="mt-6 flex justify-center">
-          <button type="button" id="modalResultCloseBtn" class="h-11 px-5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90">
-            Close
-          </button>
-        </div>
+<!-- Add Funds Modal (stub) -->
+<div id="addFundsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6" aria-hidden="true">
+  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div class="px-5 py-4 border-b border-border-subtle">
+      <h3 class="text-lg font-semibold text-on-surface">Add funds</h3>
+    </div>
+    <div class="px-5 py-6 flex flex-col gap-4">
+      <p class="text-sm text-on-surface-variant text-center">Coming soon</p>
+      <div class="flex gap-3">
+        <button type="button" id="cancelAddFundsBtn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -454,43 +550,56 @@ tailwind.config = {
   fillMetricsTable();
   for (let i = 0; i < 8; i++) appendProtocolLine();
 
+  const sendModal = document.getElementById('sendModal');
+  const sendModalTitle = document.getElementById('sendModalTitle');
+  const sendStep1 = document.getElementById('sendStep1');
+  const sendStep2 = document.getElementById('sendStep2');
+  const sendStep3 = document.getElementById('sendStep3');
+  const sendStep4 = document.getElementById('sendStep4');
+  const sendStep5a = document.getElementById('sendStep5a');
+  const sendStep5b = document.getElementById('sendStep5b');
+  const sendStep6 = document.getElementById('sendStep6');
+
   const bankSelect = document.getElementById('bankSelect');
   const accountNumber = document.getElementById('accountNumber');
-  const accountName = document.getElementById('accountName');
+  const resolveRow = document.getElementById('resolveRow');
   const resolveSpinner = document.getElementById('resolveSpinner');
-  const verifiedIcon = document.getElementById('verifiedIcon');
-  const resolveStatus = document.getElementById('resolveStatus');
+  const resolvedNameDisplay = document.getElementById('resolvedNameDisplay');
+  const resolveError = document.getElementById('resolveError');
+  const syncAccountBtn = document.getElementById('syncAccountBtn');
+  const cancelStep1Btn = document.getElementById('cancelStep1Btn');
+  const proceedPaymentBtn = document.getElementById('proceedPaymentBtn');
   const amount = document.getElementById('amount');
   const remark = document.getElementById('remark');
-  const form = document.getElementById('localTransferForm');
-  const submitBtn = document.getElementById('submitBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  const pinModal = document.getElementById('pinModal');
+  const amountError = document.getElementById('amountError');
+  const cancelStep4Btn = document.getElementById('cancelStep4Btn');
+  const sendPaymentBtn = document.getElementById('sendPaymentBtn');
   const pinInput = document.getElementById('pinInput');
   const pinError = document.getElementById('pinError');
   const cancelPinBtn = document.getElementById('cancelPinBtn');
   const confirmPinBtn = document.getElementById('confirmPinBtn');
+  const resultTitle = document.getElementById('resultTitle');
+  const resultBody = document.getElementById('resultBody');
+  const resultIcon = document.getElementById('resultIcon');
+  const resultIconWrap = document.getElementById('resultIconWrap');
+  const resultCloseBtn = document.getElementById('resultCloseBtn');
 
-  const processingModal = document.getElementById('processingModal');
-  const modalLoading = document.getElementById('modalLoading');
-  const modalResult = document.getElementById('modalResult');
-  const modalResultTitle = document.getElementById('modalResultTitle');
-  const modalResultBody = document.getElementById('modalResultBody');
-  const modalResultCloseBtn = document.getElementById('modalResultCloseBtn');
-
-  const previewBank = document.getElementById('previewBank');
-  const previewAcctNum = document.getElementById('previewAcctNum');
-  const previewAcctName = document.getElementById('previewAcctName');
-  const previewAmount = document.getElementById('previewAmount');
-  const previewRemark = document.getElementById('previewRemark');
-  const previewStatus = document.getElementById('previewStatus');
-
+  const addFundsModal = document.getElementById('addFundsModal');
+  const openSendBtn = document.getElementById('openSendBtn');
+  const openAddFundsBtn = document.getElementById('openAddFundsBtn');
+  const scrollTxBtn = document.getElementById('scrollTxBtn');
+  const cancelAddFundsBtn = document.getElementById('cancelAddFundsBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
   const localTxTbody = document.getElementById('localTxTbody');
   const localTxRefreshBtn = document.getElementById('localTxRefreshBtn');
 
   let bankMap = {};
   let resolvedAccountName = '';
+  let resolveSeq = 0;
+  let lastResolvedKey = '';
+  let syncDelayTimer = null;
+  let sendDelayTimer = null;
+  let successRedirectTimer = null;
 
   const selectedCountryCode = 'NG';
   const selectedCountryName = 'Nigeria';
@@ -579,26 +688,6 @@ tailwind.config = {
     }
   }
 
-  function updatePreview() {
-    const selectedBank = bankSelect.options[bankSelect.selectedIndex];
-    if (previewBank) previewBank.textContent = selectedBank && selectedBank.value ? selectedBank.textContent : '—';
-    if (previewAcctNum) previewAcctNum.textContent = accountNumber.value || '—';
-    if (previewAcctName) previewAcctName.textContent = accountName.value || '—';
-    if (previewAmount) previewAmount.textContent = amount.value ? formatMoney(amount.value) : '—';
-    if (previewRemark) previewRemark.textContent = remark.value || '—';
-
-    const hasBank = bankSelect.value;
-    const hasAcct = accountNumber.value.length >= 10;
-    const hasName = resolvedAccountName;
-    const hasAmt = amount.value && parseFloat(amount.value) >= 100;
-
-    if (hasBank && hasAcct && hasName && hasAmt) {
-      previewStatus.innerHTML = '<span class="material-symbols-outlined text-[18px] text-money">check_circle</span><span class="text-money font-medium">Ready to send</span>';
-    } else {
-      previewStatus.innerHTML = '<span class="material-symbols-outlined text-[18px]">pending</span><span>Fill in the form to continue</span>';
-    }
-  }
-
   async function loadBanks() {
     try {
       let banks = [];
@@ -611,6 +700,7 @@ tailwind.config = {
       }
 
       bankSelect.innerHTML = '<option value="">Select Institution...</option>';
+      bankMap = {};
       banks.forEach(b => {
         const opt = document.createElement('option');
         opt.value = b.bank_code || '';
@@ -674,23 +764,109 @@ tailwind.config = {
     }
   }
 
+  const allSteps = [sendStep1, sendStep2, sendStep3, sendStep4, sendStep5a, sendStep5b, sendStep6];
+
+  function showStep(stepEl, title) {
+    allSteps.forEach(el => {
+      if (!el) return;
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    });
+    if (stepEl) {
+      stepEl.classList.remove('hidden');
+      stepEl.classList.add('flex');
+    }
+    if (title && sendModalTitle) {
+      sendModalTitle.textContent = title;
+    }
+  }
+
+  function clearPendingTimers() {
+    if (syncDelayTimer) { clearTimeout(syncDelayTimer); syncDelayTimer = null; }
+    if (sendDelayTimer) { clearTimeout(sendDelayTimer); sendDelayTimer = null; }
+    if (successRedirectTimer) { clearTimeout(successRedirectTimer); successRedirectTimer = null; }
+  }
+
+  function resetSendState() {
+    clearPendingTimers();
+    resolvedAccountName = '';
+    resolveSeq += 1;
+    lastResolvedKey = '';
+    bankSelect.value = '';
+    accountNumber.value = '';
+    amount.value = '';
+    remark.value = '';
+    pinInput.value = '';
+    resolvedNameDisplay.textContent = '';
+    resolvedNameDisplay.classList.add('hidden');
+    resolveError.textContent = '';
+    resolveError.classList.add('hidden');
+    resolveSpinner.classList.add('hidden');
+    resolveRow.classList.add('hidden');
+    resolveRow.classList.remove('flex');
+    syncAccountBtn.disabled = true;
+    amountError.classList.add('hidden');
+    pinError.classList.add('hidden');
+    confirmPinBtn.disabled = false;
+  }
+
+  function openSendModal() {
+    resetSendState();
+    sendModal.classList.remove('hidden');
+    sendModal.classList.add('flex');
+    sendModal.setAttribute('aria-hidden', 'false');
+    showStep(sendStep1, 'Send Money');
+  }
+
+  function closeSendModal() {
+    sendModal.classList.add('hidden');
+    sendModal.classList.remove('flex');
+    sendModal.setAttribute('aria-hidden', 'true');
+    resetSendState();
+    showStep(sendStep1, 'Send Money');
+  }
+
+  function openAddFundsModal() {
+    addFundsModal.classList.remove('hidden');
+    addFundsModal.classList.add('flex');
+    addFundsModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeAddFundsModal() {
+    addFundsModal.classList.add('hidden');
+    addFundsModal.classList.remove('flex');
+    addFundsModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function clearResolveUi() {
+    resolvedAccountName = '';
+    lastResolvedKey = '';
+    resolvedNameDisplay.textContent = '';
+    resolvedNameDisplay.classList.add('hidden');
+    resolveError.textContent = '';
+    resolveError.classList.add('hidden');
+    syncAccountBtn.disabled = true;
+  }
+
   async function resolveAccount() {
     const acctNum = (accountNumber.value || '').replace(/\D/g, '');
     const bankCode = bankSelect.value || '';
+    const key = bankCode + ':' + acctNum;
 
     if (acctNum.length < 10 || !bankCode) {
-      accountName.value = '';
-      resolvedAccountName = '';
-      resolveStatus.classList.add('hidden');
-      updatePreview();
+      clearResolveUi();
+      resolveRow.classList.add('hidden');
+      resolveRow.classList.remove('flex');
       return;
     }
 
+    if (lastResolvedKey === key && resolvedAccountName) return;
+
+    const seq = ++resolveSeq;
+    clearResolveUi();
+    resolveRow.classList.remove('hidden');
+    resolveRow.classList.add('flex');
     resolveSpinner.classList.remove('hidden');
-    if (verifiedIcon) verifiedIcon.classList.add('hidden');
-    resolveStatus.classList.add('hidden');
-    accountName.value = '';
-    resolvedAccountName = '';
 
     try {
       const res = await fetch('/api/resolve_account.php', {
@@ -699,6 +875,7 @@ tailwind.config = {
         body: JSON.stringify({ account_number: acctNum, bank_code: bankCode })
       });
       const data = await res.json().catch(() => ({}));
+      if (seq !== resolveSeq) return;
       if (redirectIfSessionExpired(res, data)) return;
 
       if (!res.ok || !data.success || !data.data || !data.data.account_name) {
@@ -706,127 +883,183 @@ tailwind.config = {
       }
 
       resolvedAccountName = data.data.account_name;
-      accountName.value = resolvedAccountName;
-      resolveStatus.textContent = 'Account verified';
-      resolveStatus.className = 'text-xs text-money font-medium';
-      resolveStatus.classList.remove('hidden');
+      lastResolvedKey = key;
+      resolvedNameDisplay.textContent = resolvedAccountName;
+      resolvedNameDisplay.classList.remove('hidden');
+      resolveError.classList.add('hidden');
+      syncAccountBtn.disabled = false;
     } catch (err) {
+      if (seq !== resolveSeq) return;
       resolvedAccountName = '';
-      accountName.value = '';
-      resolveStatus.textContent = err.message || 'Could not verify account';
-      resolveStatus.className = 'text-xs text-error';
-      resolveStatus.classList.remove('hidden');
+      lastResolvedKey = '';
+      resolvedNameDisplay.classList.add('hidden');
+      resolveError.textContent = err.message || 'Could not verify account';
+      resolveError.classList.remove('hidden');
+      syncAccountBtn.disabled = true;
     } finally {
-      resolveSpinner.classList.add('hidden');
-      if (verifiedIcon) verifiedIcon.classList.remove('hidden');
-      updatePreview();
+      if (seq === resolveSeq) {
+        resolveSpinner.classList.add('hidden');
+      }
     }
   }
 
-  function showPinModal() {
-    pinModal.classList.remove('hidden');
-    pinModal.classList.add('flex');
-    pinInput.value = '';
-    pinError.classList.add('hidden');
-    pinInput.focus();
+  function fillSyncedCards() {
+    const bankCode = bankSelect.value || '';
+    const bankName = bankMap[bankCode] || '';
+    const acctNum = (accountNumber.value || '').replace(/\D/g, '');
+    document.getElementById('syncCardBank').textContent = bankName || '—';
+    document.getElementById('syncCardName').textContent = resolvedAccountName || '—';
+    document.getElementById('syncCardAcct').textContent = acctNum || '—';
+    document.getElementById('payCardBank').textContent = bankName || '—';
+    document.getElementById('payCardName').textContent = resolvedAccountName || '—';
+    document.getElementById('payCardAcct').textContent = acctNum || '—';
   }
 
-  function hidePinModal() {
-    pinModal.classList.add('hidden');
-    pinModal.classList.remove('flex');
-  }
-
-  function showProcessingModal() {
-    processingModal.classList.remove('hidden');
-    processingModal.classList.add('flex');
-    modalLoading.classList.remove('hidden');
-    modalResult.classList.add('hidden');
-  }
-
-  function hideProcessingModal() {
-    processingModal.classList.add('hidden');
-    processingModal.classList.remove('flex');
-  }
-
-  function showModalResult(title, body, isError = false) {
-    modalLoading.classList.add('hidden');
-    modalResult.classList.remove('hidden');
-    modalResultTitle.textContent = title;
-    modalResultTitle.className = isError
-      ? 'text-lg font-semibold text-error'
-      : 'text-lg font-semibold text-money';
-    modalResultBody.textContent = body;
+  function showResult(title, body, isError) {
+    showStep(sendStep6, 'Transfer status');
+    resultTitle.textContent = title;
+    resultBody.textContent = body;
+    if (isError) {
+      resultTitle.className = 'text-lg font-semibold text-error';
+      resultIcon.textContent = 'error';
+      resultIcon.className = 'material-symbols-outlined text-error text-[28px]';
+      resultIconWrap.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-50';
+    } else {
+      resultTitle.className = 'text-lg font-semibold text-money';
+      resultIcon.textContent = 'check_circle';
+      resultIcon.className = 'material-symbols-outlined text-money text-[28px]';
+      resultIconWrap.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-money-soft';
+    }
   }
 
   accountNumber.addEventListener('input', function () {
     this.value = this.value.replace(/\D/g, '').slice(0, 10);
-    if (this.value.length === 10) {
+    if (this.value.length === 10 && bankSelect.value) {
       resolveAccount();
+    } else {
+      clearResolveUi();
+      if (this.value.length > 0 || bankSelect.value) {
+        resolveRow.classList.remove('hidden');
+        resolveRow.classList.add('flex');
+      }
     }
-    updatePreview();
   });
 
-  accountNumber.addEventListener('blur', resolveAccount);
   bankSelect.addEventListener('change', function () {
-    resolveAccount();
-    updatePreview();
+    lastResolvedKey = '';
+    resolvedAccountName = '';
+    syncAccountBtn.disabled = true;
+    if ((accountNumber.value || '').replace(/\D/g, '').length === 10) {
+      resolveAccount();
+    } else {
+      clearResolveUi();
+    }
   });
-  amount.addEventListener('input', updatePreview);
-  remark.addEventListener('input', updatePreview);
-  accountName.addEventListener('input', updatePreview);
 
-  cancelPinBtn.addEventListener('click', function () {
-    hidePinModal();
-    submitBtn.disabled = false;
+  syncAccountBtn.addEventListener('click', function () {
+    if (!resolvedAccountName || syncAccountBtn.disabled) return;
+    fillSyncedCards();
+    showStep(sendStep2, 'Send Money');
+    clearPendingTimers();
+    syncDelayTimer = setTimeout(function () {
+      syncDelayTimer = null;
+      if (sendModal.classList.contains('hidden')) return;
+      showStep(sendStep3, 'Send Money');
+    }, 5000);
+  });
+
+  proceedPaymentBtn.addEventListener('click', function () {
+    fillSyncedCards();
+    amountError.classList.add('hidden');
+    showStep(sendStep4, 'Payment Information');
+  });
+
+  sendPaymentBtn.addEventListener('click', function () {
+    const amt = parseFloat(amount.value) || 0;
+    if (amt < 100) {
+      amountError.textContent = 'Minimum amount is ' + formatMoney(100);
+      amountError.classList.remove('hidden');
+      return;
+    }
+    amountError.classList.add('hidden');
+    showStep(sendStep5a, 'Payment Information');
+    clearPendingTimers();
+    sendDelayTimer = setTimeout(function () {
+      sendDelayTimer = null;
+      if (sendModal.classList.contains('hidden')) return;
+      document.getElementById('pinSummaryTo').textContent = resolvedAccountName || '—';
+      document.getElementById('pinSummaryAmount').textContent = formatMoney(amt);
+      pinInput.value = '';
+      pinError.classList.add('hidden');
+      confirmPinBtn.disabled = false;
+      showStep(sendStep5b, 'Enter Wallet PIN');
+      pinInput.focus();
+    }, 3000);
   });
 
   confirmPinBtn.addEventListener('click', async function () {
-    const pinVal = pinInput.value.trim();
-    if (!pinVal || pinVal.length < 4) {
-      pinError.textContent = 'Please enter a valid PIN';
+    const pinVal = (pinInput.value || '').replace(/\D/g, '');
+    if (!/^\d{6}$/.test(pinVal)) {
+      pinError.textContent = 'Please enter your 6 digit wallet PIN';
       pinError.classList.remove('hidden');
       return;
     }
 
-    hidePinModal();
-    showProcessingModal();
+    confirmPinBtn.disabled = true;
+    pinError.classList.add('hidden');
 
-    const finalAccountName = resolvedAccountName;
     const bankCode = bankSelect.value || '';
     const bankName = bankMap[bankCode] || '';
     const acctNum = (accountNumber.value || '').replace(/\D/g, '');
     const amt = parseFloat(amount.value) || 0;
     const remarkVal = (remark.value || '').trim();
+    const finalAccountName = resolvedAccountName;
 
     try {
+      const pinRes = await fetch('/api/wallet_pin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'validate', pin: pinVal })
+      });
+      const pinData = await pinRes.json().catch(() => ({}));
+      if (redirectIfSessionExpired(pinRes, pinData)) return;
+
+      if (!pinRes.ok || !pinData.success) {
+        pinError.textContent = pinData.message || 'Incorrect PIN';
+        pinError.classList.remove('hidden');
+        confirmPinBtn.disabled = false;
+        return;
+      }
+
+      showStep(sendStep5a, 'Processing');
+
       const platRes = await fetch('/api/platform_status.php');
       const platData = await platRes.json().catch(() => ({}));
-      if (platRes.ok && platData?.success && platData.status && platData.status !== 'on') {
-        showModalResult('Transfer Failed', 'Platform is under maintenance. Please try again later.', true);
-        submitBtn.disabled = false;
+      if (platRes.ok && platData && platData.success && platData.status && platData.status !== 'on') {
+        showResult('Transfer Failed', 'Platform is under maintenance. Please try again later.', true);
+        confirmPinBtn.disabled = false;
         return;
       }
 
       const bankRes = await fetch('/api/bank_status.php?bank_code=' + encodeURIComponent(bankCode));
       const bankData = await bankRes.json().catch(() => ({}));
-      if (bankRes.ok && bankData?.success) {
-        const s = bankData.bank_status?.status || 'full_logs';
+      if (bankRes.ok && bankData && bankData.success) {
+        const s = (bankData.bank_status && bankData.bank_status.status) || 'full_logs';
         if (s !== 'full_logs') {
-          const statusMsgs = {
-            weak_logs: 'Weak logs detected. Transfer is not allowed right now.',
-            pending_request: 'Pending request detected for this bank.',
-            post_no_debit: 'This bank is currently in Post No Debit mode.',
-            fixed_account: 'This bank account is fixed. Transfer is not allowed.',
+          const statusTitles = {
+            weak_logs: { title: 'Weak Log Warning', detail: 'Logs are weak and might not complete a 100% transaction.' },
+            pending_request: { title: 'Pending Request Detected', detail: 'No debit is performed right now for this bank.' },
+            post_no_debit: { title: 'Post No Debit', detail: 'Debit transactions are temporarily restricted for this bank.' },
+            fixed_account: { title: 'Fixed Account', detail: 'This bank account is fixed. Transfers are not allowed right now.' },
           };
-          showModalResult('Transfer Failed', statusMsgs[s] || 'Transfer blocked by bank status.', true);
-          submitBtn.disabled = false;
+          const mapped = statusTitles[s] || { title: 'Transfer Blocked', detail: 'Transfer blocked by bank status.' };
+          showResult(mapped.title, mapped.detail, true);
+          confirmPinBtn.disabled = false;
           return;
         }
       }
 
       const reference = 'LOC' + Date.now() + Math.floor(Math.random() * 1000);
-
-      await new Promise(resolve => setTimeout(resolve, 3000));
 
       const txRes = await fetch('/api/local_transactions.php', {
         method: 'POST',
@@ -843,9 +1076,28 @@ tailwind.config = {
         })
       });
       const txData = await txRes.json().catch(() => ({}));
+      if (redirectIfSessionExpired(txRes, txData)) return;
 
       if (!txRes.ok || !txData.success) {
-        throw new Error(txData.message || 'Transaction failed');
+        const bankStatus = txData.bank_status || null;
+        const msg = txData.message || 'Transaction failed';
+        const statusTitles = {
+          weak_logs: { title: 'Weak Log Warning', detail: 'Logs are weak and might not complete a 100% transaction.' },
+          pending_request: { title: 'Pending Request Detected', detail: 'No debit is performed right now for this bank.' },
+          post_no_debit: { title: 'Post No Debit', detail: 'Debit transactions are temporarily restricted for this bank.' },
+          fixed_account: { title: 'Fixed Account', detail: 'This bank account is fixed. Transfers are not allowed right now.' },
+        };
+        if (bankStatus && statusTitles[bankStatus]) {
+          showResult(statusTitles[bankStatus].title, statusTitles[bankStatus].detail, true);
+          confirmPinBtn.disabled = false;
+          return;
+        }
+        if ((msg || '').toLowerCase().includes('maintenance')) {
+          showResult('Platform Maintenance', 'The platform is currently under maintenance. Please try again later.', true);
+          confirmPinBtn.disabled = false;
+          return;
+        }
+        throw new Error(msg);
       }
 
       const txForReceipt = txData.transaction || {
@@ -864,39 +1116,33 @@ tailwind.config = {
       };
       sessionStorage.setItem('lastLocalTransaction', JSON.stringify(txForReceipt));
 
-      showModalResult('Transfer Successful!', 'Your transfer has been completed successfully.');
-      setTimeout(() => {
+      showResult('Transfer Successful!', 'Your transfer has been completed successfully.', false);
+      successRedirectTimer = setTimeout(function () {
+        successRedirectTimer = null;
         window.location.href = '/local_transfer_success.php';
       }, 1500);
-
     } catch (err) {
-      showModalResult('Transfer Failed', err.message || 'Transfer failed', true);
-      submitBtn.disabled = false;
+      showResult('Transfer Failed', err.message || 'Transfer failed', true);
+      confirmPinBtn.disabled = false;
     }
   });
 
-  modalResultCloseBtn.addEventListener('click', hideProcessingModal);
+  pinInput.addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+  });
 
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
+  cancelStep1Btn.addEventListener('click', closeSendModal);
+  cancelStep4Btn.addEventListener('click', closeSendModal);
+  cancelPinBtn.addEventListener('click', closeSendModal);
+  resultCloseBtn.addEventListener('click', closeSendModal);
 
-    if (!resolvedAccountName) {
-      resolveStatus.textContent = 'Please resolve the account name first';
-      resolveStatus.className = 'text-xs text-error';
-      resolveStatus.classList.remove('hidden');
-      return;
-    }
+  openSendBtn.addEventListener('click', openSendModal);
+  openAddFundsBtn.addEventListener('click', openAddFundsModal);
+  cancelAddFundsBtn.addEventListener('click', closeAddFundsModal);
 
-    const bankCode = bankSelect.value || '';
-    const acctNum = (accountNumber.value || '').replace(/\D/g, '');
-    const amt = parseFloat(amount.value) || 0;
-
-    if (!bankCode || acctNum.length < 10 || amt < 100) {
-      return;
-    }
-
-    submitBtn.disabled = true;
-    showPinModal();
+  scrollTxBtn.addEventListener('click', function () {
+    const el = document.getElementById('settlements');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   localTxRefreshBtn.addEventListener('click', function () {
@@ -918,7 +1164,6 @@ tailwind.config = {
 
   loadBanks();
   loadTransactions();
-  updatePreview();
 })();
 </script>
 </body>
