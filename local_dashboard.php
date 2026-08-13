@@ -16,29 +16,21 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
 @layer base {
   html, body { margin: 0; padding: 0; }
   body { overscroll-behavior: none; }
-  main > :first-child { margin-top: 0 !important; }
-  main > :last-child { margin-bottom: 0 !important; }
 }
-::-webkit-scrollbar { display: none; }
-.technical-grid {
-  background-image:
-    linear-gradient(to right, rgba(226, 232, 240, 0.7) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(226, 232, 240, 0.7) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-.app-titlebar, .app-statusbar, .app-sidebar {
-  background: rgba(247, 249, 251, 0.96);
-  backdrop-filter: blur(10px);
-}
-.app-panel {
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: #c4c5d5; border-radius: 4px; }
+.app-sidebar, .app-titlebar {
+  background: #ffffff;
 }
 .app-control:focus {
   outline: none;
   border-color: #1e40af;
-  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.18);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
 }
-.app-btn:active { transform: translateY(0.5px); }
+.money {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
@@ -52,10 +44,6 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        'technical-grid': '#F1F5F9',
-        'on-tertiary-container': '#ffa583',
-        'tertiary-fixed': '#ffdbce',
-        'primary-fixed-dim': '#b8c4ff',
         'error': '#ba1a1a',
         'on-secondary-container': '#5c647a',
         'error-container': '#ffdad6',
@@ -68,205 +56,176 @@ tailwind.config = {
         'on-error': '#ffffff',
         'on-surface': '#191c1e',
         'on-primary-container': '#a8b8ff',
-        'secondary-fixed': '#dae2fd',
         'surface-container-low': '#f2f4f6',
         'outline-variant': '#c4c5d5',
         'secondary': '#565e74',
-        'tertiary-container': '#872d00',
         'on-error-container': '#93000a',
-        'on-tertiary-fixed-variant': '#802a00',
         'surface-container-highest': '#e0e3e5',
         'on-surface-variant': '#444653',
-        'secondary-container': '#dae2fd',
         'inverse-primary': '#b8c4ff',
         'surface-container-lowest': '#ffffff',
         'inverse-surface': '#2d3133',
-        'surface-dim': '#d8dadc',
         'inverse-on-surface': '#eff1f3',
-        'on-secondary-fixed': '#131b2e',
         'border-subtle': '#E2E8F0',
-        'on-secondary-fixed-variant': '#3f465c',
         'surface-container-high': '#e6e8ea',
         'surface-container': '#eceef0',
-        'secondary-fixed-dim': '#bec6e0',
         'on-primary-fixed': '#001453',
         'surface': '#f7f9fb',
         'primary-container': '#1e40af',
-        'on-tertiary': '#ffffff',
         'primary-fixed': '#dde1ff',
         'primary': '#00288e',
         'on-background': '#191c1e',
-        'tertiary-fixed-dim': '#ffb59a',
-        'on-tertiary-fixed': '#380d00',
         'background': '#f7f9fb',
-        'tertiary': '#611e00',
-        'surface-tint': '#3755c3',
+        'money': '#006c49',
+        'money-soft': '#ecfdf5',
       },
       borderRadius: {
-        DEFAULT: '0.125rem',
-        lg: '0.25rem',
-        xl: '0.5rem',
-        full: '0.75rem',
+        DEFAULT: '0.5rem',
+        lg: '0.75rem',
+        xl: '1rem',
+        full: '9999px',
       },
       spacing: {
         gutter: '24px',
-        'margin-mobile': '16px',
-        'margin-desktop': '24px',
-        'grid-unit': '4px',
+        'margin-desktop': '28px',
         'container-max': '1440px',
-        'sidebar-w': '240px',
+        'sidebar-w': '248px',
       },
       fontFamily: {
-        'headline-lg': ['Manrope'],
-        'headline-sm': ['Manrope'],
-        'body-sm': ['Manrope'],
-        'body-lg': ['Manrope'],
-        'headline-md': ['Manrope'],
-        'meta-mono': ['JetBrains Mono'],
-        'meta-technical': ['JetBrains Mono'],
-        'body-md': ['Manrope'],
-      },
-      fontSize: {
-        'headline-lg': ['28px', { lineHeight: '36px', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'headline-sm': ['16px', { lineHeight: '22px', letterSpacing: '0em', fontWeight: '600' }],
-        'body-sm': ['13px', { lineHeight: '18px', letterSpacing: '0em', fontWeight: '400' }],
-        'body-lg': ['16px', { lineHeight: '24px', letterSpacing: '0em', fontWeight: '400' }],
-        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '-0.01em', fontWeight: '600' }],
-        'meta-mono': ['12px', { lineHeight: '16px', letterSpacing: '0em', fontWeight: '400' }],
-        'meta-technical': ['11px', { lineHeight: '16px', letterSpacing: '0.06em', fontWeight: '500' }],
-        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0em', fontWeight: '400' }],
+        sans: ['Manrope', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
     },
   },
 };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 </head>
-<body class="bg-surface-container-low font-body-md text-on-surface technical-grid min-h-screen">
+<body class="bg-surface font-sans text-on-surface antialiased min-h-screen">
 
 <aside class="app-sidebar fixed left-0 top-0 h-full w-sidebar-w border-r border-border-subtle z-50 flex flex-col">
-  <div class="h-10 px-4 flex items-center gap-2.5 border-b border-border-subtle shrink-0">
-    <img alt="Logo" class="h-6 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
-    <span class="font-meta-mono text-meta-mono text-on-surface-variant">OPS CONSOLE</span>
+  <div class="h-14 px-5 flex items-center gap-3 border-b border-border-subtle shrink-0">
+    <img alt="Logo" class="h-8 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+    <div class="min-w-0">
+      <div class="text-sm font-semibold text-on-surface leading-tight">Operations</div>
+      <div class="text-xs text-on-surface-variant">Local transfers</div>
+    </div>
   </div>
-  <nav class="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-    <a class="flex items-center px-3 h-8 rounded-sm font-meta-technical text-meta-technical tracking-widest uppercase text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#overview">
-      <span class="material-symbols-outlined mr-2.5 text-[18px]">grid_view</span>Home
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <a class="flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#overview">
+      <span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span>Overview
     </a>
-    <a aria-current="page" class="flex items-center px-3 h-8 rounded-sm font-meta-technical text-meta-technical tracking-widest uppercase bg-primary text-on-primary" href="#transfer">
-      <span class="material-symbols-outlined mr-2.5 text-[18px]">account_balance_wallet</span>Local Transfer
+    <a aria-current="page" class="flex items-center px-3 h-10 rounded-lg text-sm font-semibold bg-primary text-on-primary" href="#transfer">
+      <span class="material-symbols-outlined mr-3 text-[20px]">account_balance_wallet</span>Local Transfer
     </a>
-    <a class="flex items-center px-3 h-8 rounded-sm font-meta-technical text-meta-technical tracking-widest uppercase text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#logs">
-      <span class="material-symbols-outlined mr-2.5 text-[18px]">terminal</span>Technical Logs
+    <a class="flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#logs">
+      <span class="material-symbols-outlined mr-3 text-[20px]">terminal</span>Activity Log
     </a>
-    <a class="flex items-center px-3 h-8 rounded-sm font-meta-technical text-meta-technical tracking-widest uppercase text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="/transfer_selection.php">
-      <span class="material-symbols-outlined mr-2.5 text-[18px]">settings</span>Session
+    <a class="flex items-center px-3 h-10 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="/transfer_selection.php">
+      <span class="material-symbols-outlined mr-3 text-[20px]">tune</span>Session
     </a>
   </nav>
-  <div class="px-3 py-3 border-t border-border-subtle flex items-center gap-3 shrink-0">
-    <div class="w-7 h-7 rounded-sm bg-primary flex items-center justify-center">
-      <span class="material-symbols-outlined text-on-primary text-[16px]">person</span>
+  <div class="px-4 py-4 border-t border-border-subtle flex items-center gap-3 shrink-0">
+    <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+      <span class="material-symbols-outlined text-[18px]">person</span>
     </div>
     <div class="flex flex-col min-w-0">
-      <span class="font-meta-mono text-meta-mono text-on-surface truncate">OPERATOR_01</span>
-      <span class="font-meta-technical text-meta-technical text-outline uppercase">Status: Online</span>
+      <span class="text-sm font-semibold text-on-surface truncate">Operator</span>
+      <span class="text-xs text-money font-medium">Online</span>
     </div>
   </div>
 </aside>
 
 <div class="pl-sidebar-w min-h-screen flex flex-col">
-  <header class="app-titlebar sticky top-0 h-10 border-b border-border-subtle z-40 flex items-center justify-between px-margin-desktop">
-    <div class="flex items-center gap-2 text-on-surface-variant font-meta-mono text-meta-mono">
-      <span class="material-symbols-outlined text-[16px]">dns</span>
-      <span>SERVER: MAIN-04</span>
+  <header class="app-titlebar sticky top-0 h-14 border-b border-border-subtle z-40 flex items-center justify-between px-margin-desktop">
+    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
+      <span class="material-symbols-outlined text-[18px]">dns</span>
+      <span class="font-medium text-on-surface">Main server</span>
+      <span class="text-outline">·</span>
+      <span>Node 04</span>
     </div>
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2 px-2.5 h-7 bg-surface-container rounded-sm border border-border-subtle">
-        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-        <span class="font-meta-mono text-meta-mono text-on-surface-variant">LATENCY: 14MS</span>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 px-3 h-8 bg-money-soft rounded-full border border-emerald-100">
+        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+        <span class="text-xs font-semibold text-money">14 ms latency</span>
       </div>
-      <button type="button" id="logoutBtn" class="h-7 w-7 flex items-center justify-center rounded-sm hover:bg-surface-container text-on-surface-variant hover:text-error transition-colors" aria-label="Sign out" title="Sign out">
+      <button type="button" id="logoutBtn" class="h-9 px-3 inline-flex items-center gap-1.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-red-50 hover:text-error transition-colors" aria-label="Sign out" title="Sign out">
         <span class="material-symbols-outlined text-[18px]">power_settings_new</span>
+        <span class="hidden sm:inline">Sign out</span>
       </button>
     </div>
   </header>
 
-  <main class="relative flex-1 bg-transparent">
-    <div id="overview" class="relative z-10 w-full max-w-container-max mx-auto px-margin-desktop py-5 flex flex-col gap-5">
-      <section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div class="flex flex-col gap-1.5">
-          <div class="flex items-center gap-2">
+  <main class="relative flex-1">
+    <div id="overview" class="relative z-10 w-full max-w-container-max mx-auto px-margin-desktop py-7 flex flex-col gap-6">
+      <section class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+        <div class="flex flex-col gap-2">
+          <div class="inline-flex items-center gap-2 self-start px-2.5 py-1 rounded-full bg-money-soft border border-emerald-100">
             <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-            <span class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest">System Operational</span>
+            <span class="text-xs font-semibold text-money">System operational</span>
           </div>
-          <h1 class="font-headline-lg text-headline-lg text-on-surface">Main Server Terminal</h1>
+          <h1 class="text-3xl font-bold tracking-tight text-on-surface">Transfer dashboard</h1>
+          <p class="text-sm text-on-surface-variant max-w-lg">Send local settlements, monitor rail health, and review recent transactions.</p>
         </div>
-        <div id="totalBalanceWrap" class="hidden flex flex-col md:items-end">
-          <span class="font-meta-technical text-meta-technical text-outline uppercase mb-0.5">Total Liquidity Pool</span>
-          <div id="totalBalanceDisplay" class="font-headline-lg text-[32px] leading-9 font-bold text-primary tracking-tight tabular-nums">—</div>
+        <div id="totalBalanceWrap" class="hidden flex flex-col md:items-end bg-white border border-border-subtle rounded-xl px-5 py-4 shadow-sm min-w-[240px]">
+          <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">Available balance</span>
+          <div id="totalBalanceDisplay" class="money text-[28px] leading-8 font-bold text-primary">—</div>
         </div>
       </section>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-        <div id="transfer" class="lg:col-span-5 flex flex-col gap-4">
-          <div class="app-panel bg-surface-container-lowest border border-border-subtle rounded overflow-hidden flex flex-col h-full">
-            <div class="h-9 px-3 border-b border-border-subtle bg-surface-container-low flex items-center justify-between gap-3">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="material-symbols-outlined text-[16px] text-primary">swap_horiz</span>
-                <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase truncate">Local Transfer Routing</span>
-              </div>
-              <span class="font-meta-mono text-meta-mono text-on-surface-variant shrink-0">NG</span>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div id="transfer" class="lg:col-span-5 flex flex-col">
+          <div class="bg-white border border-border-subtle rounded-xl shadow-sm flex flex-col h-full overflow-hidden">
+            <div class="px-5 py-4 border-b border-border-subtle">
+              <h2 class="text-lg font-semibold text-on-surface">Local transfer</h2>
+              <p id="transferSubtitle" class="text-sm text-on-surface-variant mt-0.5">Send money to any Nigeria bank account</p>
             </div>
 
-            <div class="px-4 pt-3 pb-1">
-              <p id="transferSubtitle" class="font-body-sm text-body-sm text-on-surface-variant">Initiate high-priority NGN settlement</p>
-            </div>
-
-            <form id="localTransferForm" class="px-4 pb-4 pt-2 flex flex-col gap-3 flex-1">
-              <div class="flex flex-col gap-1 relative">
-                <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase" for="bankSelect">Destination Bank</label>
+            <form id="localTransferForm" class="px-5 py-5 flex flex-col gap-4 flex-1">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-on-surface-variant" for="bankSelect">Destination bank</label>
                 <div class="relative">
-                  <select id="bankSelect" required class="app-control w-full h-9 px-2.5 pr-8 font-body-md text-body-md text-on-surface bg-white border border-border-subtle rounded-sm appearance-none cursor-pointer">
+                  <select id="bankSelect" required class="app-control w-full h-11 px-3 pr-10 text-sm text-on-surface bg-white border border-border-subtle rounded-lg appearance-none cursor-pointer">
                     <option value="">Loading banks...</option>
                   </select>
-                  <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
+                  <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[20px] text-on-surface-variant pointer-events-none">expand_more</span>
                 </div>
               </div>
 
-              <div class="flex flex-col gap-1">
-                <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase" for="accountNumber">Account Number</label>
-                <input id="accountNumber" class="app-control w-full h-9 px-2.5 font-meta-mono text-meta-mono text-on-surface bg-white border border-border-subtle rounded-sm" maxlength="10" placeholder="0000000000" type="text" required inputmode="numeric" pattern="[0-9]{10}"/>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-on-surface-variant" for="accountNumber">Account number</label>
+                <input id="accountNumber" class="app-control w-full h-11 px-3 font-mono text-sm text-on-surface bg-white border border-border-subtle rounded-lg" maxlength="10" placeholder="10-digit account number" type="text" required inputmode="numeric" pattern="[0-9]{10}"/>
               </div>
 
-              <div class="flex flex-col gap-1 relative">
-                <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase" for="accountName">Verified Name</label>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-on-surface-variant" for="accountName">Account name</label>
                 <div class="relative">
-                  <input id="accountName" class="app-control w-full h-9 px-2.5 pr-8 font-body-md text-body-md text-on-surface-variant bg-surface-container-low border border-border-subtle rounded-sm cursor-not-allowed" placeholder="Awaiting verification..." readonly type="text"/>
-                  <span id="resolveSpinner" class="hidden material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-primary text-[16px]" style="animation: spin 0.8s linear infinite;">progress_activity</span>
-                  <span id="verifiedIcon" class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline text-[16px] pointer-events-none">verified_user</span>
+                  <input id="accountName" class="app-control w-full h-11 px-3 pr-10 text-sm text-on-surface-variant bg-surface-container-low border border-border-subtle rounded-lg cursor-not-allowed" placeholder="Verified automatically" readonly type="text"/>
+                  <span id="resolveSpinner" class="hidden material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary text-[18px]" style="animation: spin 0.8s linear infinite;">progress_activity</span>
+                  <span id="verifiedIcon" class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">verified_user</span>
                 </div>
-                <p id="resolveStatus" class="text-[11px] hidden"></p>
+                <p id="resolveStatus" class="text-xs hidden"></p>
               </div>
 
-              <div class="flex flex-col gap-1">
-                <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase" for="amount" id="amountLabel">Amount (NGN)</label>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-on-surface-variant" for="amount" id="amountLabel">Amount (NGN)</label>
                 <div class="relative">
-                  <span id="currencySymbol" class="absolute left-2.5 top-1/2 -translate-y-1/2 font-meta-mono text-meta-mono text-on-surface-variant">₦</span>
-                  <input id="amount" class="app-control w-full h-9 pl-7 pr-2.5 font-meta-mono text-meta-mono text-on-surface bg-white border border-border-subtle rounded-sm" placeholder="0.00" type="number" required min="100" step="0.01"/>
+                  <span id="currencySymbol" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-on-surface-variant">₦</span>
+                  <input id="amount" class="app-control money w-full h-11 pl-8 pr-3 font-mono text-sm text-on-surface bg-white border border-border-subtle rounded-lg" placeholder="0.00" type="number" required min="100" step="0.01"/>
                 </div>
               </div>
 
-              <div class="flex flex-col gap-1">
-                <label class="font-meta-technical text-meta-technical text-on-surface-variant uppercase" for="remark">Remark (Optional)</label>
-                <input id="remark" class="app-control w-full h-9 px-2.5 font-body-md text-body-md text-on-surface bg-white border border-border-subtle rounded-sm" placeholder="Transaction narrative" type="text"/>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-on-surface-variant" for="remark">Remark <span class="font-normal text-outline">(optional)</span></label>
+                <input id="remark" class="app-control w-full h-11 px-3 text-sm text-on-surface bg-white border border-border-subtle rounded-lg" placeholder="What is this for?" type="text"/>
               </div>
 
-              <div class="mt-auto pt-2 space-y-2">
-                <div class="bg-surface-container-low px-3 h-9 rounded-sm border border-border-subtle flex justify-between items-center gap-3">
-                  <span class="font-meta-technical text-meta-technical text-on-surface-variant uppercase">Transfer Amount</span>
-                  <span class="font-meta-mono text-meta-mono text-on-surface" id="previewAmount">—</span>
+              <div class="mt-auto pt-2 space-y-3">
+                <div class="bg-surface rounded-lg border border-border-subtle px-4 py-3 flex justify-between items-center gap-3">
+                  <span class="text-sm text-on-surface-variant">Transfer amount</span>
+                  <span class="money text-base font-bold text-money" id="previewAmount">—</span>
                 </div>
                 <div class="hidden" aria-hidden="true">
                   <span id="previewBank">—</span>
@@ -274,112 +233,106 @@ tailwind.config = {
                   <span id="previewAcctName">—</span>
                   <span id="previewRemark">—</span>
                 </div>
-                <div id="previewStatus" class="flex items-center gap-1.5 font-meta-mono text-meta-mono text-on-surface-variant">
-                  <span class="material-symbols-outlined text-[14px]">pending</span>
-                  <span>Fill in the form to preview</span>
+                <div id="previewStatus" class="flex items-center gap-2 text-sm text-on-surface-variant">
+                  <span class="material-symbols-outlined text-[18px]">pending</span>
+                  <span>Fill in the form to continue</span>
                 </div>
-                <button id="submitBtn" class="app-btn w-full h-9 bg-primary text-on-primary font-meta-technical text-meta-technical tracking-widest uppercase rounded-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-1.5 border border-primary disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
-                  <span class="material-symbols-outlined text-[16px]">send</span>
-                  Execute Transfer
+                <button id="submitBtn" class="w-full h-11 bg-primary text-on-primary text-sm font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
+                  <span class="material-symbols-outlined text-[18px]">send</span>
+                  Send money
                 </button>
               </div>
             </form>
           </div>
         </div>
 
-        <div class="lg:col-span-7 flex flex-col gap-4">
-          <div class="app-panel bg-surface-container-lowest border border-border-subtle rounded overflow-hidden flex flex-col">
-            <div class="h-9 px-3 border-b border-border-subtle bg-surface-container-low flex justify-between items-center">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-on-surface-variant text-[16px]">memory</span>
-                <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Hash Rail / ASIC Dispatch v4.09</span>
+        <div class="lg:col-span-7 flex flex-col gap-6">
+          <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3">
+              <div>
+                <h2 class="text-base font-semibold text-on-surface">Rail health</h2>
+                <p class="text-xs text-on-surface-variant mt-0.5">Hash rail / ASIC dispatch</p>
               </div>
-              <div class="flex gap-1.5">
-                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-70"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-40"></div>
-              </div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-money bg-money-soft border border-emerald-100 px-2.5 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Live
+              </span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse min-w-[560px]" id="localMetricsTable">
                 <thead>
-                  <tr class="bg-surface-container-low border-b border-border-subtle">
-                    <th class="py-2 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider">Worker ID</th>
-                    <th class="py-2 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider text-right">Accepted</th>
-                    <th class="py-2 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider text-right">Rejected</th>
-                    <th class="py-2 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider text-right">GH/s (5s)</th>
-                    <th class="py-2 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+                  <tr class="bg-surface border-b border-border-subtle">
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Worker</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Accepted</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Rejected</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">GH/s</th>
+                    <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody id="localMetricsTbody" class="font-meta-mono text-[12px] text-on-surface divide-y divide-border-subtle"></tbody>
+                <tbody id="localMetricsTbody" class="text-sm text-on-surface divide-y divide-border-subtle"></tbody>
               </table>
             </div>
           </div>
 
-          <div id="logs" class="app-panel bg-surface-container-lowest border border-border-subtle rounded overflow-hidden flex flex-col h-[260px]">
-            <div class="h-9 px-3 border-b border-border-subtle bg-surface-container-low flex justify-between items-center shrink-0">
-              <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">ELY-Protocol // TTY Terminal</span>
-              <span class="font-meta-mono text-meta-mono text-on-surface-variant">LIVE</span>
+          <div id="logs" class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden flex flex-col h-[280px]">
+            <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center shrink-0">
+              <div>
+                <h2 class="text-base font-semibold text-on-surface">Activity log</h2>
+                <p class="text-xs text-on-surface-variant mt-0.5">Live protocol stream</p>
+              </div>
+              <span class="text-xs font-medium text-on-surface-variant">Updating</span>
             </div>
-            <div id="localProtocolStream" class="p-3 overflow-y-auto font-meta-mono text-[11px] leading-relaxed text-on-surface flex-1 flex flex-col gap-0.5"></div>
+            <div id="localProtocolStream" class="p-4 overflow-y-auto font-mono text-[12px] leading-6 text-on-surface flex-1 flex flex-col gap-1 bg-slate-50/60"></div>
           </div>
         </div>
       </div>
 
-      <div class="app-panel bg-surface-container-lowest border border-border-subtle rounded overflow-hidden flex flex-col">
-        <div class="h-10 px-3 border-b border-border-subtle bg-surface-container-low flex justify-between items-center">
-          <h3 class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Recent Settlements</h3>
-          <button type="button" id="localTxRefreshBtn" class="app-btn h-7 px-2.5 font-meta-technical text-[10px] text-primary border border-border-subtle hover:bg-surface-container rounded-sm transition-colors uppercase">
+      <div class="bg-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-border-subtle flex justify-between items-center gap-3">
+          <div>
+            <h2 class="text-base font-semibold text-on-surface">Recent settlements</h2>
+            <p class="text-xs text-on-surface-variant mt-0.5">Transfers submitted from this console</p>
+          </div>
+          <button type="button" id="localTxRefreshBtn" class="h-9 px-3.5 text-sm font-semibold text-primary border border-border-subtle hover:bg-surface rounded-lg transition-colors">
             Refresh
           </button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse min-w-[720px]">
             <thead>
-              <tr class="bg-surface-container-low border-b border-border-subtle">
-                <th class="py-2.5 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider">Reference</th>
-                <th class="py-2.5 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider">Beneficiary</th>
-                <th class="py-2.5 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider">Institution</th>
-                <th class="py-2.5 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider text-right">Amount</th>
-                <th class="py-2.5 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider">Date/Time</th>
-                <th class="py-2.5 px-3 font-meta-technical text-[10px] text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+              <tr class="bg-surface border-b border-border-subtle">
+                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Reference</th>
+                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Beneficiary</th>
+                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Bank</th>
+                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-right">Amount</th>
+                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant">Date</th>
+                <th class="py-3 px-4 text-xs font-semibold text-on-surface-variant text-center">Status</th>
               </tr>
             </thead>
-            <tbody id="localTxTbody" class="font-body-sm text-body-sm text-on-surface divide-y divide-border-subtle"></tbody>
+            <tbody id="localTxTbody" class="text-sm text-on-surface divide-y divide-border-subtle"></tbody>
           </table>
         </div>
       </div>
     </div>
   </main>
-
-  <footer class="app-statusbar sticky bottom-0 h-8 border-t border-border-subtle z-30">
-    <div class="h-full px-margin-desktop flex justify-between items-center gap-4">
-      <div class="flex items-center gap-4 min-w-0">
-        <span class="font-meta-mono text-meta-mono text-on-surface-variant uppercase truncate">ENV Production</span>
-        <span class="hidden sm:inline font-meta-mono text-meta-mono text-on-surface-variant uppercase">Local Rail Active</span>
-      </div>
-      <div class="font-meta-mono text-meta-mono text-primary uppercase shrink-0">Secure Node Connected</div>
-    </div>
-  </footer>
 </div>
 
 <!-- PIN Modal -->
-<div id="pinModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 px-4 py-6" aria-hidden="true">
-  <div class="app-panel bg-surface-container-lowest border border-border-subtle rounded w-full max-w-md overflow-hidden">
-    <div class="h-9 px-3 border-b border-border-subtle bg-surface-container-low flex items-center gap-2">
-      <span class="material-symbols-outlined text-primary text-[16px]">lock</span>
-      <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Authorize Transfer</span>
+<div id="pinModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6" aria-hidden="true">
+  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+    <div class="px-5 py-4 border-b border-border-subtle">
+      <h3 class="text-lg font-semibold text-on-surface">Confirm transfer</h3>
+      <p class="text-sm text-on-surface-variant mt-1">Enter your PIN to authorize this payment</p>
     </div>
-    <div class="px-5 py-5 text-center">
-      <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Enter your PIN to authorize this transfer</p>
+    <div class="px-5 py-5">
       <div class="flex flex-col gap-3">
-        <input type="password" id="pinInput" placeholder="••••••" inputmode="numeric" maxlength="6" class="app-control w-full h-10 px-3 bg-white border border-border-subtle rounded-sm text-center tracking-[0.4em] font-meta-mono text-meta-mono text-on-surface"/>
+        <input type="password" id="pinInput" placeholder="••••••" inputmode="numeric" maxlength="6" class="app-control w-full h-12 px-3 bg-white border border-border-subtle rounded-lg text-center tracking-[0.35em] font-mono text-base text-on-surface"/>
         <p id="pinError" class="text-xs text-error hidden"></p>
-        <div class="flex gap-2 mt-1">
-          <button type="button" id="cancelPinBtn" class="app-btn flex-1 h-9 rounded-sm border border-border-subtle text-on-surface font-meta-technical text-meta-technical tracking-widest uppercase hover:bg-surface-container transition-colors">
+        <div class="flex gap-3 mt-1">
+          <button type="button" id="cancelPinBtn" class="flex-1 h-11 rounded-lg border border-border-subtle text-on-surface text-sm font-semibold hover:bg-surface transition-colors">
             Cancel
           </button>
-          <button type="button" id="confirmPinBtn" class="app-btn flex-1 h-9 rounded-sm bg-primary text-on-primary font-meta-technical text-meta-technical tracking-widest uppercase hover:bg-primary/90 transition-colors border border-primary disabled:opacity-50">
+          <button type="button" id="confirmPinBtn" class="flex-1 h-11 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50">
             Confirm
           </button>
         </div>
@@ -389,25 +342,19 @@ tailwind.config = {
 </div>
 
 <!-- Processing Modal -->
-<div id="processingModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 px-4 py-6">
-  <div class="app-panel bg-surface-container-lowest border border-border-subtle rounded w-full max-w-lg overflow-hidden">
-    <div class="h-9 px-3 border-b border-border-subtle bg-surface-container-low flex items-center gap-2">
-      <span class="material-symbols-outlined text-primary text-[16px]">sync</span>
-      <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">Transfer Pipeline</span>
-    </div>
+<div id="processingModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6">
+  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md overflow-hidden">
     <div class="px-6 py-8 text-center">
       <div id="modalLoading">
-        <p class="font-headline-sm text-headline-sm text-on-surface">Processing Transfer</p>
-        <p class="mt-2 font-body-sm text-body-sm text-on-surface-variant">Secure transaction in progress…</p>
-        <div class="flex justify-center mt-6">
-          <div class="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full" style="animation: spin 0.8s linear infinite;"></div>
-        </div>
+        <div class="w-10 h-10 border-[3px] border-primary/15 border-t-primary rounded-full mx-auto" style="animation: spin 0.8s linear infinite;"></div>
+        <p class="mt-5 text-lg font-semibold text-on-surface">Processing transfer</p>
+        <p class="mt-1 text-sm text-on-surface-variant">Please wait while we complete this payment</p>
       </div>
       <div id="modalResult" class="hidden">
-        <p id="modalResultTitle" class="font-headline-sm text-headline-sm text-on-surface">Transfer status</p>
-        <p id="modalResultBody" class="mt-2 font-body-sm text-body-sm text-on-surface-variant"></p>
+        <p id="modalResultTitle" class="text-lg font-semibold text-on-surface">Transfer status</p>
+        <p id="modalResultBody" class="mt-2 text-sm text-on-surface-variant"></p>
         <div class="mt-6 flex justify-center">
-          <button type="button" id="modalResultCloseBtn" class="app-btn h-9 px-5 rounded-sm bg-primary text-on-primary font-meta-technical text-meta-technical tracking-widest uppercase hover:bg-primary/90 border border-primary">
+          <button type="button" id="modalResultCloseBtn" class="h-11 px-5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90">
             Close
           </button>
         </div>
@@ -469,21 +416,21 @@ tailwind.config = {
       let tr = rows[i];
       if (!tr) {
         tr = document.createElement('tr');
-        tr.className = 'hover:bg-surface-container-low/50 transition-colors';
+        tr.className = 'hover:bg-surface transition-colors';
         for (let c = 0; c < 5; c++) tr.appendChild(document.createElement('td'));
         tbody.appendChild(tr);
       }
       const cells = tr.querySelectorAll('td');
-      cells[0].className = 'py-2 px-3 text-primary';
+      cells[0].className = 'py-3 px-4 font-mono text-[13px] text-primary font-medium';
       cells[0].textContent = 'ASIC-NODE-0' + (i + 1) + '.ELY';
-      cells[1].className = 'py-2 px-3 text-right';
+      cells[1].className = 'py-3 px-4 text-right money';
       cells[1].textContent = fmtNum(accepted);
-      cells[2].className = 'py-2 px-3 text-right text-error';
+      cells[2].className = 'py-3 px-4 text-right money text-error';
       cells[2].textContent = fmtNum(rejected);
-      cells[3].className = 'py-2 px-3 text-right';
+      cells[3].className = 'py-3 px-4 text-right money';
       cells[3].textContent = ghs;
-      cells[4].className = 'py-2 px-3 text-center';
-      cells[4].innerHTML = '<span class="inline-block px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded-sm border border-primary/20">SYNC</span>';
+      cells[4].className = 'py-3 px-4 text-center';
+      cells[4].innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-money-soft text-money border border-emerald-100">Synced</span>';
     }
   }
 
@@ -591,11 +538,7 @@ tailwind.config = {
 
   function formatBalanceNGN(amt) {
     const num = Number(amt) || 0;
-    const whole = Math.floor(num);
-    const frac = Math.round((num - whole) * 100);
-    return '<span class="text-on-surface-variant text-[18px]">₦</span>' +
-      whole.toLocaleString('en-US') +
-      '<span class="text-on-surface-variant text-[16px]">.' + String(frac).padStart(2, '0') + '</span>';
+    return '₦' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function applyTotalBalanceFromPayload(payload) {
@@ -604,7 +547,7 @@ tailwind.config = {
     if (!wrap || !el) return;
     const profile = payload && payload.data && payload.data.profile;
     if (profile && profile.balance != null && profile.balance !== '') {
-      el.innerHTML = formatBalanceNGN(profile.balance);
+      el.textContent = formatBalanceNGN(profile.balance);
       wrap.classList.remove('hidden');
       wrap.classList.add('flex');
     } else {
@@ -650,9 +593,9 @@ tailwind.config = {
     const hasAmt = amount.value && parseFloat(amount.value) >= 100;
 
     if (hasBank && hasAcct && hasName && hasAmt) {
-      previewStatus.innerHTML = '<span class="material-symbols-outlined text-[14px] text-primary">check_circle</span><span class="text-primary">Ready to transfer</span>';
+      previewStatus.innerHTML = '<span class="material-symbols-outlined text-[18px] text-money">check_circle</span><span class="text-money font-medium">Ready to send</span>';
     } else {
-      previewStatus.innerHTML = '<span class="material-symbols-outlined text-[14px]">pending</span><span>Fill in the form to preview</span>';
+      previewStatus.innerHTML = '<span class="material-symbols-outlined text-[18px]">pending</span><span>Fill in the form to continue</span>';
     }
   }
 
@@ -706,23 +649,23 @@ tailwind.config = {
         const ok = tx.status === 'SUCCESSFUL';
         const pending = tx.status === 'PENDING';
         const badge = ok
-          ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-[#F0FDF4] text-[#166534] font-meta-technical text-[10px] rounded-sm border border-[#DCFCE7]"><span class="w-1.5 h-1.5 rounded-full bg-[#166534]"></span> SUCCESS</span>'
+          ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-money-soft text-money border border-emerald-100"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Successful</span>'
           : pending
-            ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 font-meta-technical text-[10px] rounded-sm border border-amber-200"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> PENDING</span>'
-            : '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-700 font-meta-technical text-[10px] rounded-sm border border-red-200"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> ' + (tx.status || 'FAILED') + '</span>';
+            ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending</span>'
+            : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-100"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>' + (tx.status || 'Failed') + '</span>';
         const date = tx.transaction_date
           ? new Date(tx.transaction_date).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
           : '—';
         const curr = tx.currency || selectedCurrency;
         const sym = currencySymbols[curr] || curr + ' ';
         return `
-          <tr class="hover:bg-surface-container-low/50 transition-colors">
-            <td class="py-2.5 px-3 font-meta-mono text-[12px] text-secondary">${tx.reference || '—'}</td>
-            <td class="py-2.5 px-3 font-medium">${tx.beneficiary_name || '—'}</td>
-            <td class="py-2.5 px-3">${tx.bank_name || '—'}</td>
-            <td class="py-2.5 px-3 font-meta-mono text-[12px] text-right">${sym}${Number(tx.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-            <td class="py-2.5 px-3 font-meta-mono text-[12px] text-on-surface-variant">${date}</td>
-            <td class="py-2.5 px-3 text-center">${badge}</td>
+          <tr class="hover:bg-surface/80 transition-colors">
+            <td class="py-3.5 px-4 font-mono text-[13px] text-on-surface-variant">${tx.reference || '—'}</td>
+            <td class="py-3.5 px-4 font-medium">${tx.beneficiary_name || '—'}</td>
+            <td class="py-3.5 px-4 text-on-surface-variant">${tx.bank_name || '—'}</td>
+            <td class="py-3.5 px-4 money text-right font-semibold text-money">${sym}${Number(tx.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+            <td class="py-3.5 px-4 text-on-surface-variant">${date}</td>
+            <td class="py-3.5 px-4 text-center">${badge}</td>
           </tr>
         `;
       }).join('');
@@ -765,13 +708,13 @@ tailwind.config = {
       resolvedAccountName = data.data.account_name;
       accountName.value = resolvedAccountName;
       resolveStatus.textContent = 'Account verified';
-      resolveStatus.className = 'text-[11px] text-primary';
+      resolveStatus.className = 'text-xs text-money font-medium';
       resolveStatus.classList.remove('hidden');
     } catch (err) {
       resolvedAccountName = '';
       accountName.value = '';
       resolveStatus.textContent = err.message || 'Could not verify account';
-      resolveStatus.className = 'text-[11px] text-error';
+      resolveStatus.className = 'text-xs text-error';
       resolveStatus.classList.remove('hidden');
     } finally {
       resolveSpinner.classList.add('hidden');
@@ -810,8 +753,8 @@ tailwind.config = {
     modalResult.classList.remove('hidden');
     modalResultTitle.textContent = title;
     modalResultTitle.className = isError
-      ? 'font-headline-sm text-headline-sm text-error'
-      : 'font-headline-sm text-headline-sm text-emerald-600';
+      ? 'text-lg font-semibold text-error'
+      : 'text-lg font-semibold text-money';
     modalResultBody.textContent = body;
   }
 
@@ -939,7 +882,7 @@ tailwind.config = {
 
     if (!resolvedAccountName) {
       resolveStatus.textContent = 'Please resolve the account name first';
-      resolveStatus.className = 'text-[11px] text-error';
+      resolveStatus.className = 'text-xs text-error';
       resolveStatus.classList.remove('hidden');
       return;
     }
