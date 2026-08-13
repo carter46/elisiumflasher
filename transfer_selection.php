@@ -3,196 +3,244 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
 require_login();
-$bgImage = '/images/thanos-pal-7MzOHv6CJrU-unsplash.jpg';
 
-$sliderImages = [];
-$sliderDir = __DIR__ . DIRECTORY_SEPARATOR . 'images';
-$allowedExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-$excludeFromSlider = 'thanos-pal-7mzohv6cjru-unsplash';
-if (is_dir($sliderDir)) {
-    foreach (scandir($sliderDir) ?: [] as $file) {
-        if ($file === '.' || $file === '..') {
-            continue;
-        }
-        $ext = strtolower((string) pathinfo($file, PATHINFO_EXTENSION));
-        if (!in_array($ext, $allowedExt, true)) {
-            continue;
-        }
-        if (str_contains(strtolower((string) pathinfo($file, PATHINFO_FILENAME)), $excludeFromSlider)) {
-            continue;
-        }
-        $sliderImages[] = '/images/' . rawurlencode($file);
-    }
-    usort($sliderImages, static fn (string $a, string $b): int => strnatcasecmp($a, $b));
-}
+$logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLfG5t89iSCEgECKyN-t8IDzK0Fdw42m7A_q66Iy6j2A2qvFJ4cLAngjtlkZQTOPInJ84ykd5znTULXFKtt11AcPpyOY57--4EXCxRrdEMJaYQid8yaOFG2rnzdmq3MffpLatLCNfu3sBs2RpnkAdIdyeTBnlmm_zNAZLH3IqBvJR0DrBLiRBL7nVe_dtWUeWTdetVyoM31s8NhND9TW_p_-u-b1qTU_K_A8Y';
 ?>
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Transfer Selection | Elysium Server</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        colors: {
-          'on-surface': '#131b2e',
-          'on-surface-variant': '#767586',
-        },
-        fontFamily: {
-          headline: ['Inter', 'sans-serif'],
-          body: ['Inter', 'sans-serif'],
-        },
+<style>
+@layer base {
+  html, body { margin: 0; padding: 0; }
+  body { overscroll-behavior: none; }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+}
+::-webkit-scrollbar { display: none; }
+#termBody { scrollbar-width: thin; }
+</style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'tertiary-fixed-dim': '#4edea3',
+        'tertiary-fixed': '#6ffbbe',
+        'surface-container': '#eceef0',
+        'surface-primary': '#FFFFFF',
+        'surface-container-lowest': '#ffffff',
+        'surface-tint': '#3755c3',
+        'on-primary': '#ffffff',
+        'surface-sidebar': '#0F172A',
+        'primary-fixed': '#dde1ff',
+        'surface-dim': '#d8dadc',
+        'inverse-primary': '#b8c4ff',
+        'on-secondary-fixed-variant': '#38485d',
+        'on-primary-fixed': '#001453',
+        'on-secondary-container': '#54647a',
+        'surface-container-high': '#e6e8ea',
+        'secondary-fixed': '#d3e4fe',
+        'tertiary-container': '#00563a',
+        'surface-variant': '#e0e3e5',
+        'primary': '#00288e',
+        'on-background': '#191c1e',
+        'tertiary': '#003d27',
+        'surface-container-low': '#f2f4f6',
+        'on-tertiary-fixed-variant': '#005236',
+        'surface-container-highest': '#e0e3e5',
+        'error-container': '#ffdad6',
+        'border-subtle': '#E2E8F0',
+        'on-error-container': '#93000a',
+        'inverse-surface': '#2d3133',
+        'inverse-on-surface': '#eff1f3',
+        'on-tertiary': '#ffffff',
+        'secondary': '#505f76',
+        'on-primary-container': '#a8b8ff',
+        'on-secondary-fixed': '#0b1c30',
+        'text-heading': '#111827',
+        'background': '#f7f9fb',
+        'primary-fixed-dim': '#b8c4ff',
+        'on-surface': '#191c1e',
+        'secondary-fixed-dim': '#b7c8e1',
+        'surface': '#f7f9fb',
+        'secondary-container': '#d0e1fb',
+        'text-body': '#475569',
+        'on-surface-variant': '#444653',
+        'outline-variant': '#c4c5d5',
+        'outline': '#757684',
+        'error': '#ba1a1a',
+        'surface-bright': '#f7f9fb',
+        'on-tertiary-fixed': '#002113',
+        'on-secondary': '#ffffff',
+        'on-error': '#ffffff',
+        'on-primary-fixed-variant': '#173bab',
+        'primary-container': '#1e40af',
+        'on-tertiary-container': '#3fd298',
+      },
+      borderRadius: {
+        DEFAULT: '0.125rem',
+        lg: '0.25rem',
+        xl: '0.5rem',
+        full: '0.75rem',
+      },
+      spacing: {
+        'unit-1': '8px',
+        'unit-4': '32px',
+        'unit-3': '24px',
+        margin: '32px',
+        'unit-2': '16px',
+        gutter: '24px',
+        base: '8px',
+        'sidebar-collapsed': '64px',
+        'sidebar-width': '240px',
+        'margin-desktop': '40px',
+      },
+      fontFamily: {
+        'headline-sm': ['Manrope'],
+        'body-sm': ['Inter'],
+        'headline-lg': ['Manrope'],
+        'headline-md': ['Manrope'],
+        'label-caps': ['Inter'],
+        'code-mono': ['JetBrains Mono'],
+        'meta-mono': ['JetBrains Mono'],
+        'meta-technical': ['Inter'],
+        'body-lg': ['Inter'],
+        'body-md': ['Inter'],
+      },
+      fontSize: {
+        'headline-sm': ['18px', { lineHeight: '26px', fontWeight: '600' }],
+        'body-sm': ['13px', { lineHeight: '18px', fontWeight: '400' }],
+        'headline-lg': ['30px', { lineHeight: '38px', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'headline-md': ['24px', { lineHeight: '32px', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'label-caps': ['12px', { lineHeight: '16px', letterSpacing: '0.05em', fontWeight: '600' }],
+        'code-mono': ['13px', { lineHeight: '20px', fontWeight: '400' }],
+        'meta-mono': ['12px', { lineHeight: '16px', letterSpacing: '0em', fontWeight: '400' }],
+        'meta-technical': ['12px', { lineHeight: '16px', letterSpacing: '0.06em', fontWeight: '500' }],
+        'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', fontWeight: '400' }],
       },
     },
-  };
+  },
+};
 </script>
-<style>
-  .login-card {
-    background: #ffffff;
-    box-shadow: 0 16px 48px rgba(19, 27, 46, 0.1);
-  }
-  .login-input-wrap {
-    border: 2px solid #0f0f0f;
-    border-radius: 0.375rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  .login-input-wrap:focus-within {
-    border-color: #000000;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
-  }
-  .transfer-page-bg {
-    background-image: url('<?= htmlspecialchars($bgImage, ENT_QUOTES, 'UTF-8') ?>');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-  #termBody { scrollbar-width: thin; }
-  .vertical-slider-fade {
-    mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
-    mask-size: 100% 100%;
-    -webkit-mask-size: 100% 100%;
-  }
-  .vertical-slider-glass {
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-  }
-  .shield-icon {
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08));
-  }
-  .vertical-slide-frame {
-    height: 96px;
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: 0.375rem;
-    padding: 6px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  }
-  .vertical-slide-frame img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-    border-radius: 0.25rem;
-  }
-</style>
-<script>window.__SLIDER_IMAGES__ = <?= json_encode($sliderImages, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
-<body class="font-body text-on-surface min-h-screen relative overflow-x-hidden overflow-y-auto">
-<div class="absolute inset-0 transfer-page-bg z-0" aria-hidden="true"></div>
-<div class="absolute inset-0 bg-black/65 z-[1]" aria-hidden="true"></div>
-
-<div class="relative z-10 flex min-h-screen w-full max-w-[1700px] mx-auto flex-col md:flex-row items-center md:items-center justify-between gap-10 md:gap-8 px-4 sm:px-8 md:pl-10 md:pr-8 lg:pr-12 py-8">
-<main class="w-full max-w-xl shrink-0">
-  <form id="initiateLogForm" class="login-card border border-slate-300 rounded-xl p-10 flex flex-col gap-6" autocomplete="on">
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-2">
-        <svg class="shield-icon h-9 w-8 shrink-0 text-emerald-600" viewBox="0 0 56 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path fill="currentColor" d="M28 2 6 12v18c0 14.5 9.2 27.4 22 32 12.8-4.6 22-17.5 22-32V12L28 2Z"/>
-          <path fill="#ecfdf5" fill-opacity=".25" d="M28 8 14 14.2V28c0 10.2 6.4 19.3 14 23 7.6-3.7 14-12.8 14-23V14.2L28 8Z"/>
-          <path stroke="#059669" stroke-width="1.25" stroke-linejoin="round" d="M28 2 6 12v18c0 14.5 9.2 27.4 22 32 12.8-4.6 22-17.5 22-32V12L28 2Z"/>
-        </svg>
-        <h1 class="font-headline text-2xl font-extrabold tracking-tighter text-emerald-600">Elysium Server</h1>
+<body class="bg-surface-dim p-unit-2 min-h-screen">
+<div class="bg-surface rounded-xl shadow-2xl flex overflow-hidden min-h-[calc(100vh-32px)] border border-outline-variant/30">
+  <div class="flex-1 flex flex-col min-w-0 bg-background">
+    <header class="h-12 flex items-center justify-between px-unit-3 border-b border-border-subtle bg-surface-primary/50 backdrop-blur-sm">
+      <div class="flex items-center gap-unit-2">
+        <span class="font-label-caps text-label-caps text-secondary">NODE_01 // SECURE</span>
       </div>
-      <p class="text-slate-600 font-medium text-sm">Key Log Version : 4.09</p>
-    </div>
+      <div class="flex items-center gap-unit-2">
+        <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-surface-container rounded-lg transition-colors" aria-label="Minimize">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">minimize</span>
+        </button>
+        <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-surface-container rounded-lg transition-colors" aria-label="Maximize">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">check_box_outline_blank</span>
+        </button>
+        <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-error/10 group transition-colors rounded-lg" aria-label="Close">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-error">close</span>
+        </button>
+      </div>
+    </header>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-600 tracking-wider uppercase pl-1" for="portInput">Port</label>
-        <div class="login-input-wrap relative flex items-center px-3">
-          <input type="number" id="portInput" name="port" min="0" max="65535" placeholder="e.g. 443" class="w-full bg-white border-none focus:ring-0 py-3 px-1 text-on-surface rounded text-sm" inputmode="numeric" required/>
+    <main class="flex-1 overflow-y-auto p-margin">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col w-full h-full relative">
+          <div class="absolute inset-0 pointer-events-none opacity-20" style="background-size: 24px 24px; background-image: linear-gradient(to right, #E2E8F0 1px, transparent 1px), linear-gradient(to bottom, #E2E8F0 1px, transparent 1px);"></div>
+
+          <div class="flex-1 flex flex-col items-center justify-center relative z-10 px-4 md:px-margin-desktop py-8 min-h-0">
+            <form id="initiateLogForm" class="w-full max-w-2xl bg-surface-container-lowest border border-border-subtle rounded-lg shadow-sm flex flex-col overflow-hidden">
+              <div class="px-gutter py-gutter border-b border-border-subtle flex flex-col items-center text-center bg-surface-bright">
+                <img alt="Elysium Logo" class="w-16 h-16 object-contain mb-4" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+                <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Elysium Server</h1>
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-primary-container inline-block"></span>
+                  <span class="font-meta-mono text-meta-mono text-on-secondary-container tracking-wider">KEY LOG VERSION : 4.09</span>
+                </div>
+              </div>
+
+              <div class="p-gutter flex flex-col gap-6 bg-surface-container-lowest">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                  <div class="flex flex-col gap-2">
+                    <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="portInput">PORT</label>
+                    <input class="w-full h-10 px-3 bg-surface-container-lowest border border-border-subtle rounded font-meta-mono text-meta-mono text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" id="portInput" name="port" placeholder="e.g. 443" type="number" min="0" max="65535" inputmode="numeric" required/>
+                  </div>
+                  <div class="flex flex-col gap-2 relative">
+                    <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="serverSelect">SERVER</label>
+                    <div class="relative w-full h-10">
+                      <select class="w-full h-full appearance-none bg-surface-container-lowest border border-border-subtle rounded px-3 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all cursor-pointer" id="serverSelect" name="server" required>
+                        <option disabled selected value="">— Select —</option>
+                        <option value="ISO 20022">ISO 20022</option>
+                        <option value="BGD-234">BGD-234</option>
+                        <option value="JNV 2345">JNV 2345</option>
+                      </select>
+                      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest">ENCRYPTION KEY</label>
+                  <div class="flex items-center gap-4 border border-border-subtle rounded h-10 px-3 bg-surface-bright" role="radiogroup" aria-label="Encryption Key">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                      <input class="w-4 h-4 text-primary-container bg-surface-container border-border-subtle focus:ring-primary-container focus:ring-1 transition-all" id="encSsl" name="enc_key" type="radio" value="SSL" required/>
+                      <span class="font-meta-mono text-meta-mono text-on-surface group-hover:text-primary-container transition-colors">SSL</span>
+                    </label>
+                    <div class="w-px h-4 bg-border-subtle"></div>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                      <input class="w-4 h-4 text-primary-container bg-surface-container border-border-subtle focus:ring-primary-container focus:ring-1 transition-all" id="encTsl" name="enc_key" type="radio" value="TSL"/>
+                      <span class="font-meta-mono text-meta-mono text-on-surface group-hover:text-primary-container transition-colors">TSL</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="serverIpSelect">SERVER IP</label>
+                  <div class="relative w-full h-10">
+                    <select class="w-full h-full appearance-none bg-surface-container-lowest border border-border-subtle rounded px-3 pr-10 font-meta-mono text-meta-mono text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all cursor-pointer" id="serverIpSelect" name="server_ip" required>
+                      <option disabled selected value="">— Select —</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+
+                <div id="currencyFieldWrap" class="hidden flex flex-col gap-2">
+                  <label class="font-meta-technical text-meta-technical text-on-surface uppercase tracking-widest" for="currencySelect">CURRENCY</label>
+                  <div class="relative w-full h-10">
+                    <select class="w-full h-full appearance-none bg-surface-container-lowest border border-border-subtle rounded px-3 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all cursor-pointer" id="currencySelect" name="currency">
+                      <option value="">— Select —</option>
+                      <option value="NGN">Naira</option>
+                      <option value="USD">Dollars</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="px-gutter py-gutter border-t border-border-subtle bg-surface-bright flex justify-end">
+                <button type="submit" id="initiateBtn" class="bg-primary-container text-on-primary-container font-headline-sm text-headline-sm px-6 py-3 rounded flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                  <span class="material-symbols-outlined text-[20px]">terminal</span>
+                  Initiate Log
+                </button>
+              </div>
+            </form>
+
+            <div class="mt-8 text-center w-full max-w-2xl">
+              <span class="font-meta-mono text-meta-mono text-on-secondary-container tracking-widest opacity-60">BUILD: 2024.03.27 | ELYSIUM</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-600 tracking-wider uppercase pl-1" for="serverSelect">Server</label>
-        <div class="login-input-wrap relative flex items-center px-3">
-          <select id="serverSelect" name="server" class="w-full bg-white border-none focus:ring-0 py-3 px-1 text-on-surface rounded text-sm cursor-pointer" required>
-            <option value="">— Select —</option>
-            <option value="ISO 20022">ISO 20022</option>
-            <option value="BGD-234">BGD-234</option>
-            <option value="JNV 2345">JNV 2345</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <span class="text-xs font-semibold text-emerald-600 tracking-wider uppercase pl-1">Encryption Key</span>
-      <div class="login-input-wrap px-4 py-3 flex flex-wrap items-center gap-6" role="radiogroup" aria-label="Encryption Key">
-        <label class="inline-flex items-center gap-2 cursor-pointer text-sm text-slate-800">
-          <input type="radio" id="encSsl" name="enc_key" value="SSL" class="border-slate-400 text-emerald-600 focus:ring-emerald-500" required/>
-          SSL
-        </label>
-        <label class="inline-flex items-center gap-2 cursor-pointer text-sm text-slate-800">
-          <input type="radio" id="encTsl" name="enc_key" value="TSL" class="border-slate-400 text-emerald-600 focus:ring-emerald-500"/>
-          TSL
-        </label>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-semibold text-slate-600 tracking-wider uppercase pl-1" for="serverIpSelect">Server IP</label>
-      <div class="login-input-wrap relative flex items-center px-3">
-        <select id="serverIpSelect" name="server_ip" class="w-full bg-white border-none focus:ring-0 py-3 px-1 text-on-surface rounded text-sm cursor-pointer" required>
-          <option value="">— Select —</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="currencyFieldWrap" class="hidden flex flex-col gap-1.5">
-      <label class="text-xs font-semibold text-slate-600 tracking-wider uppercase pl-1" for="currencySelect">Currency</label>
-      <div class="login-input-wrap relative flex items-center px-3">
-        <select id="currencySelect" name="currency" class="w-full bg-white border-none focus:ring-0 py-3 px-1 text-on-surface rounded text-sm cursor-pointer">
-          <option value="">— Select —</option>
-          <option value="NGN">Naira</option>
-          <option value="USD">Dollars</option>
-        </select>
-      </div>
-    </div>
-
-    <button type="submit" id="initiateBtn" class="w-full bg-black text-gray-400 py-4 rounded-md font-semibold hover:bg-zinc-900 active:scale-[0.99] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-      Initiate Log
-    </button>
-  </form>
-</main>
-
-<aside id="photoSliderAside" class="w-full max-w-[132px] sm:max-w-[142px] shrink-0 md:my-auto md:self-center flex justify-center md:justify-end pointer-events-none select-none" aria-hidden="true">
-  <div class="vertical-slider-glass rounded-xl border border-white/25 p-2.5 w-full">
-    <div id="verticalSliderViewport" class="vertical-slider-fade relative h-[420px] w-full overflow-hidden rounded-md">
-      <div id="verticalSliderTrack" class="flex flex-col gap-3 will-change-transform"></div>
-    </div>
+    </main>
   </div>
-</aside>
 </div>
 
 <div id="protocolModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 p-4" aria-hidden="true">
@@ -281,9 +329,7 @@ if (is_dir($sliderDir)) {
     if (!currencyFieldWrap || !currencySelect) return;
     currencyFieldWrap.classList.toggle('hidden', !hasIp);
     currencySelect.required = hasIp;
-    if (!hasIp) {
-      currencySelect.value = '';
-    }
+    if (!hasIp) currencySelect.value = '';
   }
 
   populateServerIps();
@@ -298,14 +344,7 @@ if (is_dir($sliderDir)) {
     const serverIp = serverIpSelect.value || '';
     const currency = currencySelect.value || '';
     const currencyLabel = currency === 'NGN' ? 'Naira' : (currency === 'USD' ? 'Dollars' : '');
-    return {
-      port,
-      server,
-      enc,
-      serverIp,
-      currency,
-      currencyLabel,
-    };
+    return { port, server, enc, serverIp, currency, currencyLabel };
   }
 
   function formatContextLines(snap) {
@@ -357,12 +396,9 @@ if (is_dir($sliderDir)) {
       return;
     }
     const encPicked = document.querySelector('input[name="enc_key"]:checked');
-    if (port === '' || !server || !encPicked || !serverIp || !currency) {
-      return;
-    }
+    if (port === '' || !server || !encPicked || !serverIp || !currency) return;
 
     const snap = sessionSnapshot();
-
     initiateBtn.disabled = true;
     resetModal();
     showModal();
@@ -386,9 +422,7 @@ if (is_dir($sliderDir)) {
       }
     }, 140);
 
-    for (let i = 0; i < 4; i++) {
-      termBody.textContent += randomLine() + '\n';
-    }
+    for (let i = 0; i < 4; i++) termBody.textContent += randomLine() + '\n';
     termBody.scrollTop = termBody.scrollHeight;
   });
 
@@ -416,13 +450,12 @@ if (is_dir($sliderDir)) {
         sessionStorage.setItem('selectedServerIp', String(snap.serverIp || ''));
       } catch (err) {}
 
-      // Refresh PHP session activity before navigating so require_login() on the dashboard does not bounce to /.
       fetch('/api/auth.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ action: 'check' })
-      }).catch(function () { /* continue anyway */ }).finally(function () {
+      }).catch(function () {}).finally(function () {
         window.location.href = LOCAL_PATH;
       });
     }, 1200);
@@ -435,59 +468,6 @@ if (is_dir($sliderDir)) {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
   }
-})();
-
-(function initVerticalImageSlider() {
-  const urls = Array.isArray(window.__SLIDER_IMAGES__) ? window.__SLIDER_IMAGES__.slice() : [];
-  const asideEl = document.getElementById('photoSliderAside');
-  const track = document.getElementById('verticalSliderTrack');
-  if (!track || urls.length === 0) {
-    if (asideEl) {
-      asideEl.classList.add('hidden');
-    }
-    return;
-  }
-
-  function escAttr(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-      .replace(/</g, '&lt;');
-  }
-
-  let list = urls.slice();
-  if (list.length < 2) {
-    const u = list[0];
-    list = [u, u, u, u];
-  }
-
-  const slidePx = 96;
-  const gapPx = 12;
-  const step = slidePx + gapPx;
-  const sequence = list.concat(list);
-
-  track.innerHTML = sequence.map(function (src) {
-    return '<div class="vertical-slide-frame w-full"><img src="' + escAttr(src) + '" alt="" loading="lazy" decoding="async"/></div>';
-  }).join('');
-
-  let index = 0;
-  const n = list.length;
-
-  function tick() {
-    index += 1;
-    track.style.transition = 'transform 0.65s cubic-bezier(0.4, 0, 0.2, 1)';
-    track.style.transform = 'translateY(-' + String(index * step) + 'px)';
-    if (index >= n) {
-      setTimeout(function () {
-        track.style.transition = 'none';
-        index = 0;
-        track.style.transform = 'translateY(0)';
-      }, 680);
-    }
-  }
-
-  setInterval(tick, 3200);
 })();
 </script>
 </body>
