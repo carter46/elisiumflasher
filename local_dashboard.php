@@ -162,10 +162,6 @@ tailwind.config = {
     <div id="overview" class="relative z-10 w-full max-w-container-max mx-auto px-margin-desktop py-7 flex flex-col gap-6">
       <section class="flex flex-col md:flex-row md:items-end justify-between gap-5">
         <div class="flex flex-col gap-2">
-          <div class="inline-flex items-center gap-2 self-start px-2.5 py-1 rounded-full bg-money-soft border border-emerald-100">
-            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-            <span class="text-xs font-semibold text-money">System operational</span>
-          </div>
           <h1 class="text-3xl font-bold tracking-tight text-on-surface">Transfer dashboard</h1>
           <p class="text-sm text-on-surface-variant max-w-lg">Send local settlements, monitor rail health, and review recent transactions.</p>
         </div>
@@ -182,23 +178,43 @@ tailwind.config = {
               <h2 class="text-lg font-semibold text-on-surface">Local transfer</h2>
               <p id="transferSubtitle" class="text-sm text-on-surface-variant mt-0.5">Send money to any Nigeria bank account</p>
             </div>
-            <div class="px-5 py-5 flex flex-col gap-3 flex-1">
-              <button type="button" id="openSendBtn" class="w-full h-12 rounded-lg bg-money text-white text-sm font-semibold hover:bg-emerald-700 transition-colors inline-flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[20px]">send</span>
+            <div class="px-5 py-5 grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1 content-start">
+              <button type="button" id="openSendBtn" class="aspect-square min-h-[88px] rounded-sm bg-gradient-to-br from-[#00288e] to-[#1e40af] text-white text-xs font-semibold hover:opacity-95 transition-opacity inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center shadow-sm">
+                <span class="material-symbols-outlined text-[22px]">send</span>
                 Send
               </button>
-              <button type="button" id="openAddFundsBtn" class="w-full h-12 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[20px]">add_card</span>
+              <button type="button" id="openAddFundsBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">add_card</span>
                 Add funds
               </button>
-              <button type="button" id="scrollTxBtn" class="w-full h-12 rounded-lg border border-border-subtle bg-white text-on-surface text-sm font-semibold hover:bg-surface transition-colors inline-flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+              <button type="button" id="scrollTxBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">receipt_long</span>
                 Transactions
               </button>
-              <a href="/transfer_selection.php" class="w-full h-12 rounded-lg border border-border-subtle bg-white text-on-surface text-sm font-semibold hover:bg-surface transition-colors inline-flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[20px]">tune</span>
+              <a href="/transfer_selection.php" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">tune</span>
                 Session
               </a>
+              <button type="button" id="verifyLogBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">fact_check</span>
+                Verify log
+              </button>
+              <button type="button" id="blockTransferBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">block</span>
+                Block transfer
+              </button>
+              <button type="button" id="tracePaymentsBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">timeline</span>
+                Trace payments
+              </button>
+              <button type="button" id="linkedAccountBtn" class="aspect-square min-h-[88px] rounded-sm bg-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-300 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">link</span>
+                Linked account
+              </button>
+              <button type="button" id="panelLogoutBtn" class="aspect-square min-h-[88px] rounded-sm bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors inline-flex flex-col items-center justify-center gap-1.5 px-2 text-center">
+                <span class="material-symbols-outlined text-[22px]">logout</span>
+                Sign out
+              </button>
             </div>
           </div>
         </div>
@@ -459,6 +475,43 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- Stub feature modal -->
+<div id="stubFeatureModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6" aria-hidden="true">
+  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div class="px-5 py-4 border-b border-border-subtle">
+      <h3 id="stubFeatureTitle" class="text-lg font-semibold text-on-surface">Feature</h3>
+    </div>
+    <div class="px-5 py-6 flex flex-col gap-4">
+      <p id="stubFeatureBody" class="text-sm text-on-surface-variant text-center">Coming soon</p>
+      <div class="flex gap-3">
+        <button type="button" id="stubFeatureCloseBtn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Linked accounts modal -->
+<div id="linkedAccountsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4 py-6" aria-hidden="true">
+  <div class="bg-white border border-border-subtle rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="px-5 py-4 border-b border-border-subtle shrink-0">
+      <h3 class="text-lg font-semibold text-on-surface">Linked accounts</h3>
+      <p class="text-xs text-on-surface-variant mt-1">Accounts verified and linked from this console</p>
+    </div>
+    <div id="linkedAccountsList" class="px-5 py-4 overflow-y-auto flex-1 min-h-0 space-y-2">
+      <p class="text-sm text-on-surface-variant text-center py-6">No linked accounts yet</p>
+    </div>
+    <div class="px-5 py-4 border-t border-border-subtle shrink-0">
+      <div class="flex gap-3">
+        <button type="button" id="linkedAccountsCloseBtn" class="flex-1 h-11 rounded-lg bg-error text-on-error text-sm font-semibold hover:bg-red-700 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   const CODEX = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%*?';
@@ -585,13 +638,26 @@ tailwind.config = {
   const resultCloseBtn = document.getElementById('resultCloseBtn');
 
   const addFundsModal = document.getElementById('addFundsModal');
+  const stubFeatureModal = document.getElementById('stubFeatureModal');
+  const stubFeatureTitle = document.getElementById('stubFeatureTitle');
+  const stubFeatureBody = document.getElementById('stubFeatureBody');
+  const stubFeatureCloseBtn = document.getElementById('stubFeatureCloseBtn');
+  const linkedAccountsModal = document.getElementById('linkedAccountsModal');
+  const linkedAccountsList = document.getElementById('linkedAccountsList');
+  const linkedAccountsCloseBtn = document.getElementById('linkedAccountsCloseBtn');
   const openSendBtn = document.getElementById('openSendBtn');
   const openAddFundsBtn = document.getElementById('openAddFundsBtn');
   const scrollTxBtn = document.getElementById('scrollTxBtn');
   const cancelAddFundsBtn = document.getElementById('cancelAddFundsBtn');
+  const verifyLogBtn = document.getElementById('verifyLogBtn');
+  const blockTransferBtn = document.getElementById('blockTransferBtn');
+  const tracePaymentsBtn = document.getElementById('tracePaymentsBtn');
+  const linkedAccountBtn = document.getElementById('linkedAccountBtn');
   const logoutBtn = document.getElementById('logoutBtn');
+  const panelLogoutBtn = document.getElementById('panelLogoutBtn');
   const localTxTbody = document.getElementById('localTxTbody');
   const localTxRefreshBtn = document.getElementById('localTxRefreshBtn');
+  const LINKED_ACCOUNTS_KEY = 'linkedLocalAccounts';
 
   let bankMap = {};
   let resolvedAccountName = '';
@@ -838,6 +904,125 @@ tailwind.config = {
     addFundsModal.setAttribute('aria-hidden', 'true');
   }
 
+  function openStubFeatureModal(title, body) {
+    stubFeatureTitle.textContent = title || 'Feature';
+    stubFeatureBody.textContent = body || 'Coming soon';
+    stubFeatureModal.classList.remove('hidden');
+    stubFeatureModal.classList.add('flex');
+    stubFeatureModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeStubFeatureModal() {
+    stubFeatureModal.classList.add('hidden');
+    stubFeatureModal.classList.remove('flex');
+    stubFeatureModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function readLinkedAccounts() {
+    try {
+      const raw = sessionStorage.getItem(LINKED_ACCOUNTS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writeLinkedAccounts(list) {
+    try {
+      sessionStorage.setItem(LINKED_ACCOUNTS_KEY, JSON.stringify(list.slice(0, 50)));
+    } catch (e) {}
+  }
+
+  function accountKey(acct) {
+    return String(acct.bank_code || '') + ':' + String(acct.account_number || '');
+  }
+
+  function saveLinkedAccount(entry) {
+    if (!entry || !entry.account_number || !entry.account_name) return;
+    const list = readLinkedAccounts();
+    const key = accountKey(entry);
+    const next = list.filter(a => accountKey(a) !== key);
+    next.unshift({
+      account_number: entry.account_number,
+      account_name: entry.account_name,
+      bank_code: entry.bank_code || '',
+      bank_name: entry.bank_name || '',
+      linked_at: entry.linked_at || new Date().toISOString()
+    });
+    writeLinkedAccounts(next);
+  }
+
+  function mergeLinkedFromTransactions(transactions) {
+    if (!Array.isArray(transactions) || transactions.length === 0) return;
+    const list = readLinkedAccounts();
+    const map = {};
+    list.forEach(a => { map[accountKey(a)] = a; });
+    transactions.forEach(tx => {
+      const acctNum = String(tx.beneficiary_account || '').replace(/\D/g, '');
+      const name = tx.beneficiary_name || '';
+      if (!acctNum || !name) return;
+      const bankName = tx.beneficiary_bank || tx.bank_name || '';
+      const entry = {
+        account_number: acctNum,
+        account_name: name,
+        bank_code: tx.bank_code || '',
+        bank_name: bankName,
+        linked_at: tx.transaction_date || new Date().toISOString()
+      };
+      const key = accountKey(entry);
+      if (!map[key]) map[key] = entry;
+    });
+    writeLinkedAccounts(Object.values(map));
+  }
+
+  function renderLinkedAccountsList() {
+    const list = readLinkedAccounts();
+    if (!linkedAccountsList) return;
+    if (list.length === 0) {
+      linkedAccountsList.innerHTML = '<p class="text-sm text-on-surface-variant text-center py-6">No linked accounts yet</p>';
+      return;
+    }
+    linkedAccountsList.innerHTML = list.map(a => `
+      <div class="border border-border-subtle rounded-lg px-4 py-3 bg-surface">
+        <div class="text-sm font-semibold text-on-surface">${a.account_name || '—'}</div>
+        <div class="text-xs text-on-surface-variant mt-1">${a.bank_name || 'Bank'} · <span class="font-mono">${a.account_number || '—'}</span></div>
+      </div>
+    `).join('');
+  }
+
+  async function openLinkedAccountsModal() {
+    try {
+      const res = await fetch('/api/local_transactions.php?limit=100');
+      const data = await res.json().catch(() => ({}));
+      if (!redirectIfSessionExpired(res, data) && res.ok && data.success) {
+        mergeLinkedFromTransactions(Array.isArray(data.transactions) ? data.transactions : []);
+      }
+    } catch (e) {}
+    renderLinkedAccountsList();
+    linkedAccountsModal.classList.remove('hidden');
+    linkedAccountsModal.classList.add('flex');
+    linkedAccountsModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeLinkedAccountsModal() {
+    linkedAccountsModal.classList.add('hidden');
+    linkedAccountsModal.classList.remove('flex');
+    linkedAccountsModal.setAttribute('aria-hidden', 'true');
+  }
+
+  async function signOut() {
+    try {
+      await fetch('/api/auth.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' })
+      });
+    } finally {
+      window.location.href = '/';
+    }
+  }
+
   function clearResolveUi() {
     resolvedAccountName = '';
     lastResolvedKey = '';
@@ -958,6 +1143,13 @@ tailwind.config = {
 
   syncAccountBtn.addEventListener('click', function () {
     if (!resolvedAccountName || syncAccountBtn.disabled) return;
+    const bankCode = bankSelect.value || '';
+    saveLinkedAccount({
+      account_number: (accountNumber.value || '').replace(/\D/g, ''),
+      account_name: resolvedAccountName,
+      bank_code: bankCode,
+      bank_name: bankMap[bankCode] || ''
+    });
     fillSyncedCards();
     showStep(sendStep2, 'Send Money');
     clearPendingTimers();
@@ -1140,6 +1332,20 @@ tailwind.config = {
   openAddFundsBtn.addEventListener('click', openAddFundsModal);
   cancelAddFundsBtn.addEventListener('click', closeAddFundsModal);
 
+  verifyLogBtn.addEventListener('click', function () {
+    openStubFeatureModal('Verify log', 'Coming soon');
+  });
+  blockTransferBtn.addEventListener('click', function () {
+    openStubFeatureModal('Block transfer', 'Coming soon');
+  });
+  tracePaymentsBtn.addEventListener('click', function () {
+    openStubFeatureModal('Trace payments', 'Coming soon');
+  });
+  stubFeatureCloseBtn.addEventListener('click', closeStubFeatureModal);
+
+  linkedAccountBtn.addEventListener('click', openLinkedAccountsModal);
+  linkedAccountsCloseBtn.addEventListener('click', closeLinkedAccountsModal);
+
   scrollTxBtn.addEventListener('click', function () {
     const el = document.getElementById('settlements');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1150,17 +1356,8 @@ tailwind.config = {
     refreshTotalBalance();
   });
 
-  logoutBtn.addEventListener('click', async function () {
-    try {
-      await fetch('/api/auth.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'logout' })
-      });
-    } finally {
-      window.location.href = '/';
-    }
-  });
+  logoutBtn.addEventListener('click', signOut);
+  panelLogoutBtn.addEventListener('click', signOut);
 
   loadBanks();
   loadTransactions();
