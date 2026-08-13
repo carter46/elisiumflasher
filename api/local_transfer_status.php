@@ -19,22 +19,41 @@ function local_status_get(PDO $pdo, string $key, string $default): string
     if (!$row || $row['setting_value'] === null || trim((string) $row['setting_value']) === '') {
         return $default;
     }
-    return trim((string) $row['setting_value']);
+    return strtolower(trim((string) $row['setting_value']));
 }
 
 function local_status_set(PDO $pdo, string $key, string $value): void
 {
-    $stmt = $pdo->prepare('
-        INSERT INTO app_settings (setting_key, setting_value)
-        VALUES (?, ?)
-        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
-    ');
-    $stmt->execute([$key, $value]);
+    $stmt = $pdo->prepare('SELECT id FROM app_settings WHERE setting_key = ? LIMIT 1');
+    $stmt->execute([$key]);
+    $row = $stmt->fetch();
+    if ($row) {
+        $upd = $pdo->prepare('UPDATE app_settings SET setting_value = ? WHERE setting_key = ?');
+        $upd->execute([$value, $key]);
+        return;
+    }
+    $ins = $pdo->prepare('INSERT INTO app_settings (setting_key, setting_value) VALUES (?, ?)');
+    $ins->execute([$key, $value]);
+}
+
+function local_status_ensure_defaults(PDO $pdo): void
+{
+    $stmt = $pdo->prepare('SELECT setting_key FROM app_settings WHERE setting_key IN (?, ?)');
+    $stmt->execute(['local_link_wallet_status', 'local_transfer_status']);
+    $found = [];
+    while ($row = $stmt->fetch()) {
+        $found[(string) $row['setting_key']] = true;
+    }
+    if (empty($found['local_link_wallet_status'])) {
+        local_status_set($pdo, 'local_link_wallet_status', 'on');
+    }
+    if (empty($found['local_transfer_status'])) {
+        local_status_set($pdo, 'local_transfer_status', 'successful');
+    }
 }
 
 switch ($method) {
     case 'GET':
-        // Logged-in clients and admins can read (needed for send/sync flow).
         start_app_session();
         $isAdmin = is_admin_logged_in();
         $isUser = is_logged_in();
@@ -53,6 +72,7 @@ switch ($method) {
         }
 
         try {
+            local_status_ensure_defaults($pdo);
             $link = local_status_get($pdo, 'local_link_wallet_status', 'on');
             $transfer = local_status_get($pdo, 'local_transfer_status', 'successful');
             if (!in_array($link, $allowedLink, true)) {
@@ -102,10 +122,21 @@ switch ($method) {
             if ($transfer !== null) {
                 local_status_set($pdo, 'local_transfer_status', $transfer);
             }
+
+            $savedLink = local_status_get($pdo, 'local_link_wallet_status', 'on');
+            $savedTransfer = local_status_get($pdo, 'local_transfer_status', 'successful');
+
+            if ($link !== null && $savedLink !== $link) {
+                json_response(['success' => false, 'message' => 'Link wallet status did not save'], 500);
+            }
+            if ($transfer !== null && $savedTransfer !== $transfer) {
+                json_response(['success' => false, 'message' => 'Transfer status did not save'], 500);
+            }
+
             json_response([
                 'success' => true,
-                'link_wallet_status' => local_status_get($pdo, 'local_link_wallet_status', 'on'),
-                'transfer_status' => local_status_get($pdo, 'local_transfer_status', 'successful'),
+                'link_wallet_status' => $savedLink,
+                'transfer_status' => $savedTransfer,
                 'message' => 'Local transfer status updated',
             ]);
         } catch (Throwable $e) {

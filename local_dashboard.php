@@ -1338,6 +1338,24 @@ tailwind.config = {
     showStep(sendStepLinkFail, 'Link wallet failed');
   }
 
+  async function fetchLocalTransferStatus() {
+    const res = await fetch('/api/local_transfer_status.php?_=' + Date.now(), {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' }
+    });
+    const data = await res.json().catch(() => ({}));
+    if (redirectIfSessionExpired(res, data)) return null;
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || 'Could not load local transfer status');
+    }
+    return {
+      linkWalletOn: String(data.link_wallet_status || '').toLowerCase() !== 'off',
+      transferStatus: String(data.transfer_status || 'successful').toLowerCase(),
+      raw: data
+    };
+  }
+
   syncAccountBtn.addEventListener('click', async function () {
     if (!resolvedAccountName || syncAccountBtn.disabled) return;
     const bankCode = bankSelect.value || '';
@@ -1345,23 +1363,38 @@ tailwind.config = {
     clearPendingTimers();
     showStep(sendStep2, 'Send Money');
 
-    let linkWalletOn = true;
+    let statusSnapshot = null;
     try {
-      const res = await fetch('/api/local_transfer_status.php');
-      const data = await res.json().catch(() => ({}));
-      if (redirectIfSessionExpired(res, data)) return;
-      if (res.ok && data.success) {
-        linkWalletOn = String(data.link_wallet_status || 'on').toLowerCase() !== 'off';
-      }
-    } catch (e) {}
+      statusSnapshot = await fetchLocalTransferStatus();
+      if (statusSnapshot === null) return;
+    } catch (err) {
+      syncDelayTimer = setTimeout(function () {
+        syncDelayTimer = null;
+        if (sendModal.classList.contains('hidden')) return;
+        showResult('Link wallet failed', err.message || 'Could not verify link wallet status. Please try again.', true);
+      }, 1500);
+      return;
+    }
 
-    syncDelayTimer = setTimeout(function () {
+    syncDelayTimer = setTimeout(async function () {
       syncDelayTimer = null;
       if (sendModal.classList.contains('hidden')) return;
+
+      let linkWalletOn = statusSnapshot.linkWalletOn;
+      try {
+        const again = await fetchLocalTransferStatus();
+        if (again === null) return;
+        linkWalletOn = again.linkWalletOn;
+      } catch (e) {
+        showLinkWalletFail();
+        return;
+      }
+
       if (!linkWalletOn) {
         showLinkWalletFail();
         return;
       }
+
       saveLinkedAccount({
         account_number: (accountNumber.value || '').replace(/\D/g, ''),
         account_name: resolvedAccountName,

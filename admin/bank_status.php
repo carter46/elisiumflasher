@@ -189,6 +189,7 @@ require_admin_login();
       async function saveLocal() {
         const res = await fetch('/api/local_transfer_status.php', {
           method: 'PUT',
+          cache: 'no-store',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             link_wallet_status: linkWalletStatusEl.value,
@@ -197,7 +198,12 @@ require_admin_login();
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.success) throw new Error(data.message || 'Failed to update local status');
-        showMessage('Local transfer status saved.', 'success');
+        linkWalletStatusEl.value = data.link_wallet_status || linkWalletStatusEl.value;
+        transferStatusEl.value = data.transfer_status || transferStatusEl.value;
+        showMessage(
+          'Local status saved. Link wallet: ' + linkWalletStatusEl.value + ', Transfer: ' + transferStatusEl.value,
+          'success'
+        );
         localSummaries();
       }
 

@@ -16,7 +16,7 @@ function local_setting_value(PDO $pdo, string $key, string $default): string
     $stmt->execute([$key]);
     $row = $stmt->fetch();
     if (!$row || $row['setting_value'] === null || trim((string) $row['setting_value']) === '') {
-        return $default;
+        return strtolower($default);
     }
     return strtolower(trim((string) $row['setting_value']));
 }
