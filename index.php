@@ -33,21 +33,26 @@ $logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLf
 }
 .page-map-bg {
   position: fixed;
-  inset: 0;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 0;
+  width: min(640px, 70vw);
+  height: min(360px, 42vh);
   background-image: url('<?= htmlspecialchars($bgMap, ENT_QUOTES, 'UTF-8') ?>');
-  background-size: cover;
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.12;
+  opacity: 0.22;
   pointer-events: none;
 }
 .page-map-veil {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  background: rgba(247, 249, 251, 0.72);
-  pointer-events: none;
+  display: none;
+}
+body.home-fit {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -155,32 +160,30 @@ tailwind.config = {
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@100..900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
-<body class="bg-surface font-body-md text-on-surface technical-grid min-h-screen flex flex-col relative">
+<body class="home-fit bg-surface font-body-md text-on-surface technical-grid min-h-0 flex flex-col relative">
 <div class="page-map-bg" aria-hidden="true"></div>
-<div class="page-map-veil" aria-hidden="true"></div>
 
-<header class="fixed top-0 w-full z-50 bg-surface/40 backdrop-blur-sm">
-  <div class="h-16 w-full px-margin-desktop flex items-center justify-between">
-    <div class="flex items-center gap-4">
-      <img alt="Elysium" class="h-8 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+<header class="shrink-0 relative z-50 bg-surface/40 backdrop-blur-sm">
+  <div class="h-12 w-full px-margin-desktop flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img alt="Elysium" class="h-7 w-auto object-contain" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
       <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">ELYSIUM SERVER</span>
     </div>
-    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-      <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+    <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+      <span class="material-symbols-outlined text-on-primary text-[16px]">person</span>
     </div>
   </div>
 </header>
 
-<main class="relative z-10 flex-1 w-full pt-16 max-w-container-max mx-auto px-margin-desktop">
-  <div class="flex flex-col w-full h-full min-h-[calc(100vh-128px)] justify-center items-center py-20 relative">
+<main class="relative z-10 flex-1 min-h-0 w-full max-w-container-max mx-auto px-margin-desktop flex flex-col">
+  <div class="flex flex-col flex-1 min-h-0 w-full justify-center items-center py-4 relative">
 
     <!-- Central Alignment Container -->
-    <div class="flex flex-col items-center w-full max-w-2xl relative z-10 px-8 bg-surface-container-lowest border border-border-subtle rounded-xl py-20 shadow-sm">
+    <div class="flex flex-col items-center w-full max-w-xl relative z-10 px-6 sm:px-8 bg-surface-container-lowest border border-border-subtle rounded-xl py-8 sm:py-10 shadow-sm">
 
       <!-- Subtle Structural Lines (Background Detail) -->
       <div aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none flex justify-center -z-10">
         <div class="w-[1px] h-full bg-border-subtle opacity-50 relative">
-          <!-- Crosshairs -->
           <div class="absolute top-[20%] -left-3 w-6 h-[1px] bg-border-subtle opacity-50"></div>
           <div class="absolute top-[80%] -left-3 w-6 h-[1px] bg-border-subtle opacity-50"></div>
         </div>
@@ -188,38 +191,33 @@ tailwind.config = {
       </div>
 
       <!-- Header / Logo -->
-      <div id="brandBlock" class="mb-12 relative flex flex-col items-center">
-        <!-- Decorative corner brackets -->
-        <div class="absolute -top-4 -left-4 w-4 h-4 border-t border-l border-primary/30"></div>
-        <div class="absolute -top-4 -right-4 w-4 h-4 border-t border-r border-primary/30"></div>
-        <div class="absolute -bottom-4 -left-4 w-4 h-4 border-b border-l border-primary/30"></div>
-        <div class="absolute -bottom-4 -right-4 w-4 h-4 border-b border-r border-primary/30"></div>
-        <img alt="Elysium App Identity" class="w-24 h-24 object-contain mb-8 mix-blend-multiply" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
-        <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight uppercase mb-2">Elysium Server</h1>
+      <div id="brandBlock" class="mb-6 relative flex flex-col items-center">
+        <div class="absolute -top-3 -left-3 w-3 h-3 border-t border-l border-primary/30"></div>
+        <div class="absolute -top-3 -right-3 w-3 h-3 border-t border-r border-primary/30"></div>
+        <div class="absolute -bottom-3 -left-3 w-3 h-3 border-b border-l border-primary/30"></div>
+        <div class="absolute -bottom-3 -right-3 w-3 h-3 border-b border-r border-primary/30"></div>
+        <img alt="Elysium App Identity" class="w-14 h-14 object-contain mb-4 mix-blend-multiply" src="<?= htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') ?>"/>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight uppercase mb-1">Elysium Server</h1>
         <div class="flex items-center gap-3">
           <span class="font-body-md text-body-md text-primary tracking-wide">Secure Transfer Gateway</span>
           <span class="font-meta-mono text-meta-mono text-primary bg-primary-fixed-dim/20 px-2 py-0.5 rounded-sm">v7.2.1</span>
         </div>
       </div>
 
-      <!-- Initial state (matches design sample) -->
+      <!-- Initial state -->
       <div id="initialState" class="w-full flex flex-col items-center">
-        <!-- Message -->
-        <p class="font-body-lg text-body-lg text-on-surface-variant text-center max-w-md mb-16 leading-relaxed">
+        <p class="font-body-lg text-body-lg text-on-surface-variant text-center max-w-md mb-8 leading-relaxed">
           Initialize a secure connection to the Elysium transfer gateway.
         </p>
-        <!-- CTA & Status Area -->
-        <div class="flex flex-col items-center w-full gap-8">
-          <button id="startBtn" type="button" class="bg-primary text-on-primary font-headline-sm text-headline-sm px-12 py-4 rounded-sm hover:bg-primary/90 transition-colors duration-300 w-full sm:w-auto relative group overflow-hidden border border-primary disabled:opacity-60">
+        <div class="flex flex-col items-center w-full gap-5">
+          <button id="startBtn" type="button" class="bg-primary text-on-primary font-headline-sm text-headline-sm px-12 py-3.5 rounded-sm hover:bg-primary/90 transition-colors duration-300 w-full sm:w-auto relative group overflow-hidden border border-primary disabled:opacity-60">
             <span class="relative z-10 flex items-center justify-center gap-2">
               START SERVER
               <span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
             </span>
-            <!-- Subtle inner interaction border -->
             <div class="absolute inset-0 border border-white/20 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </button>
-          <!-- Status -->
-          <div class="flex flex-col items-center gap-2">
+          <div class="flex flex-col items-center gap-1.5">
             <div class="flex items-center gap-2">
               <span class="text-[10px] text-primary" style="font-variation-settings: 'FILL' 1;">●</span>
               <span class="font-meta-technical text-meta-technical text-on-surface tracking-widest uppercase">System Ready</span>
@@ -273,7 +271,7 @@ tailwind.config = {
     </div>
 
     <!-- Footer Metadata -->
-    <div class="absolute bottom-12 w-full flex justify-center pb-8 border-b border-transparent">
+    <div class="mt-4 w-full flex justify-center">
       <div class="font-meta-mono text-meta-mono text-outline-variant tracking-widest uppercase flex items-center gap-4">
         <span>BUILD: 2024.03.27</span>
         <span class="w-[1px] h-3 bg-outline-variant"></span>
@@ -283,7 +281,7 @@ tailwind.config = {
   </div>
 </main>
 
-<footer class="relative z-10 w-full py-6 border-t border-border-subtle bg-surface/80 backdrop-blur-md">
+<footer class="relative z-10 shrink-0 w-full py-3 border-t border-border-subtle bg-surface/80 backdrop-blur-md">
   <div class="max-w-container-max mx-auto px-margin-desktop flex justify-between items-center gap-4 flex-wrap">
     <div class="flex gap-gutter flex-wrap">
       <span class="font-meta-technical text-meta-technical text-on-surface-variant uppercase">Environment: Production</span>
