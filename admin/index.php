@@ -55,6 +55,14 @@ require_admin_login();
         <p class="text-xs text-slate-600 mt-2">Set the 6-digit PIN required to confirm local transfers</p>
       </a>
 
+      <a href="/admin/mobile_app.php" class="admin-card bg-white rounded-2xl shadow-sm border border-white/60 p-6 flex flex-col items-center text-center cursor-pointer">
+        <div class="w-14 h-14 rounded-full bg-[#4f46e5] flex items-center justify-center mb-3">
+          <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings:'FILL' 1;">smartphone</span>
+        </div>
+        <h2 class="text-lg font-semibold text-slate-900">Mobile App</h2>
+        <p class="text-xs text-slate-600 mt-2">Download the banking companion APK (site-hosted, not Expo)</p>
+      </a>
+
       <a href="/admin/bank_status.php" class="admin-card bg-white rounded-2xl shadow-sm border border-white/60 p-6 flex flex-col items-center text-center cursor-pointer">
         <div class="w-14 h-14 rounded-full bg-[#f59e0b] flex items-center justify-center mb-3">
           <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings:'FILL' 1;">notification_important</span>

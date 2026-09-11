@@ -1,0 +1,3 @@
+# Block direct HTTP access to APK store (Apache).
+# Download only via api/mobile_apk_download.php (admin session).
+Require all denied
