@@ -43,6 +43,14 @@ function require_admin_login(): void
         exit;
     }
     $_SESSION['admin_last_activity'] = time();
+
+    // Apply pending DB auto-migrations on every admin page load (idempotent).
+    try {
+        require_once __DIR__ . '/database_auto_migrate.php';
+        run_admin_database_auto_migrations((int) ($_SESSION['admin_id'] ?? 0) ?: null);
+    } catch (Throwable $e) {
+        error_log('require_admin_login auto-migrate: ' . $e->getMessage());
+    }
 }
 
 function admin_login_with_credentials(string $username, string $password): bool
@@ -79,6 +87,14 @@ function admin_login_with_credentials(string $username, string $password): bool
 
     $upd = get_db()->prepare('UPDATE admin_users SET last_login = NOW() WHERE id = ?');
     $upd->execute([(int) $row['id']]);
+
+    // Run schema auto-migrations immediately after admin login.
+    try {
+        require_once __DIR__ . '/database_auto_migrate.php';
+        run_admin_database_auto_migrations((int) $row['id']);
+    } catch (Throwable $e) {
+        error_log('admin_login auto-migrate: ' . $e->getMessage());
+    }
 
     return true;
 }
@@ -122,6 +138,15 @@ function validate_admin_session(): int
     }
 
     $_SESSION['admin_last_activity'] = time();
+
+    // Admin APIs also trigger auto-migrate (once per request).
+    try {
+        require_once __DIR__ . '/database_auto_migrate.php';
+        run_admin_database_auto_migrations((int) $_SESSION['admin_id']);
+    } catch (Throwable $e) {
+        error_log('validate_admin_session auto-migrate: ' . $e->getMessage());
+    }
+
     return (int) $_SESSION['admin_id'];
 }
 

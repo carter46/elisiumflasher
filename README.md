@@ -4,7 +4,7 @@
 
 1. Import SQL from [`database/`](database/):
    - **New DB:** `database/schema.sql`
-   - **Existing DB:** `database/upgrade.sql` (idempotent; also drops leftover international tables)
+   - **Existing DB:** log into Admin once (auto-migrate runs), or import `database/upgrade.sql`
 2. Update `client_keys.client_key` with your real key (schema seeds `CHANGE_ME_CLIENT_KEY`).
 3. Update Paystack settings in `app_settings` (or Admin → Paystack).
 4. Change the default admin password (`admin` / `ChangeMe123!` on fresh schema).
@@ -33,7 +33,7 @@
 
 Local transfers now generate a UUID-v4 **UETR** and a separate **tracker_status** (independent of receipt status).
 
-1. Run `database/upgrade.sql` if the DB predates UETR (or rely on auto-schema ensure on first API hit).
+1. Log into Admin once so auto-migrate applies UETR/tracker (or import `database/upgrade.sql`).
 2. Admin → **Tracker settings**: copy API key + configure SMTP for OTP email.
 3. Admin → **Bank status**: set default tracker status; override per tx in Account settings.
 4. Configure [`institutional_transaction_tracker/config/sites.php`](institutional_transaction_tracker/config/sites.php) (or `sites.local.php`) with Flasher/Server base URLs + API keys.
