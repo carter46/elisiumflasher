@@ -8,7 +8,7 @@ declare(strict_types=1);
  *   php scripts/test_mobile_phase_a.php
  *   php scripts/test_mobile_phase_a.php --live
  *
- * --live requires DB connectivity and migration_mobile_local_transfer.sql applied.
+ * --live requires DB connectivity and database/upgrade.sql (or schema.sql) applied.
  */
 
 require_once __DIR__ . '/../includes/mobile_auth.php';
@@ -183,7 +183,7 @@ $mk = static function (string $ref, string $status, float $amount) use ($pdo, $i
         try {
             $mk('MOBTEST-DONE', 'COMPLETED', 500);
         } catch (Throwable $e) {
-            echo "[WARN] COMPLETED insert failed — apply migration_transaction_completed.sql\n";
+            echo "[WARN] COMPLETED insert failed — apply database/upgrade.sql\n";
         }
 
         $count = mobile_count_successful($pdo, $probeBank, $probeAccount);

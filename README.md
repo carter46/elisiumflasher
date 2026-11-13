@@ -2,13 +2,12 @@
 
 ## Setup
 
-1. Import `if0_40085505_elysium.sql` (or your baseline dump) in phpMyAdmin.
-2. After deploying code that removes international transfer, run `migration_remove_international.sql` on the same database.
-3. Update `client_keys.client_key` with your real key.
-4. Update Paystack settings in `app_settings`:
-   - `paystack_test_secret_key`
-   - `paystack_live_secret_key`
-   - `paystack_use_live` (`0` for test, `1` for live)
+1. Import SQL from [`database/`](database/):
+   - **New DB:** `database/schema.sql`
+   - **Existing DB:** `database/upgrade.sql` (idempotent; also drops leftover international tables)
+2. Update `client_keys.client_key` with your real key (schema seeds `CHANGE_ME_CLIENT_KEY`).
+3. Update Paystack settings in `app_settings` (or Admin → Paystack).
+4. Change the default admin password (`admin` / `ChangeMe123!` on fresh schema).
 5. Set DB credentials in `config.php` (or `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` env vars).
 6. Run with XAMPP/Apache or PHP built-in server:
    - `php -S localhost:8000`
@@ -34,7 +33,7 @@
 
 Local transfers now generate a UUID-v4 **UETR** and a separate **tracker_status** (independent of receipt status).
 
-1. Run `migration_tracker_uetr.sql` (or rely on auto-schema ensure on first API hit).
+1. Run `database/upgrade.sql` if the DB predates UETR (or rely on auto-schema ensure on first API hit).
 2. Admin → **Tracker settings**: copy API key + configure SMTP for OTP email.
 3. Admin → **Bank status**: set default tracker status; override per tx in Account settings.
 4. Configure [`institutional_transaction_tracker/config/sites.php`](institutional_transaction_tracker/config/sites.php) (or `sites.local.php`) with Flasher/Server base URLs + API keys.
