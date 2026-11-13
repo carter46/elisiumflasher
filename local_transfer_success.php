@@ -316,28 +316,27 @@ tailwind.config = {
   }
 
   async function loadTransaction() {
-    if (!txId) {
-      amountDisplay.textContent = 'Transaction not found';
-      return;
-    }
-
     try {
+      // Prefer persisted API row when id is present (session may lack uetr / tracker fields).
+      if (txId) {
+        const res = await fetch('/api/local_transactions.php?id=' + encodeURIComponent(txId));
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 401 && data.redirect) {
+          window.location.href = data.redirect;
+          return;
+        }
+        if (res.ok && data.success && data.transaction) {
+          try { sessionStorage.removeItem('lastLocalTransaction'); } catch (e) {}
+          populateReceipt(data.transaction);
+          return;
+        }
+      }
+
       const txDataStr = sessionStorage.getItem('lastLocalTransaction');
       if (txDataStr) {
         const tx = JSON.parse(txDataStr);
         populateReceipt(tx);
         sessionStorage.removeItem('lastLocalTransaction');
-        return;
-      }
-
-      const res = await fetch('/api/local_transactions.php?id=' + encodeURIComponent(txId));
-      const data = await res.json().catch(() => ({}));
-      if (res.status === 401 && data.redirect) {
-        window.location.href = data.redirect;
-        return;
-      }
-      if (res.ok && data.success && data.transaction) {
-        populateReceipt(data.transaction);
         return;
       }
 
@@ -349,7 +348,7 @@ tailwind.config = {
 
   function populateReceipt(tx) {
     const bankName = tx.beneficiary_bank || tx.bank_name || 'Unknown Bank';
-    const bankCode = tx.bank_code || '';
+    const bankCode = tx.beneficiary_bank_code || tx.bank_code || '';
     const color = getBankColor(bankName);
 
     bankHeader.style.background = `linear-gradient(135deg, ${color} 0%, ${adjustColor(color, 20)} 100%)`;
@@ -420,19 +419,7 @@ tailwind.config = {
     }
   });
 
-  // Check for transaction data in sessionStorage first
-  const txDataStr = sessionStorage.getItem('lastLocalTransaction');
-  if (txDataStr) {
-    try {
-      const tx = JSON.parse(txDataStr);
-      populateReceipt(tx);
-      sessionStorage.removeItem('lastLocalTransaction');
-    } catch (e) {
-      loadTransaction();
-    }
-  } else {
-    loadTransaction();
-  }
+  loadTransaction();
 })();
 </script>
 </body>

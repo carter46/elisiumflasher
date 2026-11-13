@@ -49,16 +49,21 @@ function elysium_post(array $site, string $path, array $body, ?int $timeoutMs = 
 
 /**
  * Parallel locate across all enabled sites.
- * @return array{matches: list<array>, errors: list<array>}
+ * @return array{matches: list<array>, errors: list<array>, soft_misses: int}
  */
 function elysium_locate_fanout(string $uetr): array
 {
     $sites = tracker_enabled_sites();
     $matches = [];
     $errors = [];
+    $softMisses = 0;
 
     if ($sites === []) {
-        return ['matches' => [], 'errors' => [['code' => 'not_configured', 'message' => 'No enabled sites configured with API keys']]];
+        return [
+            'matches' => [],
+            'errors' => [['code' => 'not_configured', 'message' => 'No enabled sites configured with API keys']],
+            'soft_misses' => 0,
+        ];
     }
 
     $mh = curl_multi_init();
@@ -88,11 +93,13 @@ function elysium_locate_fanout(string $uetr): array
     }
 
     do {
-        $status = curl_multi_exec($mh, $running);
+        do {
+            $status = curl_multi_exec($mh, $running);
+        } while ($status === CURLM_CALL_MULTI_PERFORM);
         if ($running) {
             curl_multi_select($mh, 1.0);
         }
-    } while ($running && ($status === CURLM_OK || $status === CURLM_CALL_MULTI_PERFORM));
+    } while ($running > 0);
 
     foreach ($handles as $item) {
         $ch = $item['ch'];
@@ -112,7 +119,7 @@ function elysium_locate_fanout(string $uetr): array
             $errors[] = ['site_id' => $siteId, 'code' => 'auth_failed', 'http' => $code];
             continue;
         }
-        if ($code >= 500) {
+        if ($code >= 500 || $code === 0) {
             $errors[] = ['site_id' => $siteId, 'code' => 'upstream_error', 'http' => $code];
             continue;
         }
@@ -123,22 +130,27 @@ function elysium_locate_fanout(string $uetr): array
             continue;
         }
         if (array_key_exists('success', $data) && $data['success'] === false && empty($data['found'])) {
-            // Soft not-found from some hosts, or explicit failure
             if ($code >= 400) {
                 $errors[] = ['site_id' => $siteId, 'code' => 'upstream_reject', 'http' => $code];
+            } else {
+                $softMisses++;
             }
             continue;
         }
         if (!empty($data['found'])) {
+            // Always key session match by config site id (API site_id is informational only).
             $matches[] = [
-                'site_id' => (string) ($data['site_id'] ?? $site['id']),
+                'site_id' => (string) ($site['id'] ?? ''),
                 'rail' => (string) ($data['rail'] ?? 'local'),
                 'name' => (string) ($site['name'] ?? $site['id']),
                 'base_url' => (string) $site['base_url'],
             ];
+        } else {
+            // Healthy 200 with found:false
+            $softMisses++;
         }
     }
     curl_multi_close($mh);
 
-    return ['matches' => $matches, 'errors' => $errors];
+    return ['matches' => $matches, 'errors' => $errors, 'soft_misses' => $softMisses];
 }

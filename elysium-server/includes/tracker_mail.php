@@ -31,15 +31,10 @@ function tracker_send_mail(PDO $pdo, string $to, string $subject, string $body):
     $fromEmail = $cfg['from_email'] !== '' ? $cfg['from_email'] : ('noreply@' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
     $fromName = $cfg['from_name'] !== '' ? $cfg['from_name'] : 'Elysium Tracker';
 
+    // Without an SMTP host, PHP mail() often returns true with no delivery.
+    // Treat empty host as unconfigured so callers can fall back to debug OTP.
     if ($cfg['host'] === '') {
-        $headers = [
-            'MIME-Version: 1.0',
-            'Content-Type: text/plain; charset=UTF-8',
-            'From: ' . sprintf('%s <%s>', $fromName, $fromEmail),
-            'Reply-To: ' . $fromEmail,
-            'X-Mailer: ElysiumTracker/1.0',
-        ];
-        return @mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+        return false;
     }
 
     return tracker_smtp_send($cfg, $fromEmail, $fromName, $to, $subject, $body);

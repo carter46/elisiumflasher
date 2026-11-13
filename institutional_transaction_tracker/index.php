@@ -345,9 +345,11 @@ $sitesConfigured = count(tracker_enabled_sites());
         const { res, data } = await locatePromise;
 
         if (!res.ok || !data.success) {
-          setPhase('email');
           gateTitle.textContent = 'Unable to locate';
-          gateSubtitle.textContent = data.message || 'Locate failed';
+          gateSubtitle.textContent = 'Close and try again, or check site configuration.';
+          gateLoading.classList.add('hidden');
+          gateEmail.classList.add('hidden');
+          gateOtp.classList.add('hidden');
           showError(data.message || 'Locate failed');
           return;
         }

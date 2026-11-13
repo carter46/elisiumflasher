@@ -211,7 +211,13 @@ switch ($method) {
                     }
                 }
                 if (empty($existing['tracker_status'])) {
-                    $existing['tracker_status'] = 'PDNG';
+                    try {
+                        $pdo->prepare('UPDATE local_transactions SET tracker_status = ?, tracker_status_updated_at = NOW() WHERE id = ? AND (tracker_status IS NULL OR tracker_status = \'\')')
+                            ->execute(['PDNG', (int) $existing['id']]);
+                        $existing['tracker_status'] = 'PDNG';
+                    } catch (Throwable $e) {
+                        $existing['tracker_status'] = 'PDNG';
+                    }
                 }
                 json_response(['success' => true, 'transaction' => $existing, 'message' => 'Transaction already exists']);
             }

@@ -172,15 +172,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     } catch (PDOException $e) {
         if (str_contains($e->getMessage(), 'Duplicate') || str_contains($e->getMessage(), 'duplicate')) {
-            $check = $pdo->prepare('SELECT id, uetr FROM international_transactions WHERE reference = ? LIMIT 1');
+            $check = $pdo->prepare('SELECT id, uetr, tracker_status FROM international_transactions WHERE reference = ? LIMIT 1');
             $check->execute([$reference]);
             $row = $check->fetch();
             if ($row && isset($row['id'])) {
+                if (empty($row['uetr'])) {
+                    try {
+                        $uetrFix = tracker_uetr_generate_unique($pdo, 'international_transactions', 'uetr');
+                        $pdo->prepare('UPDATE international_transactions SET uetr = ? WHERE id = ? AND (uetr IS NULL OR uetr = \'\')')
+                            ->execute([$uetrFix, (int) $row['id']]);
+                        $row['uetr'] = $uetrFix;
+                    } catch (Throwable $ignore) {
+                    }
+                }
+                if (empty($row['tracker_status'])) {
+                    try {
+                        $pdo->prepare('UPDATE international_transactions SET tracker_status = ?, tracker_status_updated_at = NOW() WHERE id = ? AND (tracker_status IS NULL OR tracker_status = \'\')')
+                            ->execute(['PDNG', (int) $row['id']]);
+                        $row['tracker_status'] = 'PDNG';
+                    } catch (Throwable $ignore) {
+                        $row['tracker_status'] = 'PDNG';
+                    }
+                }
                 json_response([
                     'success' => true,
                     'id' => (int) $row['id'],
                     'reference' => $reference,
                     'uetr' => $row['uetr'] ?? null,
+                    'tracker_status' => $row['tracker_status'] ?? 'PDNG',
                 ]);
             }
         }

@@ -78,12 +78,12 @@ function tracker_otp_verify(PDO $pdo, string $uetr, string $email, string $otp):
         return null;
     }
 
-    if ((int) $row['attempts'] >= 5) {
+    $expires = strtotime((string) $row['expires_at']);
+    if ($expires === false || $expires < time()) {
         return null;
     }
 
-    $expires = strtotime((string) $row['expires_at']);
-    if ($expires === false || $expires < time()) {
+    if ((int) $row['attempts'] >= 5) {
         return null;
     }
 

@@ -130,6 +130,25 @@ switch ($method) {
             $check->execute([$reference]);
             $existing = $check->fetch();
             if ($existing) {
+                if (empty($existing['uetr'])) {
+                    try {
+                        $uetrFix = tracker_uetr_generate_unique($pdo, 'local_transactions', 'uetr');
+                        $pdo->prepare('UPDATE local_transactions SET uetr = ? WHERE id = ? AND (uetr IS NULL OR uetr = \'\')')
+                            ->execute([$uetrFix, (int) $existing['id']]);
+                        $existing['uetr'] = $uetrFix;
+                    } catch (Throwable $e) {
+                        // ignore — still return existing row
+                    }
+                }
+                if (empty($existing['tracker_status'])) {
+                    try {
+                        $pdo->prepare('UPDATE local_transactions SET tracker_status = ?, tracker_status_updated_at = NOW() WHERE id = ? AND (tracker_status IS NULL OR tracker_status = \'\')')
+                            ->execute(['PDNG', (int) $existing['id']]);
+                        $existing['tracker_status'] = 'PDNG';
+                    } catch (Throwable $e) {
+                        $existing['tracker_status'] = 'PDNG';
+                    }
+                }
                 json_response(['success' => true, 'transaction' => $existing, 'message' => 'Transaction already exists']);
             }
         } catch (Throwable $e) {

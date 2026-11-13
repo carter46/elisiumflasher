@@ -832,8 +832,11 @@ tailwind.config = {
       sessionStorage.setItem('lastLocalTransaction', JSON.stringify(txForReceipt));
 
       showModalResult('Transfer Successful!', 'Your transfer has been completed successfully.');
+      const successId = txForReceipt.id || (txData.transaction && txData.transaction.id) || '';
       setTimeout(() => {
-        window.location.href = '/local_transfer_success.php';
+        window.location.href = successId
+          ? ('/local_transfer_success.php?id=' + encodeURIComponent(String(successId)))
+          : '/local_transfer_success.php';
       }, 1500);
 
     } catch (err) {

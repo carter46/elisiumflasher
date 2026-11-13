@@ -18,12 +18,14 @@ if (!tracker_uetr_valid($uetr)) {
 $result = elysium_locate_fanout($uetr);
 $matches = $result['matches'];
 $errors = $result['errors'];
+$softMisses = (int) ($result['soft_misses'] ?? 0);
 
-$authFails = array_filter($errors, static fn ($e) => ($e['code'] ?? '') === 'auth_failed');
-$notConfigured = array_filter($errors, static fn ($e) => ($e['code'] ?? '') === 'not_configured');
+$authFails = array_values(array_filter($errors, static fn ($e) => ($e['code'] ?? '') === 'auth_failed'));
+$notConfigured = array_values(array_filter($errors, static fn ($e) => ($e['code'] ?? '') === 'not_configured'));
 
 if (count($matches) === 0) {
     unset($_SESSION['tracker_match'], $_SESSION['tracker_uetr']);
+
     if ($notConfigured) {
         tracker_json([
             'success' => false,
@@ -31,6 +33,16 @@ if (count($matches) === 0) {
             'message' => 'No Elysium sites are configured with API keys on this tracker.',
         ], 503);
     }
+
+    // At least one healthy site said "not found" → genuine miss (ignore other site outages).
+    if ($softMisses > 0) {
+        tracker_json([
+            'success' => true,
+            'found' => false,
+            'message' => 'No matching transaction on configured sites',
+        ]);
+    }
+
     if (count($authFails) > 0 && count($authFails) === count($errors) && count($errors) > 0) {
         tracker_json([
             'success' => false,
@@ -38,6 +50,15 @@ if (count($matches) === 0) {
             'message' => 'Tracker could not authenticate with configured Elysium sites. Check API keys.',
         ], 502);
     }
+
+    if (count($errors) > 0) {
+        tracker_json([
+            'success' => false,
+            'found' => false,
+            'message' => 'Could not reliably reach configured Elysium sites. Check site URLs and connectivity, then retry.',
+        ], 502);
+    }
+
     tracker_json([
         'success' => true,
         'found' => false,

@@ -34,6 +34,7 @@ if (!$found) {
 try {
     $challenge = tracker_otp_create_challenge($pdo, $uetr, $email);
     $sent = tracker_otp_send_email($pdo, $email, $uetr, $challenge['code']);
+    $smtpHost = trim((string) (tracker_smtp_config($pdo)['host'] ?? ''));
     $out = [
         'success' => true,
         'message' => $sent
@@ -41,8 +42,10 @@ try {
             : 'OTP generated. Configure SMTP on Elysium to deliver email.',
         'mail_sent' => $sent,
     ];
+    // Expose OTP for local simulation when SMTP is not configured, or when TRACKER_DEBUG_OTP=1.
     $debug = strtolower((string) (getenv('TRACKER_DEBUG_OTP') ?: ''));
-    if (!$sent && ($debug === '1' || $debug === 'true')) {
+    $allowDebug = ($debug === '1' || $debug === 'true' || $smtpHost === '');
+    if (!$sent && $allowDebug) {
         $out['debug_otp'] = $challenge['code'];
     }
     json_response($out);

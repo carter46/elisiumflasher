@@ -763,6 +763,7 @@ require_login();
         }
         if (res.ok && data && data.success && data.transaction) {
           var t = data.transaction;
+          try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
           return {
             id: t.id, reference: t.reference, uetr: t.uetr || '',
             completedAt: t.created_at,
@@ -776,6 +777,8 @@ require_login();
           };
         }
       } catch (e) { console.error('loadPayload:', e); }
+      // Do not fall back to a stale session receipt when a specific id was requested.
+      return null;
     }
     var raw = null;
     try { raw = sessionStorage.getItem(STORAGE_KEY); } catch (e) {}
