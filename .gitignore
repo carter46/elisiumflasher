@@ -4,8 +4,9 @@ Mobile_app/
 # Local / production DB credentials
 config.php
 
-# Institutional Tracker is a separate deployable app — do not push with Flasher
+# Nested apps — deploy separately, do not push with Flasher
 institutional_transaction_tracker/
+elysium-server/
 
 # Local toolchain downloads (portable Node, etc.)
 .tools/
