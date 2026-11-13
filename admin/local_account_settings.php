@@ -98,11 +98,12 @@ require_admin_login();
           <thead>
             <tr class="border-b">
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Date</th>
-              <th class="text-left py-3 font-semibold text-slate-700 px-2">Reference</th>
+              <th class="text-left py-3 font-semibold text-slate-700 px-2">Reference / UETR</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Amount</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Beneficiary</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Bank</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Status</th>
+              <th class="text-left py-3 font-semibold text-slate-700 px-2">Tracker Status</th>
               <th class="text-right py-3 font-semibold text-slate-700 px-2">Delete</th>
             </tr>
           </thead>
@@ -187,9 +188,11 @@ require_admin_login();
         txBody.innerHTML = '';
 
         if (!txs.length) {
-          txBody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-slate-600">No transactions found</td></tr>';
+          txBody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-slate-600">No transactions found</td></tr>';
           return;
         }
+
+        const trackerStatuses = ['PDNG','ACSP','ACSC','ACCC','AVLB','HOLD','RJCT','RETN','CNCL'];
 
         txs.forEach((t) => {
           const date = t.transaction_date ? new Date(t.transaction_date) : null;
@@ -198,6 +201,8 @@ require_admin_login();
 
           const status = (t.status || '').toString().toUpperCase();
           const statuses = ['SUCCESSFUL', 'COMPLETED', 'PENDING', 'FAILED', 'REVERSED'];
+          const trackerStatus = (t.tracker_status || 'PDNG').toString().toUpperCase();
+          const uetr = t.uetr || '';
 
           const tr = document.createElement('tr');
           tr.className = 'border-b';
@@ -205,13 +210,21 @@ require_admin_login();
             <td class="py-3 px-2">
               ${dateStr}<div class="text-xs text-slate-500">${timeStr}</div>
             </td>
-            <td class="py-3 px-2 font-mono text-xs">${t.reference || ''}</td>
+            <td class="py-3 px-2 font-mono text-xs">
+              <div>${t.reference || ''}</div>
+              <div class="text-[10px] text-slate-500 mt-1 break-all" title="UETR">${uetr || '—'}</div>
+            </td>
             <td class="py-3 px-2 font-semibold">${t.currency || 'NGN'} ${(Number(t.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             <td class="py-3 px-2">${t.beneficiary_name || ''}</td>
             <td class="py-3 px-2">${t.beneficiary_bank || ''}</td>
             <td class="py-3 px-2">
               <select class="tx-status-select border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold bg-white outline-none focus:ring-2 focus:ring-indigo-200" data-id="${t.id}">
                 ${statuses.map((s) => `<option value="${s}" ${s === status ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </td>
+            <td class="py-3 px-2">
+              <select class="tx-tracker-select border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold bg-white outline-none focus:ring-2 focus:ring-indigo-200" data-id="${t.id}">
+                ${trackerStatuses.map((s) => `<option value="${s}" ${s === trackerStatus ? 'selected' : ''}>${s}</option>`).join('')}
               </select>
             </td>
             <td class="py-3 px-2 text-right">
@@ -244,6 +257,34 @@ require_admin_login();
               showMessage(err.message || 'Failed to update status', 'error');
             } finally {
               statusSelect.disabled = false;
+              setViewing();
+            }
+          });
+
+          const trackerSelect = tr.querySelector('.tx-tracker-select');
+          trackerSelect.addEventListener('change', async () => {
+            const next = trackerSelect.value;
+            if (!confirm('Change tracker status to ' + next + '? This does not change receipt status.')) {
+              trackerSelect.value = trackerStatus;
+              return;
+            }
+            try {
+              setEditing();
+              trackerSelect.disabled = true;
+              const putRes = await fetch('/api/local_transactions.php', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: t.id, tracker_status: next }),
+              });
+              const put = await putRes.json().catch(() => ({}));
+              if (!putRes.ok || !put.success) throw new Error(put.message || 'Failed to update tracker status');
+              showMessage('Tracker status updated to ' + next + '.', 'success');
+              await loadTransactions();
+            } catch (err) {
+              trackerSelect.value = trackerStatus;
+              showMessage(err.message || 'Failed to update tracker status', 'error');
+            } finally {
+              trackerSelect.disabled = false;
               setViewing();
             }
           });

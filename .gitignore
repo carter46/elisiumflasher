@@ -4,5 +4,8 @@ Mobile_app/
 # Local / production DB credentials
 config.php
 
+# Institutional Tracker local secrets override
+institutional_transaction_tracker/config/sites.local.php
+
 # Local toolchain downloads (portable Node, etc.)
 .tools/

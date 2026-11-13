@@ -5,9 +5,13 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
 require_once __DIR__ . '/../includes/mobile_fcm.php';
+require_once __DIR__ . '/../includes/tracker_status.php';
+require_once __DIR__ . '/../includes/tracker_uetr.php';
+require_once __DIR__ . '/../includes/tracker_store.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = get_db();
+tracker_flasher_ensure_schema($pdo);
 
 $allowedStatuses = ['SUCCESSFUL', 'FAILED', 'PENDING', 'REVERSED', 'COMPLETED'];
 
@@ -94,6 +98,23 @@ switch ($method) {
             $_SESSION['admin_last_activity'] = time();
         }
 
+        // Single-transaction fetch for receipts / deep links
+        if (isset($_GET['id']) && (int) $_GET['id'] > 0) {
+            try {
+                $stmt = $pdo->prepare('SELECT * FROM local_transactions WHERE id = ? LIMIT 1');
+                $stmt->execute([(int) $_GET['id']]);
+                $row = $stmt->fetch();
+                if (!$row) {
+                    json_response(['success' => false, 'message' => 'Transaction not found'], 404);
+                }
+                header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+                header('Pragma: no-cache');
+                json_response(['success' => true, 'transaction' => $row]);
+            } catch (Throwable $e) {
+                json_response(['success' => false, 'message' => 'Failed to fetch transaction'], 500);
+            }
+        }
+
         if (isset($_GET['limit'])) {
             $limit = max(1, min(200, (int) $_GET['limit']));
         } else {
@@ -178,6 +199,20 @@ switch ($method) {
             $check->execute([$reference]);
             $existing = $check->fetch();
             if ($existing) {
+                // Ensure legacy rows get a UETR so Institutional Tracker can locate them.
+                if (empty($existing['uetr'])) {
+                    try {
+                        $uetrFix = tracker_uetr_generate_unique($pdo, 'local_transactions', 'uetr');
+                        $pdo->prepare('UPDATE local_transactions SET uetr = ? WHERE id = ? AND (uetr IS NULL OR uetr = \'\')')
+                            ->execute([$uetrFix, (int) $existing['id']]);
+                        $existing['uetr'] = $uetrFix;
+                    } catch (Throwable $e) {
+                        // ignore — still return existing row
+                    }
+                }
+                if (empty($existing['tracker_status'])) {
+                    $existing['tracker_status'] = 'PDNG';
+                }
                 json_response(['success' => true, 'transaction' => $existing, 'message' => 'Transaction already exists']);
             }
         } catch (Throwable $e) {
@@ -207,6 +242,9 @@ switch ($method) {
                 'completed' => 'COMPLETED',
             ];
             $txStatus = $statusMap[$transferMode] ?? 'SUCCESSFUL';
+            // local_setting_value lowercases; catalog normalize uppercases codes like PDNG.
+            $trackerStatus = tracker_status_normalize(strtoupper(local_setting_value($pdo, 'local_tracker_status', 'pdng')), 'PDNG');
+            $uetr = tracker_uetr_generate_unique($pdo, 'local_transactions', 'uetr');
 
             // Fetch sender account settings (latest)
             $acct = local_profile_latest($pdo);
@@ -231,13 +269,14 @@ switch ($method) {
             if (local_transactions_has_bank_code_column($pdo)) {
                 $ins = $pdo->prepare('
                     INSERT INTO local_transactions (
-                        reference, amount, currency, beneficiary_name, beneficiary_bank,
+                        reference, uetr, amount, currency, beneficiary_name, beneficiary_bank,
                         beneficiary_bank_code, beneficiary_account, sender_account, sender_name, purpose, status,
-                        direction, transaction_date
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                        tracker_status, tracker_status_updated_at, direction, transaction_date
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW())
                 ');
                 $ins->execute([
                     $reference,
+                    $uetr,
                     $amountNum,
                     $currency,
                     $beneficiaryName,
@@ -248,18 +287,20 @@ switch ($method) {
                     $senderName,
                     $remark !== '' ? $remark : null,
                     $txStatus,
+                    $trackerStatus,
                     'debit',
                 ]);
             } else {
                 $ins = $pdo->prepare('
                     INSERT INTO local_transactions (
-                        reference, amount, currency, beneficiary_name, beneficiary_bank,
+                        reference, uetr, amount, currency, beneficiary_name, beneficiary_bank,
                         beneficiary_account, sender_account, sender_name, purpose, status,
-                        direction, transaction_date
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                        tracker_status, tracker_status_updated_at, direction, transaction_date
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW())
                 ');
                 $ins->execute([
                     $reference,
+                    $uetr,
                     $amountNum,
                     $currency,
                     $beneficiaryName,
@@ -269,6 +310,7 @@ switch ($method) {
                     $senderName,
                     $remark !== '' ? $remark : null,
                     $txStatus,
+                    $trackerStatus,
                     'debit',
                 ]);
             }
@@ -365,7 +407,7 @@ switch ($method) {
         break;
 
     case 'PUT':
-        // Admin-only: edit per-transaction status and adjust balance on debit transitions.
+        // Admin-only: edit receipt status and/or tracker_status (independent).
         validate_admin_session();
 
         $input = json_decode(file_get_contents('php://input') ?: '{}', true);
@@ -374,12 +416,22 @@ switch ($method) {
         }
 
         $id = isset($input['id']) ? (int) $input['id'] : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
-        $newStatus = strtoupper(trim((string) ($input['status'] ?? '')));
+        $hasReceiptStatus = array_key_exists('status', $input) && trim((string) $input['status']) !== '';
+        $hasTrackerStatus = array_key_exists('tracker_status', $input) && trim((string) $input['tracker_status']) !== '';
+        $newStatus = $hasReceiptStatus ? strtoupper(trim((string) $input['status'])) : '';
+        $newTracker = $hasTrackerStatus ? tracker_status_normalize((string) $input['tracker_status']) : '';
+
         if ($id <= 0) {
             json_response(['success' => false, 'message' => 'Transaction ID is required'], 422);
         }
-        if (!in_array($newStatus, $allowedStatuses, true)) {
+        if (!$hasReceiptStatus && !$hasTrackerStatus) {
+            json_response(['success' => false, 'message' => 'No status fields provided'], 422);
+        }
+        if ($hasReceiptStatus && !in_array($newStatus, $allowedStatuses, true)) {
             json_response(['success' => false, 'message' => 'Invalid status'], 422);
+        }
+        if ($hasTrackerStatus && !in_array($newTracker, tracker_status_codes(), true)) {
+            json_response(['success' => false, 'message' => 'Invalid tracker status'], 422);
         }
 
         try {
@@ -393,34 +445,38 @@ switch ($method) {
                 json_response(['success' => false, 'message' => 'Transaction not found'], 404);
             }
 
-            $oldStatus = strtoupper((string) ($tx['status'] ?? ''));
-            if ($oldStatus === $newStatus) {
-                $pdo->commit();
-                json_response(['success' => true, 'transaction' => $tx, 'message' => 'Status unchanged']);
+            if ($hasTrackerStatus) {
+                $pdo->prepare('UPDATE local_transactions SET tracker_status = ?, tracker_status_updated_at = NOW() WHERE id = ?')
+                    ->execute([$newTracker, $id]);
             }
 
-            $wasDebit = local_tx_is_debit_status($oldStatus);
-            $willDebit = local_tx_is_debit_status($newStatus);
-            $amountNum = (float) ($tx['amount'] ?? 0);
+            if ($hasReceiptStatus) {
+                $oldStatus = strtoupper((string) ($tx['status'] ?? ''));
+                if ($oldStatus !== $newStatus) {
+                    $wasDebit = local_tx_is_debit_status($oldStatus);
+                    $willDebit = local_tx_is_debit_status($newStatus);
+                    $amountNum = (float) ($tx['amount'] ?? 0);
 
-            $acct = local_profile_latest($pdo);
-            if (!$acct) {
-                $pdo->rollBack();
-                json_response(['success' => false, 'message' => 'Local account settings not found'], 404);
-            }
-            $accountId = (int) $acct['id'];
+                    $acct = local_profile_latest($pdo);
+                    if (!$acct) {
+                        $pdo->rollBack();
+                        json_response(['success' => false, 'message' => 'Local account settings not found'], 404);
+                    }
+                    $accountId = (int) $acct['id'];
 
-            if ($wasDebit && !$willDebit) {
-                local_credit_balance($pdo, $accountId, $amountNum);
-            } elseif (!$wasDebit && $willDebit) {
-                if (!local_debit_balance($pdo, $accountId, $amountNum)) {
-                    $pdo->rollBack();
-                    json_response(['success' => false, 'message' => 'Insufficient balance to apply this status'], 409);
+                    if ($wasDebit && !$willDebit) {
+                        local_credit_balance($pdo, $accountId, $amountNum);
+                    } elseif (!$wasDebit && $willDebit) {
+                        if (!local_debit_balance($pdo, $accountId, $amountNum)) {
+                            $pdo->rollBack();
+                            json_response(['success' => false, 'message' => 'Insufficient balance to apply this status'], 409);
+                        }
+                    }
+
+                    $pdo->prepare('UPDATE local_transactions SET status = ? WHERE id = ?')
+                        ->execute([$newStatus, $id]);
                 }
             }
-
-            $upd = $pdo->prepare('UPDATE local_transactions SET status = ? WHERE id = ?');
-            $upd->execute([$newStatus, $id]);
 
             $txStmt = $pdo->prepare('SELECT * FROM local_transactions WHERE id = ? LIMIT 1');
             $txStmt->execute([$id]);
@@ -428,18 +484,24 @@ switch ($method) {
 
             $pdo->commit();
 
-            if (is_array($updated) && ($newStatus === 'SUCCESSFUL' || $newStatus === 'COMPLETED') && $oldStatus !== $newStatus) {
-                try {
-                    mobile_fcm_notify_successful_transfer($pdo, $updated);
-                } catch (Throwable $notifyErr) {
-                    // ignore
+            if ($hasReceiptStatus && is_array($updated)) {
+                $finalStatus = strtoupper((string) ($updated['status'] ?? ''));
+                $oldStatus = strtoupper((string) ($tx['status'] ?? ''));
+                if (($finalStatus === 'SUCCESSFUL' || $finalStatus === 'COMPLETED') && $oldStatus !== $finalStatus) {
+                    try {
+                        mobile_fcm_notify_successful_transfer($pdo, $updated);
+                    } catch (Throwable $notifyErr) {
+                        // ignore
+                    }
                 }
             }
 
             json_response([
                 'success' => true,
                 'transaction' => $updated,
-                'message' => 'Transaction status updated',
+                'message' => $hasTrackerStatus && !$hasReceiptStatus
+                    ? 'Tracker status updated'
+                    : 'Transaction status updated',
             ]);
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {

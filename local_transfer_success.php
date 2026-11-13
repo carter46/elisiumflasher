@@ -111,6 +111,10 @@ tailwind.config = {
           <span id="reference" class="text-xs font-mono text-slate-700">--</span>
         </div>
         <div class="flex justify-between gap-3">
+          <span class="text-xs text-slate-500">UETR</span>
+          <span id="uetr" class="text-xs font-mono text-slate-700 text-right break-all max-w-[65%]">--</span>
+        </div>
+        <div class="flex justify-between gap-3">
           <span class="text-xs text-slate-500">Date & Time</span>
           <span id="dateTime" class="text-xs text-slate-700 text-right">--</span>
         </div>
@@ -176,6 +180,7 @@ tailwind.config = {
   const beneficiaryBank = document.getElementById('beneficiaryBank');
   const accountNumber = document.getElementById('accountNumber');
   const reference = document.getElementById('reference');
+  const uetrEl = document.getElementById('uetr');
   const dateTime = document.getElementById('dateTime');
   const status = document.getElementById('status');
   const remarkRow = document.getElementById('remarkRow');
@@ -317,23 +322,22 @@ tailwind.config = {
     }
 
     try {
-      // Load transaction details from admin API (GET is available for user)
-      const res = await fetch('/api/local_transactions.php?id=' + txId);
-      // If 401, try loading from session storage fallback
-      if (res.status === 401) {
-        const data = await res.json().catch(() => ({}));
-        if (data.redirect) {
-          window.location.href = data.redirect;
-          return;
-        }
-      }
-
-      // Try another approach - get from session storage
       const txDataStr = sessionStorage.getItem('lastLocalTransaction');
       if (txDataStr) {
         const tx = JSON.parse(txDataStr);
         populateReceipt(tx);
         sessionStorage.removeItem('lastLocalTransaction');
+        return;
+      }
+
+      const res = await fetch('/api/local_transactions.php?id=' + encodeURIComponent(txId));
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401 && data.redirect) {
+        window.location.href = data.redirect;
+        return;
+      }
+      if (res.ok && data.success && data.transaction) {
+        populateReceipt(data.transaction);
         return;
       }
 
@@ -358,6 +362,7 @@ tailwind.config = {
     beneficiaryBank.textContent = bankName;
     accountNumber.textContent = tx.beneficiary_account || '--';
     reference.textContent = tx.reference || '--';
+    if (uetrEl) uetrEl.textContent = tx.uetr || '--';
     dateTime.textContent = formatDateTime(tx.transaction_date || tx.created_at);
     status.textContent = (tx.status || 'SUCCESSFUL').toUpperCase();
     

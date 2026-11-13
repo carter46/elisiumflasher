@@ -4,12 +4,15 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/tracker_status.php';
+require_once __DIR__ . '/../includes/tracker_api_auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = get_db();
 
 $allowedLink = ['on', 'off'];
 $allowedTransfer = ['successful', 'failed', 'pending', 'reversed', 'completed'];
+$allowedTracker = tracker_status_codes();
 
 function local_status_get(PDO $pdo, string $key, string $default): string
 {
@@ -38,8 +41,8 @@ function local_status_set(PDO $pdo, string $key, string $value): void
 
 function local_status_ensure_defaults(PDO $pdo): void
 {
-    $stmt = $pdo->prepare('SELECT setting_key FROM app_settings WHERE setting_key IN (?, ?)');
-    $stmt->execute(['local_link_wallet_status', 'local_transfer_status']);
+    $stmt = $pdo->prepare('SELECT setting_key FROM app_settings WHERE setting_key IN (?, ?, ?)');
+    $stmt->execute(['local_link_wallet_status', 'local_transfer_status', 'local_tracker_status']);
     $found = [];
     while ($row = $stmt->fetch()) {
         $found[(string) $row['setting_key']] = true;
@@ -50,6 +53,15 @@ function local_status_ensure_defaults(PDO $pdo): void
     if (empty($found['local_transfer_status'])) {
         local_status_set($pdo, 'local_transfer_status', 'successful');
     }
+    if (empty($found['local_tracker_status'])) {
+        local_status_set($pdo, 'local_tracker_status', 'PDNG');
+    }
+}
+
+function local_tracker_status_get(PDO $pdo): string
+{
+    $raw = local_status_get($pdo, 'local_tracker_status', 'PDNG');
+    return tracker_status_normalize(strtoupper($raw), 'PDNG');
 }
 
 switch ($method) {
@@ -75,6 +87,7 @@ switch ($method) {
             local_status_ensure_defaults($pdo);
             $link = local_status_get($pdo, 'local_link_wallet_status', 'on');
             $transfer = local_status_get($pdo, 'local_transfer_status', 'successful');
+            $tracker = local_tracker_status_get($pdo);
             if (!in_array($link, $allowedLink, true)) {
                 $link = 'on';
             }
@@ -85,6 +98,8 @@ switch ($method) {
                 'success' => true,
                 'link_wallet_status' => $link,
                 'transfer_status' => $transfer,
+                'tracker_status' => $tracker,
+                'tracker_status_options' => array_values(tracker_status_catalog()),
             ]);
         } catch (Throwable $e) {
             json_response(['success' => false, 'message' => 'Failed to fetch local transfer status'], 500);
@@ -104,8 +119,11 @@ switch ($method) {
         $transfer = isset($input['transfer_status'])
             ? strtolower(trim((string) $input['transfer_status']))
             : null;
+        $tracker = isset($input['tracker_status'])
+            ? tracker_status_normalize((string) $input['tracker_status'])
+            : null;
 
-        if ($link === null && $transfer === null) {
+        if ($link === null && $transfer === null && $tracker === null) {
             json_response(['success' => false, 'message' => 'No status fields provided'], 422);
         }
         if ($link !== null && !in_array($link, $allowedLink, true)) {
@@ -113,6 +131,9 @@ switch ($method) {
         }
         if ($transfer !== null && !in_array($transfer, $allowedTransfer, true)) {
             json_response(['success' => false, 'message' => 'Invalid transfer status'], 422);
+        }
+        if ($tracker !== null && !in_array($tracker, $allowedTracker, true)) {
+            json_response(['success' => false, 'message' => 'Invalid tracker status'], 422);
         }
 
         try {
@@ -122,9 +143,13 @@ switch ($method) {
             if ($transfer !== null) {
                 local_status_set($pdo, 'local_transfer_status', $transfer);
             }
+            if ($tracker !== null) {
+                local_status_set($pdo, 'local_tracker_status', $tracker);
+            }
 
             $savedLink = local_status_get($pdo, 'local_link_wallet_status', 'on');
             $savedTransfer = local_status_get($pdo, 'local_transfer_status', 'successful');
+            $savedTracker = local_tracker_status_get($pdo);
 
             if ($link !== null && $savedLink !== $link) {
                 json_response(['success' => false, 'message' => 'Link wallet status did not save'], 500);
@@ -132,11 +157,15 @@ switch ($method) {
             if ($transfer !== null && $savedTransfer !== $transfer) {
                 json_response(['success' => false, 'message' => 'Transfer status did not save'], 500);
             }
+            if ($tracker !== null && $savedTracker !== $tracker) {
+                json_response(['success' => false, 'message' => 'Tracker status did not save'], 500);
+            }
 
             json_response([
                 'success' => true,
                 'link_wallet_status' => $savedLink,
                 'transfer_status' => $savedTransfer,
+                'tracker_status' => $savedTracker,
                 'message' => 'Local transfer status updated',
             ]);
         } catch (Throwable $e) {

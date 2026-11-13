@@ -609,6 +609,10 @@ tailwind.config = {
                 <span id="modalReference" class="text-xs font-mono text-on-surface-variant">—</span>
               </div>
               <div class="flex justify-between gap-3">
+                <span class="text-xs text-on-surface-variant">UETR</span>
+                <span id="modalUetr" class="text-xs font-mono text-on-surface-variant text-right break-all max-w-[65%]">—</span>
+              </div>
+              <div class="flex justify-between gap-3">
                 <span class="text-xs text-on-surface-variant">Date & Time</span>
                 <span id="modalDateTime" class="text-xs text-on-surface-variant text-right">—</span>
               </div>
@@ -1667,6 +1671,8 @@ tailwind.config = {
     document.getElementById('modalBeneficiaryBank').textContent = bankName;
     document.getElementById('modalAccountNumber').textContent = tx.beneficiary_account || '—';
     document.getElementById('modalReference').textContent = tx.reference || '—';
+    const modalUetr = document.getElementById('modalUetr');
+    if (modalUetr) modalUetr.textContent = tx.uetr || '—';
     document.getElementById('modalDateTime').textContent = formatReceiptDate(tx.transaction_date || tx.created_at);
     const statusEl = document.getElementById('modalStatus');
     statusEl.textContent = status;

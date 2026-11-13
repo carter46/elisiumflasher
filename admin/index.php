@@ -87,6 +87,14 @@ require_admin_login();
         <p class="text-xs text-slate-600 mt-2">Generate client login keys</p>
       </a>
 
+      <a href="/admin/tracker_settings.php" class="admin-card bg-white rounded-2xl shadow-sm border border-white/60 p-6 flex flex-col items-center text-center cursor-pointer">
+        <div class="w-14 h-14 rounded-full bg-[#0f766e] flex items-center justify-center mb-3">
+          <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings:'FILL' 1;">travel_explore</span>
+        </div>
+        <h2 class="text-lg font-semibold text-slate-900">Tracker settings</h2>
+        <p class="text-xs text-slate-600 mt-2">API key and SMTP for Institutional Tracker OTP</p>
+      </a>
+
       <a href="/admin/profile.php" class="admin-card bg-white rounded-2xl shadow-sm border border-white/60 p-6 flex flex-col items-center text-center cursor-pointer sm:col-span-2">
         <div class="w-14 h-14 rounded-full bg-[#d61b1b] flex items-center justify-center mb-3">
           <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings:'FILL' 1;">account_circle</span>

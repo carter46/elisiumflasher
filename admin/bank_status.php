@@ -111,6 +111,20 @@ require_admin_login();
           </select>
           <p id="transferSummary" class="text-xs text-slate-500 mt-2"></p>
         </div>
+
+        <div class="rounded-xl border border-slate-200 p-4 bg-slate-50/60 md:col-span-2">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-slate-700 text-[20px]">travel_explore</span>
+            <h3 class="text-sm font-semibold text-slate-900">Tracker status</h3>
+          </div>
+          <p class="text-xs text-slate-600 mb-3">
+            Initial Institutional Tracker status applied to new local transfers.
+            Does not change receipt outcome. Override per transaction in Account settings.
+          </p>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Default tracker status</label>
+          <select id="trackerStatus" class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white outline-none focus:ring-4 focus:ring-indigo-200"></select>
+          <p id="trackerSummary" class="text-xs text-slate-500 mt-2"></p>
+        </div>
       </div>
 
       <div class="flex justify-end gap-3 mt-6">
@@ -127,8 +141,11 @@ require_admin_login();
       const platformSummary = document.getElementById('platformSummary');
       const linkWalletStatusEl = document.getElementById('linkWalletStatus');
       const transferStatusEl = document.getElementById('transferStatus');
+      const trackerStatusEl = document.getElementById('trackerStatus');
       const linkWalletSummary = document.getElementById('linkWalletSummary');
       const transferSummary = document.getElementById('transferSummary');
+      const trackerSummary = document.getElementById('trackerSummary');
+      let trackerOptions = [];
 
       function showMessage(text, type) {
         messageBox.classList.remove('hidden');
@@ -158,6 +175,21 @@ require_admin_login();
           reversed: 'Transfers are recorded as Reversed (no debit).',
         };
         transferSummary.textContent = map[transferStatusEl.value] || '';
+        const opt = trackerOptions.find((o) => o.code === trackerStatusEl.value);
+        trackerSummary.textContent = opt
+          ? (opt.code + ': ' + (opt.description || opt.label || ''))
+          : 'Applied to newly created local transfers only.';
+      }
+
+      function fillTrackerOptions(options, selected) {
+        trackerOptions = Array.isArray(options) ? options : [];
+        trackerStatusEl.innerHTML = trackerOptions.map((o) =>
+          '<option value="' + o.code + '">' + o.code + ' — ' + o.label + '</option>'
+        ).join('');
+        if (!trackerOptions.length) {
+          trackerStatusEl.innerHTML = '<option value="PDNG">PDNG — Pending / In Progress</option>';
+        }
+        trackerStatusEl.value = selected || 'PDNG';
       }
 
       async function loadPlatformStatus() {
@@ -174,6 +206,7 @@ require_admin_login();
         if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load local transfer status');
         linkWalletStatusEl.value = data.link_wallet_status || 'on';
         transferStatusEl.value = data.transfer_status || 'successful';
+        fillTrackerOptions(data.tracker_status_options || [], data.tracker_status || 'PDNG');
         localSummaries();
       }
 
@@ -196,15 +229,19 @@ require_admin_login();
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             link_wallet_status: linkWalletStatusEl.value,
-            transfer_status: transferStatusEl.value
+            transfer_status: transferStatusEl.value,
+            tracker_status: trackerStatusEl.value
           })
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.success) throw new Error(data.message || 'Failed to update local status');
         linkWalletStatusEl.value = data.link_wallet_status || linkWalletStatusEl.value;
         transferStatusEl.value = data.transfer_status || transferStatusEl.value;
+        if (data.tracker_status) trackerStatusEl.value = data.tracker_status;
         showMessage(
-          'Local status saved. Link wallet: ' + linkWalletStatusEl.value + ', Transfer: ' + transferStatusEl.value,
+          'Local status saved. Link wallet: ' + linkWalletStatusEl.value
+            + ', Transfer: ' + transferStatusEl.value
+            + ', Tracker: ' + trackerStatusEl.value,
           'success'
         );
         localSummaries();
@@ -231,6 +268,7 @@ require_admin_login();
       platformStatusEl.addEventListener('change', statusSummary);
       linkWalletStatusEl.addEventListener('change', localSummaries);
       transferStatusEl.addEventListener('change', localSummaries);
+      trackerStatusEl.addEventListener('change', localSummaries);
 
       (async () => {
         try {

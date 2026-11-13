@@ -29,3 +29,15 @@
 - `POST /api/auth.php` with `{ "action": "logout" }`
 - `POST /api/auth.php` with `{ "action": "check" }`
 - `POST /api/resolve_account.php` with `{ "account_number": "...", "bank_code": "..." }`
+
+## Institutional Tracker
+
+Local transfers now generate a UUID-v4 **UETR** and a separate **tracker_status** (independent of receipt status).
+
+1. Run `migration_tracker_uetr.sql` (or rely on auto-schema ensure on first API hit).
+2. Admin → **Tracker settings**: copy API key + configure SMTP for OTP email.
+3. Admin → **Bank status**: set default tracker status; override per tx in Account settings.
+4. Configure [`institutional_transaction_tracker/config/sites.php`](institutional_transaction_tracker/config/sites.php) (or `sites.local.php`) with Flasher/Server base URLs + API keys.
+5. Serve the tracker folder separately: `php -S localhost:8080 -t institutional_transaction_tracker`
+
+Elysium Server (dual local + international) lives under `elysium-server/` with the same S2S contract.
