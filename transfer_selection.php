@@ -479,7 +479,7 @@ tailwind.config = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ action: 'check' })
+        body: JSON.stringify({ action: 'set_transfer_channel', path: LOCAL_PATH })
       }).catch(function () {}).finally(function () {
         window.location.href = LOCAL_PATH;
       });

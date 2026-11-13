@@ -97,21 +97,34 @@ require_admin_login();
         <table class="w-full text-sm border-collapse">
           <thead>
             <tr class="border-b">
-              <th class="text-left py-3 font-semibold text-slate-700 px-2">Date</th>
-              <th class="text-left py-3 font-semibold text-slate-700 px-2">Reference / UETR</th>
+              <th class="text-left py-3 font-semibold text-slate-700 px-2">Reference / Date</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Amount</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Beneficiary</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Bank</th>
               <th class="text-left py-3 font-semibold text-slate-700 px-2">Status</th>
-              <th class="text-left py-3 font-semibold text-slate-700 px-2">Tracker Status</th>
-              <th class="text-right py-3 font-semibold text-slate-700 px-2">Delete</th>
+              <th class="text-left py-3 font-semibold text-slate-700 px-2">Tracker</th>
+              <th class="text-right py-3 font-semibold text-slate-700 px-2 w-14">Actions</th>
             </tr>
           </thead>
           <tbody id="txBody"></tbody>
         </table>
       </div>
+      <div class="mt-5 flex justify-center">
+        <button id="saveTxBtn" type="button" class="px-6 py-2.5 rounded-xl bg-[#d61b1b] text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>Save changes</button>
+      </div>
     </div>
   </div>
+
+  <style>
+    .tx-menu { position: relative; display: inline-block; }
+    .tx-menu-btn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; font-weight: 800; letter-spacing: 1px; color: #334155; }
+    .tx-menu-panel { position: fixed; min-width: 160px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 30px rgba(15,23,42,.12); z-index: 1000; padding: 6px; display: none; }
+    .tx-menu.open .tx-menu-panel { display: block; }
+    .tx-menu-item { display: block; width: 100%; text-align: left; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #0f172a; background: transparent; border: 0; cursor: pointer; }
+    .tx-menu-item:hover { background: #f8fafc; }
+    .tx-menu-item.danger { color: #dc2626; }
+    tr.tx-dirty { background: #fffbeb; }
+  </style>
 
   <script>
     (function () {
@@ -148,6 +161,8 @@ require_admin_login();
 
       const txBody = document.getElementById('txBody');
       const txCount = document.getElementById('txCount');
+      const saveTxBtn = document.getElementById('saveTxBtn');
+      const dirtyRows = new Map();
 
       const saveNameBtn = document.getElementById('saveNameBtn');
       const cancelNameBtn = document.getElementById('cancelNameBtn');
@@ -168,6 +183,46 @@ require_admin_login();
         editBalanceBtn.disabled = false;
       }
 
+      function closeAllMenus(except) {
+        document.querySelectorAll('.tx-menu.open').forEach((m) => {
+          if (m !== except) m.classList.remove('open');
+        });
+      }
+
+      function positionMenuPanel(menu) {
+        const btn = menu.querySelector('.tx-menu-btn');
+        const panel = menu.querySelector('.tx-menu-panel');
+        if (!btn || !panel) return;
+        const rect = btn.getBoundingClientRect();
+        const gap = 6;
+        const panelWidth = Math.max(panel.offsetWidth || 160, 160);
+        let left = rect.right - panelWidth;
+        left = Math.max(8, Math.min(left, window.innerWidth - panelWidth - 8));
+        panel.style.left = left + 'px';
+        panel.style.right = 'auto';
+        panel.style.top = (rect.bottom + gap) + 'px';
+        panel.style.bottom = 'auto';
+        const panelHeight = panel.offsetHeight || 80;
+        if (rect.bottom + gap + panelHeight > window.innerHeight - 8) {
+          panel.style.top = Math.max(8, rect.top - gap - panelHeight) + 'px';
+        }
+      }
+
+      function markDirty(tr, t, statusSel, trackerSel) {
+        const nextStatus = statusSel.value;
+        const nextTracker = trackerSel.value;
+        const changed = nextStatus !== String(t.status || 'SUCCESSFUL').toUpperCase()
+          || nextTracker !== String(t.tracker_status || 'PDNG').toUpperCase();
+        if (changed) {
+          dirtyRows.set(String(t.id), { id: t.id, status: nextStatus, tracker_status: nextTracker, tr });
+          tr.classList.add('tx-dirty');
+        } else {
+          dirtyRows.delete(String(t.id));
+          tr.classList.remove('tx-dirty');
+        }
+        saveTxBtn.disabled = dirtyRows.size === 0;
+      }
+
       async function loadAccountData() {
         const res = await fetch('/api/local_account_settings.php');
         const data = await res.json().catch(() => ({}));
@@ -185,117 +240,89 @@ require_admin_login();
 
         const txs = Array.isArray(data.transactions) ? data.transactions : [];
         txCount.textContent = 'Total Transactions: ' + txs.length;
+        dirtyRows.clear();
+        saveTxBtn.disabled = true;
         txBody.innerHTML = '';
 
+        const trackerStatuses = ['PDNG','ACSP','ACSC','ACCC','AVLB','HOLD','RJCT','RETN','CNCL'];
+        const statuses = ['SUCCESSFUL', 'COMPLETED', 'PENDING', 'FAILED', 'REVERSED'];
         if (!txs.length) {
-          txBody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-slate-600">No transactions found</td></tr>';
+          txBody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-slate-600">No transactions found</td></tr>';
           return;
         }
-
-        const trackerStatuses = ['PDNG','ACSP','ACSC','ACCC','AVLB','HOLD','RJCT','RETN','CNCL'];
 
         txs.forEach((t) => {
           const date = t.transaction_date ? new Date(t.transaction_date) : null;
           const dateStr = date ? date.toLocaleDateString() : '';
           const timeStr = date ? date.toLocaleTimeString() : '';
-
-          const status = (t.status || '').toString().toUpperCase();
-          const statuses = ['SUCCESSFUL', 'COMPLETED', 'PENDING', 'FAILED', 'REVERSED'];
-          const trackerStatus = (t.tracker_status || 'PDNG').toString().toUpperCase();
-          const uetr = t.uetr || '';
+          const status = String(t.status || 'SUCCESSFUL').toUpperCase();
+          const trackerStatus = String(t.tracker_status || 'PDNG').toUpperCase();
 
           const tr = document.createElement('tr');
           tr.className = 'border-b';
+          tr.dataset.txId = String(t.id);
           tr.innerHTML = `
             <td class="py-3 px-2">
-              ${dateStr}<div class="text-xs text-slate-500">${timeStr}</div>
+              <div class="font-mono text-xs font-semibold text-slate-900">${t.reference || '—'}</div>
+              <div class="text-[10px] text-slate-500 mt-0.5 break-all" title="UETR">${t.uetr || '—'}</div>
+              <div class="text-xs text-slate-600 mt-1">${dateStr}${timeStr ? ' · ' + timeStr : ''}</div>
             </td>
-            <td class="py-3 px-2 font-mono text-xs">
-              <div>${t.reference || ''}</div>
-              <div class="text-[10px] text-slate-500 mt-1 break-all" title="UETR">${uetr || '—'}</div>
-            </td>
-            <td class="py-3 px-2 font-semibold">${t.currency || 'NGN'} ${(Number(t.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td class="py-3 px-2 font-semibold whitespace-nowrap">${t.currency || 'NGN'} ${(Number(t.amount || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             <td class="py-3 px-2">${t.beneficiary_name || ''}</td>
             <td class="py-3 px-2">${t.beneficiary_bank || ''}</td>
             <td class="py-3 px-2">
-              <select class="tx-status-select border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold bg-white outline-none focus:ring-2 focus:ring-indigo-200" data-id="${t.id}">
+              <select class="statusSel border border-slate-200 rounded-xl px-2 py-1 text-xs font-semibold bg-white">
                 ${statuses.map((s) => `<option value="${s}" ${s === status ? 'selected' : ''}>${s}</option>`).join('')}
               </select>
             </td>
             <td class="py-3 px-2">
-              <select class="tx-tracker-select border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold bg-white outline-none focus:ring-2 focus:ring-indigo-200" data-id="${t.id}">
+              <select class="trackerSel border border-slate-200 rounded-xl px-2 py-1 text-xs font-semibold bg-white">
                 ${trackerStatuses.map((s) => `<option value="${s}" ${s === trackerStatus ? 'selected' : ''}>${s}</option>`).join('')}
               </select>
             </td>
             <td class="py-3 px-2 text-right">
-              <button type="button" class="tx-delete-btn px-3 py-2 rounded-xl border border-red-200 bg-white text-red-600 font-semibold text-sm" title="Delete Transaction">🗑</button>
+              <div class="tx-menu">
+                <button type="button" class="tx-menu-btn" aria-label="Actions">⋯</button>
+                <div class="tx-menu-panel">
+                  <button type="button" class="tx-menu-item receiptBtn">View receipt</button>
+                  <button type="button" class="tx-menu-item danger deleteBtn">Delete</button>
+                </div>
+              </div>
             </td>
           `;
+          const statusSel = tr.querySelector('select.statusSel');
+          const trackerSel = tr.querySelector('select.trackerSel');
+          const menu = tr.querySelector('.tx-menu');
+          if (!statuses.includes(statusSel.value)) statusSel.value = 'SUCCESSFUL';
 
-          const statusSelect = tr.querySelector('.tx-status-select');
-          statusSelect.addEventListener('change', async () => {
-            const next = statusSelect.value;
-            if (!confirm('Change status to ' + next + '? Balance will adjust if needed.')) {
-              statusSelect.value = status;
-              return;
-            }
-            try {
-              setEditing();
-              statusSelect.disabled = true;
-              const putRes = await fetch('/api/local_transactions.php', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: t.id, status: next }),
-              });
-              const put = await putRes.json().catch(() => ({}));
-              if (!putRes.ok || !put.success) throw new Error(put.message || 'Failed to update status');
-              showMessage('Transaction status updated to ' + next + '.', 'success');
-              await loadAccountData();
-              await loadTransactions();
-            } catch (err) {
-              statusSelect.value = status;
-              showMessage(err.message || 'Failed to update status', 'error');
-            } finally {
-              statusSelect.disabled = false;
-              setViewing();
+          statusSel.addEventListener('change', () => markDirty(tr, t, statusSel, trackerSel));
+          trackerSel.addEventListener('change', () => markDirty(tr, t, statusSel, trackerSel));
+
+          tr.querySelector('.tx-menu-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = menu.classList.contains('open');
+            closeAllMenus();
+            if (!open) {
+              menu.classList.add('open');
+              positionMenuPanel(menu);
             }
           });
 
-          const trackerSelect = tr.querySelector('.tx-tracker-select');
-          trackerSelect.addEventListener('change', async () => {
-            const next = trackerSelect.value;
-            if (!confirm('Change tracker status to ' + next + '? This does not change receipt status.')) {
-              trackerSelect.value = trackerStatus;
-              return;
-            }
-            try {
-              setEditing();
-              trackerSelect.disabled = true;
-              const putRes = await fetch('/api/local_transactions.php', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: t.id, tracker_status: next }),
-              });
-              const put = await putRes.json().catch(() => ({}));
-              if (!putRes.ok || !put.success) throw new Error(put.message || 'Failed to update tracker status');
-              showMessage('Tracker status updated to ' + next + '.', 'success');
-              await loadTransactions();
-            } catch (err) {
-              trackerSelect.value = trackerStatus;
-              showMessage(err.message || 'Failed to update tracker status', 'error');
-            } finally {
-              trackerSelect.disabled = false;
-              setViewing();
-            }
+          tr.querySelector('.receiptBtn').addEventListener('click', () => {
+            closeAllMenus();
+            window.open('/local_transfer_success.php?id=' + encodeURIComponent(String(t.id)), '_blank', 'noopener');
           });
 
-          tr.querySelector('.tx-delete-btn').addEventListener('click', async () => {
+          tr.querySelector('.deleteBtn').addEventListener('click', async () => {
+            closeAllMenus();
             if (!confirm('Delete transaction? Balance will be restored if this status had deducted funds.')) return;
             try {
               setEditing();
               const delRes = await fetch('/api/local_transactions.php?id=' + encodeURIComponent(t.id), { method: 'DELETE' });
               const del = await delRes.json().catch(() => ({}));
               if (!delRes.ok || !del.success) throw new Error(del.message || 'Failed to delete transaction');
+              dirtyRows.delete(String(t.id));
+              saveTxBtn.disabled = dirtyRows.size === 0;
               showMessage(del.message || 'Transaction deleted successfully.', 'success');
               await loadAccountData();
               await loadTransactions();
@@ -308,6 +335,34 @@ require_admin_login();
           txBody.appendChild(tr);
         });
       }
+
+      document.addEventListener('click', () => closeAllMenus());
+      window.addEventListener('scroll', () => closeAllMenus(), true);
+      window.addEventListener('resize', () => closeAllMenus());
+
+      saveTxBtn.addEventListener('click', async () => {
+        if (!dirtyRows.size) return;
+        if (!confirm('Save status changes? Balance will adjust if needed.')) return;
+        saveTxBtn.disabled = true;
+        try {
+          const rows = Array.from(dirtyRows.values());
+          for (const row of rows) {
+            const putRes = await fetch('/api/local_transactions.php', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: row.id, status: row.status, tracker_status: row.tracker_status }),
+            });
+            const put = await putRes.json().catch(() => ({}));
+            if (!putRes.ok || !put.success) throw new Error(put.message || 'Failed to update transaction #' + row.id);
+          }
+          showMessage('Saved ' + rows.length + ' transaction change(s).', 'success');
+          await loadAccountData();
+          await loadTransactions();
+        } catch (err) {
+          showMessage(err.message || 'Failed to save changes', 'error');
+          saveTxBtn.disabled = dirtyRows.size === 0;
+        }
+      });
 
       function wireEditControls() {
         editNameBtn.addEventListener('click', () => {

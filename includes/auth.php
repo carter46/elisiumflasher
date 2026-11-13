@@ -40,6 +40,65 @@ function require_login(): void
     $_SESSION['last_activity'] = time();
 }
 
+/**
+ * Allow either an authenticated client session or an admin session.
+ * Used for receipt pages admins open from account settings.
+ */
+function require_user_or_admin_login(): void
+{
+    require_once __DIR__ . '/admin_auth.php';
+    start_app_session();
+    if (is_logged_in()) {
+        $_SESSION['last_activity'] = time();
+        return;
+    }
+    if (is_admin_logged_in()) {
+        $_SESSION['admin_last_activity'] = time();
+        return;
+    }
+    if (auth_is_api_request()) {
+        json_response([
+            'success' => false,
+            'message' => 'Session expired',
+            'redirect' => '/',
+        ], 401);
+    }
+    header('Location: /');
+    exit;
+}
+
+function preferred_transfer_paths(): array
+{
+    return ['/local_dashboard.php'];
+}
+
+function set_preferred_transfer_path(string $path): bool
+{
+    $path = trim($path);
+    if (!in_array($path, preferred_transfer_paths(), true)) {
+        return false;
+    }
+    start_app_session();
+    $_SESSION['preferred_transfer_path'] = $path;
+    return true;
+}
+
+function get_preferred_transfer_path(): ?string
+{
+    start_app_session();
+    $path = isset($_SESSION['preferred_transfer_path']) ? (string) $_SESSION['preferred_transfer_path'] : '';
+    if ($path === '' || !in_array($path, preferred_transfer_paths(), true)) {
+        return null;
+    }
+    return $path;
+}
+
+function clear_preferred_transfer_path(): void
+{
+    start_app_session();
+    unset($_SESSION['preferred_transfer_path']);
+}
+
 function login_with_client_key(string $clientKey): bool
 {
     $clientKey = trim($clientKey);
@@ -70,6 +129,7 @@ function login_with_client_key(string $clientKey): bool
 function logout_user(): void
 {
     start_app_session();
+    clear_preferred_transfer_path();
     $_SESSION = [];
     session_destroy();
 }

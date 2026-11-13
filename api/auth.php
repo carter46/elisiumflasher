@@ -15,7 +15,11 @@ if ($action === 'login') {
     if (!login_with_client_key($clientKey)) {
         json_response(['success' => false, 'message' => 'Invalid license key'], 401);
     }
-    json_response(['success' => true, 'message' => 'Login successful']);
+    json_response([
+        'success' => true,
+        'message' => 'Login successful',
+        'preferred_transfer_path' => get_preferred_transfer_path(),
+    ]);
 }
 
 if ($action === 'check') {
@@ -23,7 +27,24 @@ if ($action === 'check') {
     if ($ok) {
         $_SESSION['last_activity'] = time();
     }
-    json_response(['success' => true, 'authenticated' => $ok]);
+    json_response([
+        'success' => true,
+        'authenticated' => $ok,
+        'preferred_transfer_path' => $ok ? get_preferred_transfer_path() : null,
+    ]);
+}
+
+if ($action === 'set_transfer_channel') {
+    require_login();
+    $path = (string) ($input['path'] ?? '');
+    if (!set_preferred_transfer_path($path)) {
+        json_response(['success' => false, 'message' => 'Invalid transfer channel'], 422);
+    }
+    json_response([
+        'success' => true,
+        'message' => 'Transfer channel saved',
+        'preferred_transfer_path' => get_preferred_transfer_path(),
+    ]);
 }
 
 if ($action === 'logout') {

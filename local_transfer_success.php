@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
-require_login();
+require_user_or_admin_login();
 
 $txId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 ?>

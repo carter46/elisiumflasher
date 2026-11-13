@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
 
+// Resume last workspace after login until logout.
 if (is_logged_in()) {
-    header('Location: /transfer_selection.php');
+    $preferred = get_preferred_transfer_path();
+    header('Location: ' . ($preferred ?: '/transfer_selection.php'));
     exit;
 }
 
@@ -406,7 +408,7 @@ tailwind.config = {
     }
   }
 
-  function showGatewayConnectionLoading() {
+  function showGatewayConnectionLoading(preferredPath) {
     if (!loginSection) return;
     loginSection.innerHTML =
       '<div id="gatewayConnectPhase" class="text-center py-4">' +
@@ -434,7 +436,10 @@ tailwind.config = {
             '<div class="font-meta-mono text-meta-mono text-on-surface-variant">Secure session ready · continuing</div>' +
           '</div>';
         setTimeout(function () {
-          window.location.href = '/transfer_selection.php';
+          var next = (preferredPath === '/local_dashboard.php')
+            ? preferredPath
+            : '/transfer_selection.php';
+          window.location.href = next;
         }, 2200);
       }
     }, 100);
@@ -459,7 +464,10 @@ tailwind.config = {
         var data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.message || 'Authentication failed');
         showMessage('Authentication successful!', false);
-        setTimeout(showGatewayConnectionLoading, 500);
+        var preferredPath = data.preferred_transfer_path || null;
+        setTimeout(function () {
+          showGatewayConnectionLoading(preferredPath);
+        }, 500);
       } catch (err) {
         showMessage(err.message || 'Authentication failed', true);
         if (loginBtn) loginBtn.disabled = false;
