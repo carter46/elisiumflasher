@@ -11,7 +11,7 @@ if (is_logged_in()) {
 }
 
 $bgMap = '/assets/' . rawurlencode('world map_7325629.png');
-$logoUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvhokjFDu6qYj6dVduoYJnLfG5t89iSCEgECKyN-t8IDzK0Fdw42m7A_q66Iy6j2A2qvFJ4cLAngjtlkZQTOPInJ84ykd5znTULXFKtt11AcPpyOY57--4EXCxRrdEMJaYQid8yaOFG2rnzdmq3MffpLatLCNfu3sBs2RpnkAdIdyeTBnlmm_zNAZLH3IqBvJR0DrBLiRBL7nVe_dtWUeWTdetVyoM31s8NhND9TW_p_-u-b1qTU_K_A8Y';
+$logoUrl = '/assets/elysium-logo.png';
 ?>
 <!DOCTYPE html>
 <html lang="en">
