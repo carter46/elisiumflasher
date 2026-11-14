@@ -11,33 +11,41 @@ $method = $_SERVER['REQUEST_METHOD'];
 $pdo = get_db();
 tracker_flasher_ensure_schema($pdo);
 
-$smtpKeys = [
-    'smtp_host',
-    'smtp_port',
-    'smtp_user',
-    'smtp_pass',
-    'smtp_encryption',
-    'smtp_from_email',
-    'smtp_from_name',
-];
+function tracker_settings_bst_payload(PDO $pdo): array
+{
+    $secret = (string) (tracker_app_setting_get($pdo, 'bst_client_secret') ?? '');
+    return [
+        'tracker_url' => (string) (tracker_app_setting_get($pdo, 'bst_tracker_url') ?? ''),
+        'integration_id' => (string) (tracker_app_setting_get($pdo, 'bst_integration_id') ?? ''),
+        'client_id' => (string) (tracker_app_setting_get($pdo, 'bst_client_id') ?? ''),
+        'client_secret' => $secret !== '' ? '********' : '',
+        'client_secret_set' => $secret !== '',
+    ];
+}
+
+function tracker_settings_smtp_payload(PDO $pdo): array
+{
+    $cfg = tracker_smtp_config($pdo);
+    return [
+        'host' => $cfg['host'],
+        'port' => $cfg['port'],
+        'user' => $cfg['user'],
+        'pass' => $cfg['pass'] !== '' ? '********' : '',
+        'pass_set' => $cfg['pass'] !== '',
+        'encryption' => $cfg['encryption'],
+        'from_email' => $cfg['from_email'],
+        'from_name' => $cfg['from_name'],
+    ];
+}
 
 switch ($method) {
     case 'GET':
         validate_admin_session();
-        $cfg = tracker_smtp_config($pdo);
         json_response([
             'success' => true,
             'tracker_api_key' => tracker_api_key_ensure($pdo),
-            'smtp' => [
-                'host' => $cfg['host'],
-                'port' => $cfg['port'],
-                'user' => $cfg['user'],
-                'pass' => $cfg['pass'] !== '' ? '********' : '',
-                'pass_set' => $cfg['pass'] !== '',
-                'encryption' => $cfg['encryption'],
-                'from_email' => $cfg['from_email'],
-                'from_name' => $cfg['from_name'],
-            ],
+            'bst' => tracker_settings_bst_payload($pdo),
+            'smtp' => tracker_settings_smtp_payload($pdo),
         ]);
         break;
 
@@ -48,6 +56,46 @@ switch ($method) {
         if (!empty($input['rotate_api_key'])) {
             $key = bin2hex(random_bytes(24));
             tracker_app_setting_set($pdo, 'tracker_api_key', $key);
+        }
+
+        if (isset($input['bst']) && is_array($input['bst'])) {
+            $bst = $input['bst'];
+            $url = array_key_exists('tracker_url', $bst)
+                ? tracker_normalize_hub_url((string) $bst['tracker_url'])
+                : (string) (tracker_app_setting_get($pdo, 'bst_tracker_url') ?? '');
+            $integrationId = array_key_exists('integration_id', $bst)
+                ? trim((string) $bst['integration_id'])
+                : (string) (tracker_app_setting_get($pdo, 'bst_integration_id') ?? '');
+            $clientId = array_key_exists('client_id', $bst)
+                ? trim((string) $bst['client_id'])
+                : (string) (tracker_app_setting_get($pdo, 'bst_client_id') ?? '');
+            $existingSecret = (string) (tracker_app_setting_get($pdo, 'bst_client_secret') ?? '');
+            $secretIn = array_key_exists('client_secret', $bst) ? trim((string) $bst['client_secret']) : '';
+            if ($secretIn === '********') {
+                $secretIn = '';
+            }
+            $effectiveSecret = $secretIn !== '' ? $secretIn : $existingSecret;
+
+            $any = ($url !== '' || $integrationId !== '' || $clientId !== '' || $effectiveSecret !== '');
+            $all = ($url !== '' && $integrationId !== '' && $clientId !== '' && $effectiveSecret !== '');
+            if ($any && !$all) {
+                json_response([
+                    'success' => false,
+                    'message' => 'Enter Tracker URL, Integration ID, Client ID, and Client secret together (or clear all).',
+                ], 422);
+            }
+            if ($url !== '' && !preg_match('#^https?://#i', $url)) {
+                json_response(['success' => false, 'message' => 'Tracker URL must start with http:// or https://'], 422);
+            }
+
+            tracker_app_setting_set($pdo, 'bst_tracker_url', $url);
+            tracker_app_setting_set($pdo, 'bst_integration_id', $integrationId);
+            tracker_app_setting_set($pdo, 'bst_client_id', $clientId);
+            if ($secretIn !== '') {
+                tracker_app_setting_set($pdo, 'bst_client_secret', $secretIn);
+            } elseif (!$any) {
+                tracker_app_setting_set($pdo, 'bst_client_secret', '');
+            }
         }
 
         if (isset($input['smtp']) && is_array($input['smtp'])) {
@@ -73,21 +121,12 @@ switch ($method) {
             }
         }
 
-        $cfg = tracker_smtp_config($pdo);
         json_response([
             'success' => true,
             'message' => 'Tracker settings saved',
             'tracker_api_key' => tracker_api_key_ensure($pdo),
-            'smtp' => [
-                'host' => $cfg['host'],
-                'port' => $cfg['port'],
-                'user' => $cfg['user'],
-                'pass' => $cfg['pass'] !== '' ? '********' : '',
-                'pass_set' => $cfg['pass'] !== '',
-                'encryption' => $cfg['encryption'],
-                'from_email' => $cfg['from_email'],
-                'from_name' => $cfg['from_name'],
-            ],
+            'bst' => tracker_settings_bst_payload($pdo),
+            'smtp' => tracker_settings_smtp_payload($pdo),
         ]);
         break;
 
@@ -110,6 +149,15 @@ switch ($method) {
                 'success' => $ok,
                 'message' => $ok ? 'Test email accepted by mail transport' : 'Failed to send test email — check SMTP settings',
             ], $ok ? 200 : 500);
+        }
+        if ($action === 'test_hub') {
+            $result = tracker_ping_hub($pdo);
+            json_response([
+                'success' => true,
+                'ok' => !empty($result['ok']),
+                'message' => (string) ($result['message'] ?? ''),
+                'http' => (int) ($result['http'] ?? 0),
+            ]);
         }
         json_response(['success' => false, 'message' => 'Unknown action'], 422);
         break;

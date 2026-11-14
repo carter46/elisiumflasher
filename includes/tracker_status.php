@@ -154,3 +154,58 @@ function tracker_status_options_html(?string $selected = null): string
     }
     return $html;
 }
+
+/**
+ * Admin documentation panel: tracker status codes with full titles and meanings.
+ * Does not change per-transaction controls — reference only.
+ */
+function tracker_status_admin_guide_html(): string
+{
+    $familyLabel = static function (string $family): string {
+        return match ($family) {
+            'in_flight' => 'In progress',
+            'near_final' => 'Near final',
+            'terminal_ok' => 'Completed',
+            'held' => 'Held',
+            'terminal_fail' => 'Failed / closed',
+            default => 'Other',
+        };
+    };
+    $familyClass = static function (string $family): string {
+        return match ($family) {
+            'terminal_ok' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            'terminal_fail' => 'bg-red-50 text-red-800 border-red-200',
+            'held' => 'bg-amber-50 text-amber-900 border-amber-200',
+            'near_final' => 'bg-sky-50 text-sky-900 border-sky-200',
+            default => 'bg-slate-50 text-slate-700 border-slate-200',
+        };
+    };
+
+    $rows = '';
+    foreach (tracker_status_catalog() as $code => $meta) {
+        $family = (string) ($meta['family'] ?? '');
+        $rows .= '<div class="border border-slate-200 rounded-xl p-4 bg-slate-50/60">'
+            . '<div class="flex flex-wrap items-start justify-between gap-2 mb-2">'
+            . '<div>'
+            . '<div class="font-mono text-sm font-bold text-slate-900">' . htmlspecialchars($code, ENT_QUOTES, 'UTF-8') . '</div>'
+            . '<div class="text-sm font-semibold text-slate-800 mt-0.5">' . htmlspecialchars((string) ($meta['label'] ?? ''), ENT_QUOTES, 'UTF-8') . '</div>'
+            . '</div>'
+            . '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border '
+            . $familyClass($family) . '">' . htmlspecialchars($familyLabel($family), ENT_QUOTES, 'UTF-8') . '</span>'
+            . '</div>'
+            . '<p class="text-sm text-slate-600 leading-relaxed">' . htmlspecialchars((string) ($meta['description'] ?? ''), ENT_QUOTES, 'UTF-8') . '</p>'
+            . '</div>';
+    }
+
+    return '<div class="bg-white rounded-2xl shadow-sm border p-6 mt-4">'
+        . '<div class="mb-4">'
+        . '<h2 class="text-xl font-semibold text-slate-900">Tracker status reference</h2>'
+        . '<p class="text-sm text-slate-500 mt-1 leading-relaxed">'
+        . 'These codes appear in the Tracker column above and on Bolt Switch Trace. '
+        . 'They are separate from receipt Status (Successful / Pending / Failed). '
+        . 'Set tracker status on each transaction; this section is documentation only.'
+        . '</p>'
+        . '</div>'
+        . '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">' . $rows . '</div>'
+        . '</div>';
+}

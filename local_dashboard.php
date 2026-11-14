@@ -9,6 +9,7 @@ $logoUrl = '/assets/elysium-logo.png';
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Local Transfer | Elysium Server</title>

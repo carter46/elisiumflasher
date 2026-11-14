@@ -2,12 +2,14 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/admin_auth.php';
+require_once __DIR__ . '/../includes/tracker_status.php';
 require_admin_login();
 ?>
 
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex"/>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account settings | Elysium Server</title>
@@ -113,6 +115,8 @@ require_admin_login();
         <button id="saveTxBtn" type="button" class="px-6 py-2.5 rounded-xl bg-[#d61b1b] text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>Save changes</button>
       </div>
     </div>
+
+    <?= tracker_status_admin_guide_html() ?>
   </div>
 
   <style>

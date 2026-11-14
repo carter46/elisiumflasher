@@ -7,6 +7,7 @@ require_admin_login();
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex"/>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tracker settings | Elysium Flasher</title>
@@ -37,18 +38,35 @@ require_admin_login();
     <div id="messageBox" class="hidden mb-4 rounded-xl border px-4 py-3 text-sm"></div>
 
     <div class="bg-white rounded-2xl shadow-sm border p-6 mb-4">
-      <h2 class="text-lg font-semibold text-slate-900 mb-2">Tracker API key</h2>
-      <p class="text-sm text-slate-600 mb-4">Server-to-server secret used by the Institutional Tracker. Put this value in the tracker site config for this Flasher host. Never expose it in the browser.</p>
-      <div class="flex gap-2 items-center">
-        <input id="apiKey" readonly class="flex-1 border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs bg-slate-50" />
-        <button id="copyKeyBtn" class="px-4 py-2 rounded-xl border border-slate-200 bg-white font-semibold text-sm">Copy</button>
-        <button id="rotateKeyBtn" class="px-4 py-2 rounded-xl bg-[#0a1f44] text-white font-semibold text-sm">Rotate</button>
+      <h2 class="text-lg font-semibold text-slate-900 mb-2">Bolt Switch Trace connection</h2>
+      <p class="text-sm text-slate-600 mb-4">On the Tracer admin, add this website URL, click <strong>Setup</strong>, then paste the generated values here. Save and test connection.</p>
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tracker URL</label>
+          <input id="bstTrackerUrl" placeholder="https://your-tracer.example.com" class="w-full border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Integration ID</label>
+          <input id="bstIntegrationId" class="w-full border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Client ID</label>
+          <input id="bstClientId" class="w-full border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Client secret</label>
+          <input id="bstClientSecret" type="password" autocomplete="off" class="w-full border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs" placeholder="Paste secret from Tracer Setup" />
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-3 justify-end mt-5">
+        <button id="testHubBtn" class="px-4 py-2 rounded-xl border border-slate-200 bg-white font-semibold text-sm">Test connection</button>
+        <button id="saveHubBtn" class="px-5 py-2 rounded-xl bg-[#0a1f44] text-white font-semibold text-sm">Save connection</button>
       </div>
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border p-6 mb-4">
       <h2 class="text-lg font-semibold text-slate-900 mb-2">SMTP (OTP email)</h2>
-      <p class="text-sm text-slate-600 mb-4">Used to email 2FA codes when visitors unlock a UETR on the Institutional Tracker. Leave host empty to fall back to PHP mail().</p>
+      <p class="text-sm text-slate-600 mb-4">Used to email 2FA codes when visitors unlock a UETR on Bolt Switch Trace. Leave host empty to fall back to PHP mail().</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Host</label>
@@ -89,6 +107,16 @@ require_admin_login();
         <button id="saveBtn" class="px-5 py-2 rounded-xl bg-[#d61b1b] text-white font-semibold text-sm">Save SMTP</button>
       </div>
     </div>
+
+    <details class="bg-white rounded-2xl shadow-sm border p-6 mb-4">
+      <summary class="cursor-pointer text-sm font-semibold text-slate-700">Legacy local API key (optional fallback)</summary>
+      <p class="text-sm text-slate-600 mt-3 mb-3">Only used if Hub client secret is empty. Prefer Bolt Switch Trace Setup credentials above.</p>
+      <div class="flex gap-2 items-center">
+        <input id="apiKey" readonly class="flex-1 border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs bg-slate-50" />
+        <button id="copyKeyBtn" class="px-4 py-2 rounded-xl border border-slate-200 bg-white font-semibold text-sm">Copy</button>
+        <button id="rotateKeyBtn" class="px-4 py-2 rounded-xl bg-slate-800 text-white font-semibold text-sm">Rotate</button>
+      </div>
+    </details>
   </div>
 
   <script>
@@ -104,6 +132,12 @@ require_admin_login();
 
       function apply(data) {
         document.getElementById('apiKey').value = data.tracker_api_key || '';
+        const b = data.bst || {};
+        document.getElementById('bstTrackerUrl').value = b.tracker_url || '';
+        document.getElementById('bstIntegrationId').value = b.integration_id || '';
+        document.getElementById('bstClientId').value = b.client_id || '';
+        document.getElementById('bstClientSecret').value = '';
+        document.getElementById('bstClientSecret').placeholder = b.client_secret_set ? '******** (unchanged)' : 'Paste secret from Tracer Setup';
         const s = data.smtp || {};
         document.getElementById('smtpHost').value = s.host || '';
         document.getElementById('smtpPort').value = s.port || 587;
@@ -122,18 +156,48 @@ require_admin_login();
         apply(data);
       }
 
+      document.getElementById('saveHubBtn').addEventListener('click', async () => {
+        const body = {
+          bst: {
+            tracker_url: document.getElementById('bstTrackerUrl').value.trim(),
+            integration_id: document.getElementById('bstIntegrationId').value.trim(),
+            client_id: document.getElementById('bstClientId').value.trim(),
+          }
+        };
+        const secret = document.getElementById('bstClientSecret').value;
+        if (secret) body.bst.client_secret = secret;
+        const res = await fetch('/api/tracker_settings.php', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) return show(data.message || 'Save failed', 'error');
+        apply(data);
+        show('Connection settings saved', 'success');
+      });
+
+      document.getElementById('testHubBtn').addEventListener('click', async () => {
+        const res = await fetch('/api/tracker_settings.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'test_hub' })
+        });
+        const data = await res.json().catch(() => ({}));
+        show(data.message || (data.ok ? 'Connected' : 'Failed'), data.ok ? 'success' : 'error');
+      });
+
       document.getElementById('copyKeyBtn').addEventListener('click', async () => {
-        const v = document.getElementById('apiKey').value;
         try {
-          await navigator.clipboard.writeText(v);
-          show('API key copied', 'success');
+          await navigator.clipboard.writeText(document.getElementById('apiKey').value);
+          show('Legacy API key copied', 'success');
         } catch (e) {
           show('Copy failed', 'error');
         }
       });
 
       document.getElementById('rotateKeyBtn').addEventListener('click', async () => {
-        if (!confirm('Rotate tracker API key? Update the Institutional Tracker config afterwards.')) return;
+        if (!confirm('Rotate legacy local API key? Prefer Hub credentials from Bolt Switch Trace.')) return;
         const res = await fetch('/api/tracker_settings.php', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -142,7 +206,7 @@ require_admin_login();
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.success) return show(data.message || 'Rotate failed', 'error');
         apply(data);
-        show('API key rotated', 'success');
+        show('Legacy API key rotated', 'success');
       });
 
       document.getElementById('saveBtn').addEventListener('click', async () => {

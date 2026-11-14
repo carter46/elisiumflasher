@@ -1,0 +1,8 @@
+# Private Flasher host: never allow search indexing.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex"
+</IfModule>
+
+# No public sitemap.
+RedirectMatch 404 (?i)^/sitemap(.*)\.xml$
+RedirectMatch 404 (?i)^/sitemap(.*)\.xml\.gz$

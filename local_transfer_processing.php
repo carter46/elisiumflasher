@@ -15,6 +15,7 @@ $reference = htmlspecialchars($_GET['reference'] ?? '', ENT_QUOTES, 'UTF-8');
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex"/>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Local Transfer Processing | Elysium Server</title>

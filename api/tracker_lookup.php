@@ -19,12 +19,17 @@ tracker_flasher_ensure_schema($pdo);
 $input = $_SERVER['REQUEST_METHOD'] === 'POST' ? tracker_json_body() : $_GET;
 $uetr = tracker_uetr_normalize((string) ($input['uetr'] ?? ''));
 $token = trim((string) ($input['unlock_token'] ?? ''));
+$hubDirect = !empty($input['hub_direct']);
 
 if (!tracker_uetr_is_valid($uetr)) {
     json_response(['success' => false, 'message' => 'Invalid UETR'], 422);
 }
-if ($token === '' || !tracker_otp_unlock_valid($pdo, $uetr, $token)) {
-    json_response(['success' => false, 'message' => 'Unlock token required or expired'], 401);
+// Hub-authenticated Tracer may load payload after its own license gate (hub_direct).
+// Otherwise require a short-lived unlock token from email OTP.
+if (!$hubDirect) {
+    if ($token === '' || !tracker_otp_unlock_valid($pdo, $uetr, $token)) {
+        json_response(['success' => false, 'message' => 'Unlock token required or expired'], 401);
+    }
 }
 
 $tx = tracker_find_local_by_uetr($pdo, $uetr);

@@ -9,6 +9,7 @@ $txId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex"/>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Transfer Successful | Elysium Server</title>

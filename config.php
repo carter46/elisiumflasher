@@ -88,3 +88,21 @@ if (!defined('FCM_SERVICE_ACCOUNT_JSON')) {
     // Filesystem path to Firebase service-account JSON on the server.
     define('FCM_SERVICE_ACCOUNT_JSON', getenv('FCM_SERVICE_ACCOUNT_JSON') ?: '');
 }
+
+/**
+ * Keep Flasher private: tell crawlers never to index or archive any response.
+ */
+function apply_private_site_headers(): void
+{
+    if (PHP_SAPI === 'cli' || headers_sent()) {
+        return;
+    }
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+    header('X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex', false);
+}
+
+apply_private_site_headers();
