@@ -9,17 +9,26 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/tracker_api_auth.php';
 require_once __DIR__ . '/../includes/tracker_store.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    json_response(['success' => false, 'ok' => false, 'message' => 'Method not allowed'], 405);
+try {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        json_response(['success' => false, 'ok' => false, 'message' => 'Method not allowed'], 405);
+    }
+
+    $pdo = get_db();
+    tracker_flasher_ensure_schema($pdo);
+    tracker_require_api_key($pdo);
+
+    json_response([
+        'success' => true,
+        'ok' => true,
+        'message' => 'Elysium Flasher tracker endpoint reachable',
+        'host' => 'elysium-flasher',
+    ]);
+} catch (Throwable $e) {
+    error_log('tracker_health.php: ' . $e->getMessage());
+    json_response([
+        'success' => false,
+        'ok' => false,
+        'message' => 'Health check failed on Elysium Flasher: ' . $e->getMessage(),
+    ], 500);
 }
-
-$pdo = get_db();
-tracker_flasher_ensure_schema($pdo);
-tracker_require_api_key($pdo);
-
-json_response([
-    'success' => true,
-    'ok' => true,
-    'message' => 'Elysium Flasher tracker endpoint reachable',
-    'host' => 'elysium-flasher',
-]);

@@ -36,16 +36,36 @@ function tracker_uetr_generate(): string
 
 /**
  * Generate a UETR that does not already exist in the given table.column.
+ * On Server, also avoids collisions with the other rail table when present.
  */
 function tracker_uetr_generate_unique(PDO $pdo, string $table, string $column = 'uetr', int $maxAttempts = 8): string
 {
     $table = preg_replace('/[^a-z0-9_]/i', '', $table) ?: 'local_transactions';
     $column = preg_replace('/[^a-z0-9_]/i', '', $column) ?: 'uetr';
+    $checkTables = [$table];
+    if ($table === 'local_transactions') {
+        $checkTables[] = 'international_transactions';
+    } elseif ($table === 'international_transactions') {
+        $checkTables[] = 'local_transactions';
+    }
+    $checkTables = array_values(array_unique($checkTables));
+
     for ($i = 0; $i < $maxAttempts; $i++) {
         $uetr = tracker_uetr_generate();
-        $stmt = $pdo->prepare("SELECT 1 FROM {$table} WHERE {$column} = ? LIMIT 1");
-        $stmt->execute([$uetr]);
-        if (!$stmt->fetch()) {
+        $taken = false;
+        foreach ($checkTables as $t) {
+            try {
+                $stmt = $pdo->prepare("SELECT 1 FROM {$t} WHERE {$column} = ? LIMIT 1");
+                $stmt->execute([$uetr]);
+                if ($stmt->fetch()) {
+                    $taken = true;
+                    break;
+                }
+            } catch (Throwable $e) {
+                // table may not exist
+            }
+        }
+        if (!$taken) {
             return $uetr;
         }
     }

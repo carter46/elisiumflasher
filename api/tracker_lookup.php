@@ -8,33 +8,42 @@ require_once __DIR__ . '/../includes/tracker_otp.php';
 require_once __DIR__ . '/../includes/tracker_store.php';
 require_once __DIR__ . '/../includes/tracker_payload.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
-    json_response(['success' => false, 'message' => 'Method not allowed'], 405);
-}
-
-$pdo = get_db();
-tracker_require_api_key($pdo);
-tracker_flasher_ensure_schema($pdo);
-
-$input = $_SERVER['REQUEST_METHOD'] === 'POST' ? tracker_json_body() : $_GET;
-$uetr = tracker_uetr_normalize((string) ($input['uetr'] ?? ''));
-$token = trim((string) ($input['unlock_token'] ?? ''));
-$hubDirect = !empty($input['hub_direct']);
-
-if (!tracker_uetr_is_valid($uetr)) {
-    json_response(['success' => false, 'message' => 'Invalid UETR'], 422);
-}
-// Hub-authenticated Tracer may load payload after its own license gate (hub_direct).
-// Otherwise require a short-lived unlock token from email OTP.
-if (!$hubDirect) {
-    if ($token === '' || !tracker_otp_unlock_valid($pdo, $uetr, $token)) {
-        json_response(['success' => false, 'message' => 'Unlock token required or expired'], 401);
+try {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'GET') {
+        json_response(['success' => false, 'message' => 'Method not allowed'], 405);
     }
-}
 
-$tx = tracker_find_local_by_uetr($pdo, $uetr);
-if (!$tx) {
-    json_response(['success' => false, 'found' => false, 'message' => 'Transaction not found'], 404);
-}
+    $pdo = get_db();
+    tracker_require_api_key($pdo);
+    tracker_flasher_ensure_schema($pdo);
 
-json_response(tracker_build_payload($tx, 'local'));
+    $input = $_SERVER['REQUEST_METHOD'] === 'POST' ? tracker_json_body() : $_GET;
+    $uetr = tracker_uetr_normalize((string) ($input['uetr'] ?? ''));
+    $token = trim((string) ($input['unlock_token'] ?? ''));
+    $hubDirect = !empty($input['hub_direct']);
+
+    if (!tracker_uetr_is_valid($uetr)) {
+        json_response(['success' => false, 'message' => 'Invalid UETR'], 422);
+    }
+    // Hub-authenticated Tracer may load payload after its own license gate (hub_direct).
+    // Otherwise require a short-lived unlock token from email OTP.
+    if (!$hubDirect) {
+        if ($token === '' || !tracker_otp_unlock_valid($pdo, $uetr, $token)) {
+            json_response(['success' => false, 'message' => 'Unlock token required or expired'], 401);
+        }
+    }
+
+    $tx = tracker_find_local_by_uetr($pdo, $uetr);
+    if (!$tx) {
+        json_response(['success' => false, 'found' => false, 'message' => 'Transaction not found'], 404);
+    }
+
+    json_response(tracker_build_payload($tx, 'local'));
+} catch (Throwable $e) {
+    error_log('tracker_lookup.php: ' . $e->getMessage());
+    json_response([
+        'success' => false,
+        'found' => false,
+        'message' => 'Lookup error on Elysium Flasher: ' . $e->getMessage(),
+    ], 500);
+}
